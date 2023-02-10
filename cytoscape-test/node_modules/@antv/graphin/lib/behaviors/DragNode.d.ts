@@ -1,0 +1,41 @@
+import * as React from 'react';
+declare const defaultConfig: {
+    /**
+     * @description 是否禁用该功能
+     * @default false
+     */
+    disabled: boolean;
+    /**
+     * @description 是否在拖拽节点时更新所有与之相连的边，默认为 true
+     * @default true
+     */
+    updateEdge: boolean;
+    /**
+     * @description 节点拖拽时的绘图属性
+     * @default { strokeOpacity: 0.6, fillOpacity: 0.6 }
+     */
+    delegateStyle: {};
+    /**
+     * @description 是否开启delegate
+     * @default false
+     */
+    enableDelegate: boolean;
+    /**
+     * @description 拖动节点过程中是否只改变 Combo 的大小，而不改变其结构
+     * @default false
+     */
+    onlyChangeComboSize: boolean;
+    /**
+     * @description 拖动过程中目标 combo 状态样式
+     * @default ''
+     */
+    comboActiveState: string;
+    /**
+     * @description 选中样式
+     * @default selected
+     */
+    selectedState: string;
+};
+export declare type DragNodeProps = Partial<typeof defaultConfig>;
+declare const DragNode: React.FunctionComponent<DragNodeProps>;
+export default DragNode;

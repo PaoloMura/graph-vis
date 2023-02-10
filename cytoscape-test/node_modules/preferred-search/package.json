@@ -1,0 +1,19 @@
+{
+  "name": "preferred-search",
+  "version": "1.0.0",
+  "description": "Search files by priority",
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hiroppy/preferred-search.git"
+  },
+  "author": "abouthiroppy <git@about-hiroppy.com> (http://about-hiroppy.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hiroppy/preferred-search/issues"
+  },
+  "homepage": "https://github.com/hiroppy/preferred-search#readme"
+}

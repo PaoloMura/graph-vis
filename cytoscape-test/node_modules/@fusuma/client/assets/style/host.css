@@ -1,0 +1,165 @@
+@import './variable';
+
+.disabled {
+  pointer-events: none;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.host-container {
+  background: var(--color-black);
+  display: grid;
+  padding: 0 20px;
+  height: 100vh;
+  min-width: 720px;
+  grid-template-rows: 1fr 50px;
+  grid-template-columns: 1fr 480px;
+  grid-template-areas:
+    'left right'
+    'bottom bottom';
+
+  & > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.host-left-box {
+  grid-area: left;
+  margin: 20px 0;
+  color: var(--color-white);
+  width: calc(100vw - 480px - 20px * 2);
+
+  & > .host-note {
+    & pre {
+      background: transparent !important;
+      font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+      font-size: 20px;
+      white-space: pre-wrap;
+      padding: 0;
+      border: 0;
+    }
+  }
+}
+
+.host-right-box {
+  grid-area: right;
+  margin: 20px 0;
+
+  & > .host-slide-layer {
+    height: calc(100% / 2);
+    position: relative;
+    width: 100%;
+
+    & > h2,
+    & > svg {
+      background: rgba(100, 100, 100, 0.6);
+      color: var(--color-white) !important;
+      position: absolute;
+      top: 0;
+      margin: 0;
+      height: 40px;
+    }
+
+    & > h2 {
+      font-size: 20px;
+      line-height: 2;
+      left: 0;
+      padding: 2px 12px;
+    }
+
+    & > svg {
+      right: 0;
+      padding: 2px 6px;
+      width: 40px;
+    }
+  }
+}
+
+.host-bottom-box {
+  grid-area: bottom;
+  align-items: center;
+  color: var(--color-main);
+  justify-content: center;
+  text-align: center;
+  flex-direction: row;
+  position: relative;
+
+  & > .terminate-button {
+    border-bottom: none;
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    height: 24px;
+    width: 24px;
+  }
+
+  & > .host-bottom-box-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+
+    & > *:not(:first-child) {
+      margin-left: 20px;
+    }
+
+    & > .current-slide-num {
+      font-size: 24px;
+    }
+
+    & > .host-timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+
+      & > *:not(:first-child) {
+        margin-left: 20px;
+      }
+
+      & > svg {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.host-timeline-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.host-timeline-audio {
+  height: 60px;
+  width: 100%;
+
+  & > audio {
+    outline: none;
+    width: 100%;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+
+.host-timeline-body {
+  height: calc(100% - 60px);
+  overflow: auto;
+}
+
+.host-slide-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  & > * {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+}
