@@ -1,13 +1,18 @@
 import React from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
+import cytoscape from 'cytoscape'
 import './App.css'
 import cyStyle from './cy-style.json'
+import cola from 'cytoscape-cola'
+
+cytoscape.use(cola)
 
 function Graph (props) {
   // Local variables
   let settings = props.settings
   let controls = props.controls
   let editingEdge = null
+  let layout = null
 
   let edgeClasses = []
   if (settings.weighted) edgeClasses.push('weighted')
@@ -15,7 +20,21 @@ function Graph (props) {
   edgeClasses = edgeClasses.join(' ')
 
   // Cytoscape parameters
-  const layout = { name: 'grid', rows: 1 }
+  const initialLayoutOptions = {
+    name: 'cola',
+    animate: true,
+    infinite: true,
+    edgeLength: 100,
+    centerGraph: true,
+    randomize: true
+  }
+  const layoutOptions = {
+    name: 'cola',
+    animate: true,
+    infinite: true,
+    edgeLength: 100,
+    centerGraph: false,
+  }
   const elements = [
     { data: { id: 'v1' } },
     { data: { id: 'v2' } },
@@ -56,6 +75,9 @@ function Graph (props) {
       },
       classes: edgeClasses
     })
+    if (layout != null) layout.stop()
+    layout = cy.layout(layoutOptions)
+    layout.start()
   }
 
   // ACTIONS
@@ -73,6 +95,9 @@ function Graph (props) {
       position: { x: x, y: y },
       data: { id: label }
     })
+    if (layout != null) layout.stop()
+    layout = cy.layout(layoutOptions)
+    layout.start()
   }
 
   function unselect (cy, event) {
@@ -171,7 +196,7 @@ function Graph (props) {
       <CytoscapeComponent
         id={'cy'}
         elements={elements}
-        layout={layout}
+        layout={initialLayoutOptions}
         stylesheet={cyStyle}
         cy={(cy) => { setListeners(cy) }}
       />
