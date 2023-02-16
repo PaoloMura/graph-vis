@@ -1,0 +1,54 @@
+[
+  {
+    "selector": "node",
+    "style": {
+      "background-color": "#fff",
+      "border-style": "solid",
+      "border-width": 2,
+      "label": "data(id)",
+      "text-valign": "center",
+      "text-halign": "center"
+    }
+  },
+  {
+    "selector": "node:selected",
+    "style": {
+      "background-color": "#c00"
+    }
+  },
+  {
+    "selector": "edge",
+    "style": {
+      "width": 3,
+      "line-color": "#000",
+      "curve-style": "bezier",
+      "background-color": "#fff"
+    }
+  },
+  {
+    "selector": "edge:selected",
+    "style": {
+      "line-color": "#c00",
+      "source-arrow-color": "#c00",
+      "target-arrow-color": "#c00"
+    }
+  },
+  {
+    "selector": ".weighted",
+    "style": {
+      "label": "data(weight)",
+      "text-background-color": "#fff",
+      "text-background-opacity": 1,
+      "text-border-color": "#fff",
+      "text-border-width": 5,
+      "text-border-opacity": 1
+    }
+  },
+  {
+    "selector": ".directed",
+    "style": {
+      "target-arrow-color": "#000",
+      "target-arrow-shape": "triangle"
+    }
+  }
+]

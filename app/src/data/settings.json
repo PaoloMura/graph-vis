@@ -1,0 +1,26 @@
+[
+  {
+    "setting": "weighted",
+    "options": [
+      "false",
+      "true"
+    ],
+    "default": "false"
+  },
+  {
+    "setting": "directed",
+    "options": [
+      "false",
+      "true"
+    ],
+    "default": "false"
+  },
+  {
+    "setting": "loops",
+    "options": [
+      "false",
+      "true"
+    ],
+    "default": "false"
+  }
+]
