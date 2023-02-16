@@ -80,6 +80,16 @@ function Graph (props) {
     layout.start()
   }
 
+  function updateLayout (cy) {
+    if (layout != null) layout.stop()
+    layout = cy.layout(layoutOptions)
+    layout.start()
+  }
+
+  function isPositional (event) {
+    return ['tap', 'cxttap'].includes(event.type)
+  }
+
   // ACTIONS
 
   function noop (cy, event) {
@@ -87,17 +97,20 @@ function Graph (props) {
   }
 
   function createNode (cy, event) {
-    let x = event.position.x
-    let y = event.position.y
     let label = nextVertexLabel(cy)
-    cy.add({
-      group: 'nodes',
-      position: { x: x, y: y },
-      data: { id: label }
-    })
-    if (layout != null) layout.stop()
-    layout = cy.layout(layoutOptions)
-    layout.start()
+    if (isPositional(event)) {
+      cy.add({
+        group: 'nodes',
+        position: { x: event.position.x, y: event.position.y },
+        data: { id: label }
+      })
+    } else {
+      cy.add({
+        group: 'nodes',
+        data: { id: label }
+      })
+    }
+    updateLayout(cy)
   }
 
   function unselect (cy, event) {
@@ -134,6 +147,7 @@ function Graph (props) {
     if (selected[0] != null) cy.remove(selected[0])
   }
 
+  // TODO: finish adding support for editing weights
   function editWeight (cy, event) {
     if (!settings.weighted) return
     if (editingEdge === null) {

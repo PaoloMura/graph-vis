@@ -1,0 +1,22 @@
+[
+  {
+    "action": "noop",
+    "positional": false
+  },
+  {
+    "action": "createEdge",
+    "positional": true
+  },
+  {
+    "action": "unselect",
+    "positional": false
+  },
+  {
+    "action": "remove",
+    "positional": false
+  },
+  {
+    "action": "createNode",
+    "positional": false
+  }
+]
