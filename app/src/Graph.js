@@ -35,34 +35,21 @@ function Graph (props) {
     edgeLength: 100,
     centerGraph: false,
   }
-  const elements = [
-    { data: { id: 'v1' } },
-    { data: { id: 'v2' } },
-    {
-      data: {
-        id: 'e12',
-        source: 'v1',
-        target: 'v2',
-        weight: '5'
-      },
-      classes: edgeClasses
-    }
-  ]
 
   // HELPER FUNCTIONS
 
   function nextVertexLabel (cy) {
     // Sort the existing vertex labels in order
     let vertices = cy.$('node')
-      .map(x => parseInt(x.id().slice(1)))
+      .map(x => parseInt(x.id()))
       .sort((a, b) => a - b)
-    // Find the smallest available integer > 0
-    let prev = 0
+    // Find the smallest available integer >= 0
+    let prev = -1
     for (let v of vertices) {
       if (v === prev + 1) prev = v
       else break
     }
-    return 'v' + (prev + 1)
+    return prev + 1
   }
 
   function addEdge (cy, v1, v2) {
@@ -88,6 +75,30 @@ function Graph (props) {
 
   function isPositional (event) {
     return ['tap', 'cxttap'].includes(event.type)
+  }
+
+  // INITIALISATION
+
+  function initialise (cy, data, fromFile) {
+    cy.remove(cy.nodes())
+    if (fromFile) {
+      cy.json(data)
+    } else {
+      cy.add([
+        { data: { id: '0' } },
+        { data: { id: '1' } },
+        {
+          data: {
+            id: '01',
+            source: '0',
+            target: '1',
+            weight: '5'
+          },
+          classes: edgeClasses
+        }
+      ])
+    }
+    updateLayout(cy)
   }
 
   // ACTIONS
@@ -209,10 +220,13 @@ function Graph (props) {
     <>
       <CytoscapeComponent
         id={'cy'}
-        elements={elements}
+        // elements={elements}
         layout={initialLayoutOptions}
         stylesheet={cyStyle}
-        cy={(cy) => { setListeners(cy) }}
+        cy={(cy) => {
+          initialise(cy, props.data, true)
+          setListeners(cy)
+        }}
       />
     </>
   )

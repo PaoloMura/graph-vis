@@ -1,11 +1,15 @@
 import React from 'react'
 import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import settings from './data/settings.json'
-import controls from './data/controls.json'
-import actions from './data/actions.json'
+import sampleGraph from './sample_graph.json'
+import question from './sample_question.json'
+import topic from './sample_topic.json'
 import Graph from './Graph'
-import Settings from './components/Setting'
-import Controls from './components/Controls'
+import Question from './components/Question'
 
 function App () {
   let graphSettings = {}
@@ -40,12 +44,29 @@ function App () {
 
   return (
     <div className={'Graph-area'}>
-      <h1>React-Cytoscape Test</h1>
-      <Graph settings={graphSettings} controls={graphControls}></Graph>
-      <h2>Settings:</h2>
-      <Settings settings={settings}/>
-      <h2>Controls:</h2>
-      <Controls controls={controls} actions={actions}/>
+      <h1>Topic: {topic.name}</h1>
+      <Container>
+        <Row>
+          <Col xs={9}>
+            <Graph
+              settings={graphSettings}
+              controls={graphControls}
+              data={sampleGraph}
+            />
+          </Col>
+          <Col>
+            <Question
+              number={1}
+              message={question.description}
+            />
+          </Col>
+        </Row>
+      </Container>
+
+      {/*<h2>Settings:</h2>*/}
+      {/*<Settings settings={settings}/>*/}
+      {/*<h2>Controls:</h2>*/}
+      {/*<Controls controls={controls} actions={actions}/>*/}
     </div>
   )
 }
