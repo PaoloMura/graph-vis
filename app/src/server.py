@@ -1,10 +1,11 @@
+import cgi
 import importlib
 import json
 
 import networkx as nx
 
-import nx2c
-from question import Question
+import converter
+from src.question import *
 
 
 # Teacher Functions
@@ -23,7 +24,7 @@ def delete_question(teacher: str, lesson: str, question: str):
 
 # Student Functions
 
-def load_question(teacher: str, file: str, question: str) -> Question:
+def load_question(teacher: str, file: str, question: str) -> (Question, str):
     # TODO: add handling for modules/classes not found errors
     filepath = f"src.teachers.{teacher}.questions.{file}"
     importlib.invalidate_caches()
@@ -31,6 +32,7 @@ def load_question(teacher: str, file: str, question: str) -> Question:
         mod = importlib.import_module(filepath)
         try:
             cls = getattr(mod, question)
+            # TODO: use this to determine the question type
         except AttributeError as e:
             raise e
         obj = cls()
@@ -48,25 +50,40 @@ def get_lesson(teacher: str, lesson: str):
 
 
 def get_question(teacher: str, file: str, question: str):
-    # TODO: pack graph and qtn into json and send over HTTP
+    # Load the question
     q = load_question(teacher, file, question)
+
+    # Generate its data
+    q_type = type(q).__bases__[0].__name__
     graph = q.generate_graph()
-    qst = q.generate_question()
-    nx2c.export_graph(graph)
-    nx2c.export_question(qst)
+    message = q.generate_question(graph)
+
+    # Export to JSON
+    converter.export_question(q_type, message, graph)
+
+    # TODO: send over HTTP
 
 
 def get_answer(teacher: str, file: str, question: str, graph: nx.Graph, solution: list[int]):
     q = load_question(teacher, file, question)
     success = q.verify_solution(graph, solution)
-    message = q.generate_answer(graph, solution)
+    message = q.generate_feedback(graph, solution)
 
 
 # Server
 
-def main():
+def test():
     get_lesson('paolo', 'walks')
     get_question('paolo', 'euler_walk', 'EulerWalk')
+
+
+def main():
+    form = cgi.FieldStorage()
+    try:
+        answer = form['answer'].value
+        print(answer)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':

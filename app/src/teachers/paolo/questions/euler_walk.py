@@ -1,9 +1,9 @@
-from src.question import Question
+from src.question import QSelectPath
 import networkx as nx
 from random import randint
 
 
-class EulerWalk(Question):
+class EulerWalk(QSelectPath):
     def __init__(self):
         super().__init__()
 
@@ -15,7 +15,7 @@ class EulerWalk(Question):
             graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
         return graph
 
-    def generate_question(self) -> str:
+    def generate_question(self, graph: nx.Graph) -> str:
         question = """Find an Euler walk in the graph.\n\nSelect vertices in order."""
         return question
 
@@ -29,7 +29,7 @@ class EulerWalk(Question):
                 return False
         return nx.is_empty(graph)
 
-    def generate_answer(self, graph: nx.Graph, solution: list[int]) -> str:
+    def generate_feedback(self, graph: nx.Graph, solution: list[int]) -> str:
         if self.verify_solution(graph, solution):
             return "Correct!"
         else:

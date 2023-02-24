@@ -1,14 +1,9 @@
 import React from 'react'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
 import settings from './data/settings.json'
-import sampleGraph from './sample_graph.json'
 import question from './sample_question.json'
 import topic from './sample_topic.json'
-import Graph from './Graph'
 import Question from './components/Question'
 
 function App () {
@@ -45,24 +40,12 @@ function App () {
   return (
     <div className={'Graph-area'}>
       <h1>Topic: {topic.name}</h1>
-      <Container>
-        <Row>
-          <Col xs={9}>
-            <Graph
-              settings={graphSettings}
-              controls={graphControls}
-              data={sampleGraph}
-            />
-          </Col>
-          <Col>
-            <Question
-              number={1}
-              message={question.description}
-            />
-          </Col>
-        </Row>
-      </Container>
-
+      <Question
+        question={question}
+        number={1}
+        graphSettings={graphSettings}
+        graphControls={graphControls}
+      />
       {/*<h2>Settings:</h2>*/}
       {/*<Settings settings={settings}/>*/}
       {/*<h2>Controls:</h2>*/}

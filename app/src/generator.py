@@ -1,5 +1,5 @@
 import networkx as nx
-import nx2c
+import converter
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     G = nx.gnp_random_graph(5, 0.7, seed=None, directed=False)
 
     # This exports the graph to JSON format to be read and displayed by Cytoscape:
-    nx2c.export(G, False, False)
+    converter.export(G, False, False)
 
 
 if __name__ == '__main__':

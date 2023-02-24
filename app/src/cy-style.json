@@ -50,5 +50,14 @@
       "target-arrow-color": "#000",
       "target-arrow-shape": "triangle"
     }
+  },
+  {
+    "selector": ".highlight",
+    "style": {
+      "background-color": "#c00",
+      "line-color": "#c00",
+      "source-arrow-color": "#c00",
+      "target-arrow-color": "#c00"
+    }
   }
 ]
