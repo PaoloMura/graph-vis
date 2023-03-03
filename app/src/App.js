@@ -7,13 +7,14 @@ import Home from './components/Home'
 import TeacherLogin from './components/TeacherLogin'
 import useToken from './components/useToken'
 import Teacher from './components/Teacher'
+import Header from './components/Header'
 
 function App () {
   const { token, removeToken, setToken } = useToken()
 
   return (
     <div>
-      <h1 id={'title'}>Graph Theory Question Generator</h1>
+      <Header token={token} removeToken={removeToken}/>
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<Home/>}/>

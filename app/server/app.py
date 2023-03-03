@@ -1,5 +1,6 @@
+from constants import *
 from datetime import datetime, timedelta, timezone
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from flask_cors import CORS  # comment this on deployment
 from flask_jwt_extended import (
     create_access_token,
@@ -9,6 +10,10 @@ from flask_jwt_extended import (
     jwt_required,
     JWTManager)
 import json
+import os
+from resources import delete_topic, update_topic, get_topic
+
+# Initial Setup
 
 app = Flask(__name__)
 CORS(app)  # comment this on deployment
@@ -17,6 +22,8 @@ app.config["JWT_SECRET_KEY"] = "please-remember-to-change-me"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 jwt = JWTManager(app)
 
+
+# Authentication
 
 @app.after_request
 def refresh_expiring_jwts(response):
@@ -53,6 +60,59 @@ def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
     return response
+
+
+# Server
+
+@app.route('/api/teacher/content')
+@jwt_required()
+def get_content():
+    """Return a list of question files and topics"""
+    try:
+        questions = os.listdir(QUESTIONS_PATH)
+        topics = []
+        with open(TOPICS_FILE, 'r') as f:
+            data = json.load(f)
+            topics = [{'topic_code': item, 'name': data[item]['name']} for item in data]
+        content = {
+            'questions': questions,
+            'topics': topics
+        }
+        return content
+    except FileNotFoundError:
+        return 'File not found', 404
+
+
+@app.route('/api/teacher/questions/<file>', methods=['DELETE'])
+@jwt_required()
+def access_file(file):
+    """Handle requests on the question file resources"""
+    if os.path.exists(QUESTIONS_PATH + file):
+        os.remove(QUESTIONS_PATH + file)
+        return 'Success', 201
+    else:
+        return 'File not found', 404
+
+
+@app.route('/api/teacher/topics/<topic_code>', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
+def access_topic(topic_code):
+    """Handle requests on the topics resource"""
+    if request.method == 'DELETE':
+        return delete_topic(topic_code)
+    elif request.method == 'PUT':
+        data = dict()
+        data['name'] = request.json.get('name')
+        data['description'] = request.json.get('description')
+        data['settings'] = request.json.get('settings')
+        data['questions'] = request.json.get('questions')
+        return update_topic(topic_code, data)
+    elif request.method == 'GET':
+        topic = get_topic(topic_code)
+        if not topic:
+            abort(404)
+        else:
+            return topic
 
 
 @app.route('/api')

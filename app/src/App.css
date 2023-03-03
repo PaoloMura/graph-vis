@@ -63,11 +63,17 @@ h1, h2 {
     max-width: 80vw;
 }
 
-#title {
+#header {
     padding: 20px 0;
     background-color: #cccccc;
     border-style: solid;
     border-width: 0 0 3px;
+    position: initial;
+}
+
+#btn-logout {
+    position: absolute;
+    top: 30px;
 }
 
 .Login-box {
@@ -93,4 +99,8 @@ h1, h2 {
     position: absolute;
     right: 0;
     margin-right: calc(var(--bs-gutter-x) * .5) !important;
+}
+
+td {
+    text-align: center;
 }
