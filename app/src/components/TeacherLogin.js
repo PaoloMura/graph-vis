@@ -1,31 +1,64 @@
-import React from 'react'
+import React, { useState } from 'react'
+import axios from 'axios'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
 
-function TeacherLogin () {
+function TeacherLogin (props) {
+  const [loginForm, setloginForm] = useState({
+    username: '',
+    password: ''
+  })
+
+  function logMeIn (event) {
+    axios({
+      method: 'POST',
+      url: '/api/token',
+      data: {
+        username: loginForm.username,
+        password: loginForm.password
+      }
+    })
+      .then((response) => {
+        props.setToken(response.data.access_token)
+      }).catch((error) => {
+      if (error.response) {
+        console.log(error.response)
+        console.log(error.response.status)
+        console.log(error.headers)
+      }
+    })
+  }
+
+  function handleChange (event) {
+    const { value, name } = event.target
+    setloginForm(prevNote => ({
+      ...prevNote, [name]: value
+    }))
+  }
+
   return (
     <>
       <Form className={'Login-box'}>
         <h2>Teacher Login</h2>
-        <Button variant={'secondary'} href={'/'} className={'Login-row'}>Back</Button>
-        <Form.Group className={'Login-row'}>
-          <Form.Label>Username</Form.Label>
-          <Form.Control placeholder={'Enter username'}></Form.Control>
-        </Form.Group>
-        <Form.Group className={'Login-row'}>
-          <Form.Label>Password</Form.Label>
-          <Form.Control type={'password'} placeholder={'Enter password'}></Form.Control>
-        </Form.Group>
-        <Row className={'Login-row'}>
-          <Col>
-            <Button variant={'secondary'} href={'/teacher-signup'}>Create account</Button>
-          </Col>
-          <Col className={'Right-button-container'}>
-            <Button variant={'primary'} href={'/'} className={'Right-button'}>Login</Button>
-          </Col>
-        </Row>
+        <Button variant={'secondary'} href={'/'}>Back</Button>
+        <Form.Control
+          className={'Login-row'}
+          onChange={handleChange}
+          placeholder={'Username'}
+          text={loginForm.username}
+          value={loginForm.username}
+          name={'username'}
+        />
+        <Form.Control
+          className={'Login-row'}
+          type={'password'}
+          onChange={handleChange}
+          placeholder={'Password'}
+          text={loginForm.password}
+          value={loginForm.password}
+          name={'password'}
+        />
+        <Button variant={'primary'} onClick={logMeIn} className={'Login-row'}>Login</Button>
       </Form>
     </>
   )

@@ -7,8 +7,8 @@ function Home () {
     <div>
       <div className={'Home-box'}>
         <Stack gap={5}>
-          <Button href={'/teacher-login'}>Teacher</Button>
-          <Button href={'/choose-topic'}>Student</Button>
+          <Button href={'/teacher'}>Teacher</Button>
+          <Button href={'/student/portal'}>Student</Button>
         </Stack>
       </div>
     </div>

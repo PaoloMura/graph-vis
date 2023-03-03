@@ -10,19 +10,14 @@ function ChooseTopic () {
       <Form className={'Login-box'}>
         <h2>Choose a Topic</h2>
         <Form.Group className={'Login-row'}>
-          <Form.Label>Teacher</Form.Label>
-          <Form.Control placeholder={'Enter teacher ID'}></Form.Control>
-        </Form.Group>
-        <Form.Group className={'Login-row'}>
-          <Form.Label>Topic code</Form.Label>
-          <Form.Control placeholder={'Enter topic ID'}></Form.Control>
+          <Form.Control placeholder={'Topic code'}></Form.Control>
         </Form.Group>
         <Row className={'Login-row'}>
           <Col>
             <Button variant={'secondary'} href={'/'}>Back</Button>
           </Col>
           <Col className={'Right-button-container'}>
-            <Button variant={'primary'} href={'/'} className={'Right-button'}>Login</Button>
+            <Button variant={'primary'} href={'/'} className={'Right-button'}>Submit</Button>
           </Col>
         </Row>
       </Form>
