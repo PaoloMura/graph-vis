@@ -232,6 +232,8 @@ function Graph (props) {
     cy.on('cxttap', 'edge', (event) => { props.controls['cxttap_edge'](actions, event) })
 
     // Handle key presses
+    // TODO: I think I can fix this double problem by turning it into an effect that only gets called on mount
+    // TODO: It should return a function that removes the event listener.
     const handleKeyDown = (event) => {
       props.controls['keypress'](actions, event)
     }

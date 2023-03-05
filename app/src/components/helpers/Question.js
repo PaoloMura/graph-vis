@@ -1,10 +1,10 @@
 import React from 'react'
-import Graph from '../Graph'
+import Graph from '../../Graph'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
 import Output from './Output'
-import question from '../sample_question.json'
+import question from '../../sample_question.json'
 
 function Question (props) {
   // const [test, setTest] = useState([])

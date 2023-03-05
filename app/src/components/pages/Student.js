@@ -1,8 +1,8 @@
 import React from 'react'
-import Question from './Question'
-import settings from '../data/settings.json'
-import question from '../sample_question.json'
-import topic from '../sample_topic.json'
+import Question from '../helpers/Question'
+import settings from '../../data/settings.json'
+import question from '../../sample_question.json'
+import topic from '../../sample_topic.json'
 
 function Student () {
   let graphSettings = {}

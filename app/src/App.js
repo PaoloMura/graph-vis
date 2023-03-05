@@ -2,12 +2,12 @@ import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import ChooseTopic from './components/ChooseTopic'
-import Home from './components/Home'
-import TeacherLogin from './components/TeacherLogin'
-import useToken from './components/useToken'
-import Teacher from './components/Teacher'
-import Header from './components/Header'
+import ChooseTopic from './components/pages/ChooseTopic'
+import Home from './components/pages/Home'
+import TeacherLogin from './components/pages/TeacherLogin'
+import useToken from './components/functions/useToken'
+import Teacher from './components/pages/Teacher'
+import Header from './components/pages/Header'
 
 function App () {
   const { token, removeToken, setToken } = useToken()
