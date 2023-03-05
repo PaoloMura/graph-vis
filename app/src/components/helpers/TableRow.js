@@ -20,10 +20,10 @@ function Link ({ text }) {
   )
 }
 
-function DeleteButton () {
+function DeleteButton ({ item, onDelete }) {
   return (
     <td>
-      <IconButton>
+      <IconButton onClick={(e) => onDelete(item, e)}>
         <DeleteIcon/>
       </IconButton>
     </td>
@@ -43,12 +43,14 @@ function ShareButton () {
 export default function TableRow ({
   text,
   link,
-  share
+  myKey,
+  share,
+  onDelete
 }) {
   return (
     <tr>
       {link ? <Link text={text}/> : <Text text={text}/>}
-      <DeleteButton/>
+      <DeleteButton item={myKey} onDelete={onDelete}/>
       {share && <ShareButton/>}
     </tr>
   )

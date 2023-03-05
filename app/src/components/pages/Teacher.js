@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col'
 import { Table } from 'react-bootstrap'
 import TableRow from '../helpers/TableRow'
 import BottomRow from '../helpers/BottomRow'
+import DeleteModal from '../helpers/DeleteModal'
 
 function Teacher ({ token, setToken }) {
   function setInitialContent () {
@@ -16,6 +17,66 @@ function Teacher ({ token, setToken }) {
   }
 
   const [content, setContent] = useState(setInitialContent)
+  const [delFile, setDelFile] = useState('')
+  const [delTopic, setDelTopic] = useState('')
+
+  const handleOpenDelFile = (item) => setDelFile(item)
+  const handleCloseDelFile = () => setDelFile('')
+  const handleDelFile = () => {
+    // Delete the file from the server
+    axios({
+      method: 'DELETE',
+      url: '/api/teacher/questions/' + delFile,
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    }).then((response) => {
+      // Update the access token if necessary
+      const res = response.data
+      res.access_token && setToken(res.access_token)
+      // Remove the file from our local list
+      setContent({
+        ...content,
+        questions: content.questions.filter(q => q !== delFile)
+      })
+      setDelFile('')
+    }).catch((error) => {
+      if (error.response) {
+        console.log(error.response)
+        console.log(error.response.status)
+        console.log(error.response.headers)
+      }
+    })
+  }
+
+  const handleOpenDelTopic = (item) => setDelTopic(item)
+  const handleCloseDelTopic = () => setDelTopic('')
+  const handleDelTopic = () => {
+    // Delete the topic from the server
+    axios({
+      method: 'DELETE',
+      url: '/api/teacher/topics/' + delTopic,
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    }).then((response) => {
+      // Update the access token if necessary
+      const res = response.data
+      res.access_token && setToken(res.access_token)
+      // Remove the topic from our local list
+      setContent({
+        ...content,
+        topics: content.topics.filter(t => t.topic_code !== delTopic)
+      })
+      setDelTopic('')
+    }).catch((error) => {
+      if (error.response) {
+        console.log(error.response)
+        console.log(error.response.status)
+        console.log(error.response.headers)
+      }
+    })
+  }
 
   useEffect(() => {
     axios({
@@ -49,7 +110,12 @@ function Teacher ({ token, setToken }) {
             <Table bordered hover>
               <tbody>
               {content.questions.map((question) => (
-                <TableRow key={question} text={question}/>
+                <TableRow
+                  key={question}
+                  text={question}
+                  myKey={question}
+                  onDelete={handleOpenDelFile}
+                />
               ))}
               <BottomRow colSpan={2}/>
               </tbody>
@@ -60,7 +126,14 @@ function Teacher ({ token, setToken }) {
             <Table bordered hover>
               <tbody>
               {content.topics.map((topic) => (
-                <TableRow key={topic.topic_code} text={topic.name} link={true} share={true}/>
+                <TableRow
+                  key={topic.topic_code}
+                  text={topic.name}
+                  link={true}
+                  myKey={topic.topic_code}
+                  share={true}
+                  onDelete={handleOpenDelTopic}
+                />
               ))}
               <BottomRow colSpan={3}/>
               </tbody>
@@ -68,6 +141,8 @@ function Teacher ({ token, setToken }) {
           </Col>
         </Row>
       </Container>
+      <DeleteModal deleting={delFile} closeDelete={handleCloseDelFile} performDelete={handleDelFile}/>
+      <DeleteModal deleting={delTopic} closeDelete={handleCloseDelTopic} performDelete={handleDelTopic}/>
     </div>
   )
 }
