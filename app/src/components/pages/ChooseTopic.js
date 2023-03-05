@@ -17,7 +17,7 @@ function ChooseTopic () {
             <Button variant={'secondary'} href={'/'}>Back</Button>
           </Col>
           <Col className={'Right-button-container'}>
-            <Button variant={'primary'} href={'/'} className={'Right-button'}>Submit</Button>
+            <Button variant={'primary'} href={'/student/topic'} className={'Right-button'}>Submit</Button>
           </Col>
         </Row>
       </Form>

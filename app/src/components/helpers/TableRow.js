@@ -1,7 +1,7 @@
 import React from 'react'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
-import ShareIcon from '@mui/icons-material/Share'
+import LinkIcon from '@mui/icons-material/Link'
 import Button from 'react-bootstrap/Button'
 
 function Text ({ text }) {
@@ -34,7 +34,7 @@ function ShareButton () {
   return (
     <td>
       <IconButton>
-        <ShareIcon/>
+        <LinkIcon/>
       </IconButton>
     </td>
   )

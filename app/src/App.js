@@ -8,6 +8,7 @@ import TeacherLogin from './components/pages/TeacherLogin'
 import useToken from './components/functions/useToken'
 import Teacher from './components/pages/Teacher'
 import Header from './components/pages/Header'
+import Student from './components/pages/Student'
 
 function App () {
   const { token, removeToken, setToken } = useToken()
@@ -28,6 +29,7 @@ function App () {
               />
           }/>
           <Route path="/student/portal" element={<ChooseTopic/>}/>
+          <Route path="/student/topic" element={<Student/>}/>
         </Routes>
       </BrowserRouter>
     </div>
