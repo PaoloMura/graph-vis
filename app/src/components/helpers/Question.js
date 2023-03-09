@@ -3,9 +3,10 @@ import Graph from './Graph'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
-import Output from './Output'
+import QuestionInput from './QuestionInput'
+import QuestionOutput from './QuestionOutput'
 
-function Question ({ question, questionNumber, setState }) {
+function Question ({ question, questionNumber, progress, setProgress, nextQuestion }) {
   const setInitialAnswer = () => {
     switch (question.type) {
       case 'QSelectPath':
@@ -16,6 +17,8 @@ function Question ({ question, questionNumber, setState }) {
   }
 
   const [answer, setAnswer] = useState(setInitialAnswer)
+  const [inProgress, setInProgress] = useState(true)
+  const [explanation, setExplanation] = useState('')
   let inputAnswer = false
   let controls
   let settings
@@ -77,10 +80,19 @@ function Question ({ question, questionNumber, setState }) {
   }
 
   const submitAnswer = () => {
-    setState({
-      value: answer,
-      status: question.solutions.includes(answer) ? 'correct' : 'incorrect'
-    })
+    // TODO: change how we process answers depending on the settings
+    // Determine whether the answer is correct
+    const result = question.solutions.includes(answer)
+    // Update your progress status
+    const thisProgress = {
+      answer: result,
+      status: result ? 'correct' : 'incorrect'
+    }
+    setProgress(progress.map((item, index) => {
+      return index === questionNumber - 1 ? thisProgress : item
+    }))
+    // Display the result screen
+    setInProgress(false)
   }
 
   return (
@@ -95,13 +107,25 @@ function Question ({ question, questionNumber, setState }) {
             />
           </Col>
           <Col>
-            <Output
-              number={questionNumber}
-              message={question.description}
-              answer={answer}
-              editable={inputAnswer}
-              onSubmit={submitAnswer}
-            />
+            {
+              inProgress &&
+              <QuestionInput
+                number={questionNumber}
+                message={question.description}
+                answer={answer}
+                editable={inputAnswer}
+                onSubmit={submitAnswer}
+              />
+            }
+            {
+              !inProgress &&
+              <QuestionOutput
+                number={questionNumber}
+                success={answer.status === 'correct'}
+                message={explanation}
+                onSubmit={nextQuestion}
+              />
+            }
           </Col>
         </Row>
       </Container>

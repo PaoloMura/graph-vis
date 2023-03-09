@@ -2,7 +2,7 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-function Output ({ number, message, answer, setAnswer, editable, onSubmit }) {
+function QuestionInput ({ number, message, answer, setAnswer, editable, onSubmit }) {
   return (
     <>
       <h2>Question {number}</h2>
@@ -27,4 +27,4 @@ function Output ({ number, message, answer, setAnswer, editable, onSubmit }) {
   )
 }
 
-export default Output
+export default QuestionInput

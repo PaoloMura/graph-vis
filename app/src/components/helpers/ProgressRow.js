@@ -15,7 +15,7 @@ export default function ProgressRow ({ clickable, questions }) {
   const setInitialAnswers = () => new Array(questions.length).fill(undefined)
 
   const [selected, setSelected] = useState(0)
-  const [answers, setAnswers] = useState(setInitialAnswers)
+  const [progress, setProgress] = useState(setInitialAnswers)
 
   const onSelect = (k) => {
     if (clickable) {
@@ -23,9 +23,13 @@ export default function ProgressRow ({ clickable, questions }) {
     }
   }
 
+  const nextQuestion = () => {
+    setSelected(selected + 1)
+  }
+
   return (
     <Tabs justify activeKey={selected} onSelect={onSelect}>
-      {answers.map((item, index) => {
+      {progress.map((item, index) => {
         let variant = item === undefined ? variants.undefined : variants[item.status]
         return (
           <Tab
@@ -38,7 +42,9 @@ export default function ProgressRow ({ clickable, questions }) {
             <Question
               question={questions[index]}
               questionNumber={index + 1}
-              state={item}
+              progress={progress}
+              setProgress={setProgress}
+              nextQuestion={nextQuestion}
             />
           </Tab>
         )
