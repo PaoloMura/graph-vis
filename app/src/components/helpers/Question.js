@@ -1,14 +1,22 @@
-import React from 'react'
-import Graph from '../../Graph'
+import React, { useState } from 'react'
+import Graph from './Graph'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
 import Output from './Output'
-import question from '../../sample_question.json'
 
-function Question (props) {
-  // const [test, setTest] = useState([])
-  let output
+function Question ({ question, questionNumber, setState }) {
+  const setInitialAnswer = () => {
+    switch (question.type) {
+      case 'QSelectPath':
+        return []
+      default:
+        return []
+    }
+  }
+
+  const [answer, setAnswer] = useState(setInitialAnswer)
+  let inputAnswer = false
   let controls
   let settings
 
@@ -18,21 +26,19 @@ function Question (props) {
 
   function SelectVertex (actions, event) {
     let vertex = event.target.id()
-    output.push(vertex)
+    setAnswer([...answer, vertex])
     // setTest(prev => [...prev, vertex])
-    // actions['highlightVertex'](vertex, true)
-    if (output.length > 1) {
-      let v1 = output[output.length - 2]
-      let v2 = output[output.length - 1]
+    actions['highlightVertex'](vertex, true)
+    if (answer.length > 1) {
+      let v1 = answer[answer.length - 2]
+      let v2 = answer[answer.length - 1]
       actions['highlightEdge'](v1, v2, true)
     }
   }
 
   function UnselectVertex (actions, event) {
     if (event.key === 'Backspace') {
-      let vertex = output.pop()
-      console.log(vertex)
-      console.log(output)
+      setAnswer(answer.slice(0, -1))
       // TODO: fix the double event problem with key presses
     }
   }
@@ -44,7 +50,7 @@ function Question (props) {
     'cxttap_bg': noop,
     'cxttap_node': noop,
     'cxttap_edge': noop,
-    'keypress': UnselectVertex
+    'keypress': noop
   }
 
   const qSelectPathSettings = {
@@ -58,16 +64,23 @@ function Question (props) {
     'loops': false
   }
 
-  switch (props.question.q_type) {
+  switch (question.type) {
     case 'QSelectPath':
-      output = []
       controls = qSelectPathControls
       settings = qSelectPathSettings
+      inputAnswer = false
       break
     default:
-      output = []
       controls = qSelectPathControls
       settings = qSelectPathSettings
+      inputAnswer = false
+  }
+
+  const submitAnswer = () => {
+    setState({
+      value: answer,
+      status: question.solutions.includes(answer) ? 'correct' : 'incorrect'
+    })
   }
 
   return (
@@ -78,14 +91,16 @@ function Question (props) {
             <Graph
               settings={settings}
               controls={controls}
-              data={props.question.graph}
+              data={question.graph}
             />
           </Col>
           <Col>
             <Output
-              number={1}
-              question={question}
-              output={output}
+              number={questionNumber}
+              message={question.description}
+              answer={answer}
+              editable={inputAnswer}
+              onSubmit={submitAnswer}
             />
           </Col>
         </Row>

@@ -1,8 +1,8 @@
 import React from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
 import cytoscape from 'cytoscape'
-import './App.css'
-import cyStyle from './cy-style.json'
+import '../../App.css'
+import cyStyle from '../../cy-style.json'
 import cola from 'cytoscape-cola'
 
 cytoscape.use(cola)
@@ -14,7 +14,7 @@ function Graph (props) {
   let layout = null
   let cy = null
 
-  let actions = {
+  const actions = {
     'createNode': createNode,
     'createEdge': createEdge,
     'unselect': unselect,
@@ -230,15 +230,16 @@ function Graph (props) {
 
     // Right-click on an edge
     cy.on('cxttap', 'edge', (event) => { props.controls['cxttap_edge'](actions, event) })
-
-    // Handle key presses
-    // TODO: I think I can fix this double problem by turning it into an effect that only gets called on mount
-    // TODO: It should return a function that removes the event listener.
-    const handleKeyDown = (event) => {
-      props.controls['keypress'](actions, event)
-    }
-    document.addEventListener('keydown', handleKeyDown, true)
   }
+
+  // TODO: add in safe key presses
+  // useEffect(() => {
+  //   const handleKeyDown = (event) => props.controls['keypress'](actions, event)
+  //   document.addEventListener('keydown', handleKeyDown, true)
+  //   return () => {
+  //     document.removeEventListener('keydown', handleKeyDown)
+  //   }
+  // }, [actions, props.controls])
 
   return (
     <>

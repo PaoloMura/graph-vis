@@ -24,7 +24,6 @@ class EulerWalk(QSelectPath):
         # This has time complexity O(n!), so is a case where you either
         # want to only generate small graphs, or use the verification functions instead
         solutions = set()
-        print(graph.nodes())
         for source in graph.nodes():
             for target in graph.nodes():
                 for path in nx.all_simple_paths(graph, source=source, target=target):

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Question from '../helpers/Question'
 import settings from '../../data/settings.json'
-import question from '../../sample_question.json'
 import topic from '../../sample_topic.json'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
@@ -22,7 +20,6 @@ function Student () {
 
   const [data, setData] = useState(setInitialData)
   const [err, setErr] = useState(true)
-  const [answers, setAnswers] = useState([])
 
   useEffect(() => {
     axios({
@@ -31,7 +28,6 @@ function Student () {
     }).then((response) => {
       const res = response.data
       setData(res)
-      setAnswers(new Array(res.questions.length).fill(undefined))
       setErr(false)
     }).catch((error) => {
       if (error.response) {
@@ -78,17 +74,7 @@ function Student () {
     return (
       <>
         <h1>Topic: {topic.name}</h1>
-        <ProgressRow items={answers} clickable={!data.settings.linear}/>
-        <Question
-          question={question}
-          number={1}
-          graphSettings={graphSettings}
-          graphControls={graphControls}
-        />
-        {/*<h2>Settings:</h2>*/}
-        {/*<Settings settings={settings}/>*/}
-        {/*<h2>Controls:</h2>*/}
-        {/*<Controls controls={controls} actions={actions}/>*/}
+        <ProgressRow clickable={!data.settings.linear} questions={data.questions}/>
       </>
     )
   }
