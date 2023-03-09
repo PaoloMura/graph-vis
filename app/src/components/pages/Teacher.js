@@ -9,6 +9,7 @@ import BottomRow from '../helpers/BottomRow'
 import DeleteModal from '../helpers/DeleteModal'
 import FileUploadModal from '../helpers/FileUploadModal'
 import TopicModal from '../helpers/TopicModal'
+import CodeModal from '../helpers/CodeModal'
 
 function Teacher ({ token, setToken }) {
   function setInitialContent () {
@@ -24,6 +25,7 @@ function Teacher ({ token, setToken }) {
   const [showFileUpload, setShowFileUpload] = useState(false)
   const [showTopic, setShowTopic] = useState(false)
   const [selectedTopic, setSelectedTopic] = useState('')
+  const [selectedCode, setSelectedCode] = useState('0')
 
   const handleOpenDelFile = (item) => setDelFile(item)
   const handleCloseDelFile = () => setDelFile('')
@@ -129,6 +131,8 @@ function Teacher ({ token, setToken }) {
     })
   }
 
+  const handleCloseCode = () => setSelectedCode('0')
+
   useEffect(() => {
     axios({
       method: 'GET',
@@ -182,7 +186,7 @@ function Teacher ({ token, setToken }) {
                   text={topic.name}
                   link={handleSelectTopic}
                   myKey={topic.topic_code}
-                  share={true}
+                  share={setSelectedCode}
                   onDelete={handleOpenDelTopic}
                 />
               ))}
@@ -210,6 +214,11 @@ function Teacher ({ token, setToken }) {
         topicCode={selectedTopic !== '' ? selectedTopic : '0'}
         files={content.questions}
         addTopic={addTopic}
+      />
+      <CodeModal
+        showModal={selectedCode !== '0'}
+        closeModal={handleCloseCode}
+        topicCode={selectedCode}
       />
     </div>
   )

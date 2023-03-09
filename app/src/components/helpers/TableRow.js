@@ -31,10 +31,10 @@ function DeleteButton ({ item, onDelete }) {
   )
 }
 
-function ShareButton () {
+function ShareButton ({ myKey, onShare }) {
   return (
     <td>
-      <IconButton>
+      <IconButton onClick={(e) => onShare(myKey, e)}>
         <LinkIcon/>
       </IconButton>
     </td>
@@ -82,7 +82,7 @@ export default function TableRow ({
       {choices && <DropDown selected={selectedChoice} choices={choices} onChange={onChangeOption} myKey={myKey}/>}
       {input !== undefined && <TextInput myKey={myKey} text={input} onChange={onChangeInput}/>}
       <DeleteButton item={myKey} onDelete={onDelete}/>
-      {share && <ShareButton/>}
+      {share !== undefined && <ShareButton myKey={myKey} onShare={share}/>}
     </tr>
   )
 }
