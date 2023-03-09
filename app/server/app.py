@@ -94,6 +94,21 @@ def access_file(file):
         return 'File not found', 404
 
 
+@app.route('/api/upload/file', methods=['POST'])
+@jwt_required()
+def upload_file():
+    """Handle question file upload"""
+    file = request.files['file']
+    if file.content_type != 'text/x-python-script':
+        return 'File type must be a Python script', 400
+    filename = file.filename
+    destination = QUESTIONS_PATH + filename
+    if os.path.exists(destination):
+        return 'File already exists', 400
+    file.save(destination)
+    return 'Success', 201
+
+
 @app.route('/api/teacher/topics/<topic_code>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def access_topic(topic_code):

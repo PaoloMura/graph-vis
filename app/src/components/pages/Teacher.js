@@ -7,6 +7,8 @@ import { Table } from 'react-bootstrap'
 import TableRow from '../helpers/TableRow'
 import BottomRow from '../helpers/BottomRow'
 import DeleteModal from '../helpers/DeleteModal'
+import FileUploadModal from '../helpers/FileUploadModal'
+import TopicModal from '../helpers/TopicModal'
 
 function Teacher ({ token, setToken }) {
   function setInitialContent () {
@@ -19,6 +21,9 @@ function Teacher ({ token, setToken }) {
   const [content, setContent] = useState(setInitialContent)
   const [delFile, setDelFile] = useState('')
   const [delTopic, setDelTopic] = useState('')
+  const [showFileUpload, setShowFileUpload] = useState(false)
+  const [showTopic, setShowTopic] = useState(false)
+  const [selectedTopic, setSelectedTopic] = useState('')
 
   const handleOpenDelFile = (item) => setDelFile(item)
   const handleCloseDelFile = () => setDelFile('')
@@ -78,6 +83,52 @@ function Teacher ({ token, setToken }) {
     })
   }
 
+  const handleOpenFileUpload = () => setShowFileUpload(true)
+  const handleCloseFileUpload = () => setShowFileUpload(false)
+  const validateFile = (file) => {
+    // Check for errors
+    let reason = ''
+    if (file === undefined || file === null) reason = 'No file selected'
+    else if (file.type !== 'text/x-python-script') reason = 'File type must be a Python script'
+    else if (content.questions.includes(file.name)) reason = 'File with this name already uploaded'
+    // Return the result
+    let valid = reason === ''
+    return { valid, reason }
+  }
+  const addFile = (filename) => {
+    setContent({
+      ...content,
+      questions: [
+        ...content.questions,
+        filename
+      ]
+    })
+  }
+
+  const handleSelectTopic = (topicCode) => setSelectedTopic(topicCode)
+  const handleNewTopic = () => setShowTopic(true)
+  const handleCloseTopic = () => {
+    setSelectedTopic('')
+    setShowTopic(false)
+  }
+  const addTopic = (topicCode, topicName) => {
+    // Either edit an existing topic
+    for (let topic of content.topics) {
+      if (topic.topic_code === topicCode) {
+        topic.name = topicName
+        return
+      }
+    }
+    // Or add a new one
+    setContent({
+      ...content,
+      topics: [
+        ...content.topics,
+        { topic_code: topicCode, name: topicName }
+      ]
+    })
+  }
+
   useEffect(() => {
     axios({
       method: 'GET',
@@ -117,7 +168,7 @@ function Teacher ({ token, setToken }) {
                   onDelete={handleOpenDelFile}
                 />
               ))}
-              <BottomRow colSpan={2}/>
+              <BottomRow colSpan={2} onClick={handleOpenFileUpload}/>
               </tbody>
             </Table>
           </Col>
@@ -129,13 +180,13 @@ function Teacher ({ token, setToken }) {
                 <TableRow
                   key={topic.topic_code}
                   text={topic.name}
-                  link={true}
+                  link={handleSelectTopic}
                   myKey={topic.topic_code}
                   share={true}
                   onDelete={handleOpenDelTopic}
                 />
               ))}
-              <BottomRow colSpan={3}/>
+              <BottomRow colSpan={3} onClick={handleNewTopic}/>
               </tbody>
             </Table>
           </Col>
@@ -143,6 +194,23 @@ function Teacher ({ token, setToken }) {
       </Container>
       <DeleteModal deleting={delFile} closeDelete={handleCloseDelFile} performDelete={handleDelFile}/>
       <DeleteModal deleting={delTopic} closeDelete={handleCloseDelTopic} performDelete={handleDelTopic}/>
+      <FileUploadModal
+        showModal={showFileUpload}
+        closeModal={handleCloseFileUpload}
+        token={token}
+        setToken={setToken}
+        validateFile={validateFile}
+        addFile={addFile}
+      />
+      <TopicModal
+        showModal={selectedTopic !== '' || showTopic}
+        closeModal={handleCloseTopic}
+        token={token}
+        setToken={setToken}
+        topicCode={selectedTopic !== '' ? selectedTopic : '0'}
+        files={content.questions}
+        addTopic={addTopic}
+      />
     </div>
   )
 }

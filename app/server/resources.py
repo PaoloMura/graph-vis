@@ -43,7 +43,7 @@ def update_topic(topic_code: str, topic: dict):
             data = json.load(f)
             if topic_code == '0' or topic_code not in data:
                 topic_code = __generate_topic_code(list(data.keys()))
-                data[topic_code] = topic
+            data[topic_code] = topic
         with open(TOPICS_FILE, 'w') as f:
             json.dump(data, f)
         return topic_code, 201
