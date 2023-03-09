@@ -12,6 +12,7 @@ from flask_jwt_extended import (
 import json
 import os
 from resources import delete_topic, update_topic, get_topic
+from server import load_question, generate_question
 
 # Initial Setup
 
@@ -69,7 +70,7 @@ def logout():
 def get_content():
     """Return a list of question files and topics"""
     try:
-        questions = os.listdir(QUESTIONS_PATH)
+        questions = list(filter(lambda x: x.endswith('.py'), os.listdir(QUESTIONS_PATH)))
         topics = []
         with open(TOPICS_FILE, 'r') as f:
             data = json.load(f)
@@ -112,7 +113,7 @@ def upload_file():
 @app.route('/api/teacher/topics/<topic_code>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def access_topic(topic_code):
-    """Handle requests on the topics resource"""
+    """Handle requests on the topics resource for teachers"""
     if request.method == 'DELETE':
         return delete_topic(topic_code)
     elif request.method == 'PUT':
@@ -130,19 +131,23 @@ def access_topic(topic_code):
             return topic
 
 
-@app.route('/api')
-def hello_world():  # put application's code here
-    return 'Hello World!'
-
-
-@app.route('/api/profile')
-@jwt_required()
-def my_profile():
-    response_body = {
-        "name": "Paolo",
-        "about": "Hello! I'm a full stack developer that loves python and javascript"
-    }
-    return response_body
+@app.route('/api/student/topics/<topic_code>', methods=['GET'])
+def access_topic_data(topic_code):
+    """Handle requests on the topics resource for students"""
+    topic, status = get_topic(topic_code)
+    if status // 100 != 2:
+        return 'Error trying to access topic', status
+    result = dict(topic)
+    if not topic:
+        abort(404)
+    for i, question in enumerate(topic['questions']):
+        q_file = question['file']
+        q_class = question['class']
+        try:
+            result['questions'][i] = generate_question(q_file, q_class)
+        except Exception as e:
+            return f'Error trying to access question class "{q_file}:{q_class}": {e}', 400
+    return result
 
 
 if __name__ == '__main__':

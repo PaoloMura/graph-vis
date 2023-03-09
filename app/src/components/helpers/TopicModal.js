@@ -20,10 +20,12 @@ export default function TopicModal ({
 
   function setInitialData () {
     return {
-      'name': '',
-      'description': '',
-      'settings': {},
-      'questions': []
+      name: '',
+      description: '',
+      settings: {
+        linear: true
+      },
+      questions: []
     }
   }
 
@@ -124,6 +126,16 @@ export default function TopicModal ({
     })
   }
 
+  const setLinear = () => {
+    setData({
+      ...data,
+      settings: {
+        ...data.settings,
+        linear: !data.settings.linear
+      }
+    })
+  }
+
   const validateForm = () => {
     let valid = true
     if (data.name === '') {
@@ -191,9 +203,9 @@ export default function TopicModal ({
           </Form.Group>
           <h3>Settings</h3>
           <Form.Group as={Row} controlId="formSettings" className="mb-3">
-            <Form.Label column sm={3}>Show solutions</Form.Label>
+            <Form.Label column sm={3}>Linear progression</Form.Label>
             <Col sm={9}>
-              <Form.Check type="checkbox"/>
+              <Form.Check type="checkbox" checked={data.settings.linear} onChange={setLinear}/>
             </Col>
           </Form.Group>
           <h3>Questions</h3>

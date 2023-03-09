@@ -29,7 +29,7 @@ function App () {
               />
           }/>
           <Route path="/student/portal" element={<ChooseTopic/>}/>
-          <Route path="/student/topic" element={<Student/>}/>
+          <Route path="/student/topics/:topic_code" element={<Student/>}/>
         </Routes>
       </BrowserRouter>
     </div>

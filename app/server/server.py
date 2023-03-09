@@ -5,82 +5,60 @@ import json
 import networkx as nx
 
 import converter
+from constants import *
 from data.graphquest.question import *
 
 
-# Teacher Functions
+# Question Testing
 
-def upload_question(teacher: str, lesson: str, question: str) -> None:
+def test_file():
+    # TODO: verify whether a given question file contains valid classes
     pass
 
 
-def edit_question(teacher: str, lesson: str, question: str):
-    pass
+# Question Generation
 
-
-def delete_question(teacher: str, lesson: str, question: str):
-    pass
-
-
-# Student Functions
-
-def load_question(teacher: str, file: str, question: str) -> (Question, str):
-    # TODO: add handling for modules/classes not found errors
-    filepath = f"src.teachers.{teacher}.questions.{file}"
+def load_question(file: str, qclass: str) -> Question:
+    """Create an object from the specified file and Question class"""
+    filepath = QUESTIONS_PATH + file.replace('.py', '')
+    filepath = filepath.replace('/', '.')
     importlib.invalidate_caches()
     try:
         mod = importlib.import_module(filepath)
         try:
-            cls = getattr(mod, question)
-            # TODO: use this to determine the question type
+            cls = getattr(mod, qclass)
+            obj = cls()
+            return obj
         except AttributeError as e:
             raise e
-        obj = cls()
-        return obj
     except ModuleNotFoundError as e:
         raise e
 
 
-def get_lesson(teacher: str, lesson: str):
-    # TODO: send json over HTTP
-    with open(f"teachers/{teacher}/topics/{lesson}.json", "r") as f:
-        data = json.load(f)
-        with open('sample_topic.json', 'w') as g:
-            json.dump(data, g)
-
-
-def get_question(teacher: str, file: str, question: str):
-    # Load the question
-    q = load_question(teacher, file, question)
-
-    # Generate its data
+def generate_question(q_file: str, q_class: str) -> dict:
+    q = load_question(q_file, q_class)
     q_type = type(q).__bases__[0].__name__
-    graph = q.generate_graph()
-    message = q.generate_question(graph)
-
-    # Export to JSON
-    converter.export_question(q_type, message, graph)
-
-    # TODO: send over HTTP
-
-
-def get_answer(teacher: str, file: str, question: str, graph: nx.Graph, solution: list[int]):
-    q = load_question(teacher, file, question)
-    success = q.verify_solution(graph, solution)
-    message = q.generate_feedback(graph, solution)
-
-
-# Server
-
-def test():
-    get_lesson('paolo', 'walks')
-    get_question('paolo', 'euler_walk', 'EulerWalk')
+    data = q.generate_data()
+    q_descr = q.generate_question(data)
+    q_sols = list(q.generate_solutions(data))
+    q_sett = q.__dict__
+    q_graph = converter.nx2cy(data)
+    return {
+        'file': q_file,
+        'class': q_class,
+        'type': q_type,
+        'settings': q_sett,
+        'description': q_descr,
+        'graph': q_graph,
+        'solutions': q_sols
+    }
 
 
-def main():
-    form = cgi.FieldStorage()
-    try:
-        answer = form['answer'].value
-        print(answer)
-    except Exception as e:
-        print(e)
+# Answer verification
+
+def generate_result(question: Question, answer: any) -> bool:
+    return True
+
+
+def generate_feedback(question: Question, answer: any) -> str:
+    return ''

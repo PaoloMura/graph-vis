@@ -2,7 +2,7 @@ import json
 import networkx as nx
 
 
-def __nx2cy(graph: nx.Graph) -> dict:
+def nx2cy(graph: nx.Graph) -> dict:
     """Converts the given NetworkX graph to a JSON dict for Cytoscape."""
     data = nx.cytoscape_data(graph)
 
@@ -15,7 +15,7 @@ def __nx2cy(graph: nx.Graph) -> dict:
 
 def export_question(q_type: str, message: str, graph: nx.Graph):
     """Exports a question to a JSON file."""
-    graph_dict = __nx2cy(graph)
+    graph_dict = nx2cy(graph)
     data = {
         'q_type': q_type,
         'message': message,

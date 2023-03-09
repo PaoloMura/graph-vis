@@ -57,7 +57,7 @@ def get_topic(topic_code: str):
         with open(TOPICS_FILE, 'r') as f:
             data = json.load(f)
             if topic_code not in data:
-                return {}
+                return {}, 404
             return data[topic_code], 201
     else:
-        return {}
+        return {}, 404

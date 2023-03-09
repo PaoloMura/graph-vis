@@ -8,11 +8,12 @@ class Question(ABC):
 
     generate_graph(self) -> nx.Graph
     generate_question(self) -> str
-    verify_solution(self, solution: int) -> bool
+    verify_answer(self, solution: int) -> bool
     generate_feedback(self, graph: nx.Graph, solution: int) -> str
     """
     def __init__(self):
         self.layout = 'force-directed'
+        self.feedback = False
 
     @abstractmethod
     def generate_data(self) -> any:
@@ -34,7 +35,17 @@ class Question(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def verify_solution(self, graph: nx.Graph, solution: any) -> bool:
+    def generate_solutions(self, graph: nx.Graph) -> {any}:
+        """
+        Generates a set of possible solutions.
+
+        :param graph: the NetworkX graph used in the question.
+        :return: a set of possible solutions.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def verify_answer(self, graph: nx.Graph, solution: any) -> bool:
         """
         Checks whether a given solution is correct.
 
@@ -67,7 +78,17 @@ class QSelectPath(Question):
         raise NotImplementedError
 
     @abstractmethod
-    def verify_solution(self, graph: nx.Graph, solution: list[int]) -> bool:
+    def generate_solutions(self, graph: nx.Graph) -> set[list[int]]:
+        """
+        Generates a set of possible solutions.
+
+        :param graph: the NetworkX graph used in the question.
+        :return: a set of possible solutions, lists of vertices.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def verify_answer(self, graph: nx.Graph, solution: list[int]) -> bool:
         """
         Checks whether a given solution is correct.
 
