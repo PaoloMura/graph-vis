@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 
 export default function ASelectPath ({ question, onNext }) {
-  // const answer = useAnswer()
   const [answer, setAnswer] = useState([])
   const [submittted, setSubmitted] = useState(false)
   const [correct, setCorrect] = useState(false)
@@ -33,11 +32,15 @@ export default function ASelectPath ({ question, onNext }) {
 
   useEffect(() => {
     function selectVertex (event) {
-      let vertex = parseInt(event.detail.target.id(), 10)
+      // Find the selected vertex and update state
+      let vertex = parseInt(event.detail.vertex, 10)
       setAnswer([...answer, vertex])
+      // Highlight this vertex
       triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
       if (answer.length > 0) {
+        // Un-highlight the previous vertex
         triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
+        // Highlight the edge
         const params = {
           v1: answer.at(-1),
           v2: vertex,

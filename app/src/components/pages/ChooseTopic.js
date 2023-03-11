@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Header from './Header'
+import Header from '../helpers/Header'
 
 function ChooseTopic () {
   const [topicCode, setTopicCode] = useState('')

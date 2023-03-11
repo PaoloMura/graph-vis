@@ -4,7 +4,7 @@ import topic from '../../sample_topic.json'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import ProgressRow from '../helpers/ProgressRow'
-import Header from './Header'
+import Header from '../helpers/Header'
 import NotFound from '../helpers/NotFound'
 
 function Student () {

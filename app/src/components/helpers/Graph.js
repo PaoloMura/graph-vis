@@ -176,22 +176,12 @@ function Graph ({ settings, data }) {
   // LISTENERS
 
   useEffect(() => {
-    // Left-click on the background
+    // Trigger graph events
     cy.on('tap', (event) => { if (event.target === cy) triggerGraphEvent('tap_bg', event) })
-
-    // Left-click on a node
-    cy.on('tap', 'node', (event) => { triggerGraphEvent('tap_node', event) })
-
-    // Left-click on an edge
+    cy.on('tap', 'node', (event) => { triggerGraphEvent('tap_node', event.target.id()) })
     cy.on('tap', 'edge', (event) => { triggerGraphEvent('tap_edge', event) })
-
-    // Right-click on the background
     cy.on('cxttap', (event) => { if (event.target === cy) triggerGraphEvent('cxttap_bg', event) })
-
-    // Right-click on a node
     cy.on('cxttap', 'node', (event) => { triggerGraphEvent('cxttap_node', event) })
-
-    // Right-click on an edge
     cy.on('cxttap', 'edge', (event) => { triggerGraphEvent('cxttap_edge', event) })
 
     function highlightVertex (event) {
@@ -213,10 +203,12 @@ function Graph ({ settings, data }) {
       }
     }
 
+    // Subscribe to action events
     document.addEventListener('highlightVertex', highlightVertex)
     document.addEventListener('highlightEdge', highlightEdge)
 
     return () => {
+      // Cleanup is very important
       cy.removeAllListeners()
       document.removeEventListener('highlightVertex', highlightVertex)
       document.removeEventListener('highlightEdge', highlightEdge)

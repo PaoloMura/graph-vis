@@ -4,9 +4,9 @@ import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
-import BottomRow from './BottomRow'
+import BottomRow from '../helpers/BottomRow'
 import axios from 'axios'
-import TableRow from './TableRow'
+import TableRow from '../helpers/TableRow'
 
 export default function TopicModal ({
   showModal,

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import Question from './Question'
-import FinishedModal from './FinishedModal'
+import FinishedModal from '../modals/FinishedModal'
 
 export default function ProgressRow ({ topicName, clickable, questions }) {
   // TODO: use question status to highlight each question tab as you progress

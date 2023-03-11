@@ -6,11 +6,11 @@ import Col from 'react-bootstrap/Col'
 import { Table } from 'react-bootstrap'
 import TableRow from '../helpers/TableRow'
 import BottomRow from '../helpers/BottomRow'
-import DeleteModal from '../helpers/DeleteModal'
-import FileUploadModal from '../helpers/FileUploadModal'
-import TopicModal from '../helpers/TopicModal'
-import CodeModal from '../helpers/CodeModal'
-import Header from './Header'
+import DeleteModal from '../modals/DeleteModal'
+import FileUploadModal from '../modals/FileUploadModal'
+import TopicModal from '../modals/TopicModal'
+import CodeModal from '../modals/CodeModal'
+import Header from '../helpers/Header'
 
 function Teacher ({ token, removeToken, setToken }) {
   function setInitialContent () {
