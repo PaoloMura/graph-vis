@@ -2,7 +2,7 @@ import React from 'react'
 import axios from 'axios'
 import Button from 'react-bootstrap/Button'
 
-function Header ({ token, removeToken }) {
+function Header ({ btnType, backPath, removeToken }) {
 
   function logMeOut () {
     axios({
@@ -23,8 +23,12 @@ function Header ({ token, removeToken }) {
     <div id={'header'}>
       <h1>Graph Theory Question Generator</h1>
       {
-        token &&
-        <Button variant={'secondary'} onClick={logMeOut} id={'btn-logout'}>Logout</Button>
+        btnType === 'logout' &&
+        <Button variant="secondary" onClick={logMeOut} id="btn-logout">Logout</Button>
+      }
+      {
+        btnType === 'back' &&
+        <Button variant="secondary" href={backPath} id="btn-logout">Back</Button>
       }
     </div>
   )

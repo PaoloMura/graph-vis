@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from data.graphquest.question import QSelectPath
 import networkx as nx
 from random import randint
@@ -20,15 +22,37 @@ class EulerWalk(QSelectPath):
         question = """Find an Euler walk in the graph.\n\nSelect vertices in order."""
         return question
 
-    def generate_solutions(self, graph: nx.Graph) -> set[list[int]]:
-        # This has time complexity O(n!), so is a case where you either
-        # want to only generate small graphs, or use the verification functions instead
-        solutions = set()
-        for source in graph.nodes():
-            for target in graph.nodes():
-                for path in nx.all_simple_paths(graph, source=source, target=target):
-                    if self.verify_answer(graph, path):
-                        solutions.add(path)
+    def __dfs(self, graph: nx.Graph, source: int, visited: list[tuple[int, int]], path: list[int]) -> list[list[int]]:
+        neighbors = graph.neighbors(source)
+        unvisited = [n for n in neighbors if (source, n) not in visited and (n, source) not in visited]
+        # Base case: no unvisited neighbours
+        if not unvisited:
+            if set(graph.edges) == set(visited):
+                return [path.copy()]
+            else:
+                return []
+        # Recursive step: visit the unvisited neighbours
+        results = list()
+        for node in unvisited:
+            edge = [source, node]
+            edge.sort()
+            visited.append(tuple(edge))
+            path.append(node)
+            result = self.__dfs(graph, node, visited, path)
+            for r in result:
+                if r not in results:
+                    results.append(r)
+            visited.pop()
+            path.pop()
+        return results
+
+    def generate_solutions(self, graph: nx.Graph) -> list[list[int]]:
+        solutions = list()
+        for source in graph.nodes:
+            solution = self.__dfs(graph, source, [], [source])
+            for r in solution:
+                if r not in solutions:
+                    solutions.append(r)
         return solutions
 
     def verify_answer(self, graph: nx.Graph, solution: list[int]) -> bool:
@@ -49,3 +73,19 @@ class EulerWalk(QSelectPath):
             path = list(nx.eulerian_path(graph))
             result = list(map(lambda x: x[0], path)) + [path[-1][1]]
             return f'Incorrect.\n\nOne possible solution is:\n\n{result}'
+
+
+if __name__ == '__main__':
+    q = EulerWalk()
+    g = q.generate_data()
+    print('graph:')
+    print(g.nodes())
+    print(g.edges())
+    print('Generating solutions...')
+    s = q.generate_solutions(g)
+    s.sort()
+    print('solutions:')
+    for sol in s:
+        print(sol)
+        assert q.verify_answer(g, sol)
+    print('All tests pass!')

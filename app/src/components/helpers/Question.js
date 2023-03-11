@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Graph from './Graph'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Container from 'react-bootstrap/Container'
-import QuestionInput from './QuestionInput'
-import QuestionOutput from './QuestionOutput'
+import Answer from './Answer'
+import Solution from './Solution'
 
 function Question ({ question, questionNumber, progress, setProgress, nextQuestion }) {
   const setInitialAnswer = () => {
@@ -19,16 +19,38 @@ function Question ({ question, questionNumber, progress, setProgress, nextQuesti
   const [answer, setAnswer] = useState(setInitialAnswer)
   const [inProgress, setInProgress] = useState(true)
   const [explanation, setExplanation] = useState('')
-  let inputAnswer = false
-  let controls
-  let settings
+
+  const qSelectPathControls = useRef({
+    'tap_bg': addVertex,
+    'tap_node': SelectVertex,
+    'tap_edge': noop,
+    'cxttap_bg': noop,
+    'cxttap_node': noop,
+    'cxttap_edge': noop,
+    'keypress': noop
+  })
+
+  const qSelectPathSettings = useRef({
+    'autoungrabify': true,
+    'selectifyNodes': true,
+    'selectifyEdges': false,
+    'panning': false,
+    'boxSelection': false,
+    'weighted': false,
+    'directed': false,
+    'loops': false
+  })
+
+  const inputAnswer = useRef(false)
+  const controls = useRef(qSelectPathControls.current)
+  const settings = useRef(qSelectPathSettings.current)
 
   function noop (actions, event) {
     // pass
   }
 
   function SelectVertex (actions, event) {
-    let vertex = event.target.id()
+    let vertex = parseInt(event.target.id(), 10)
     setAnswer([...answer, vertex])
     // setTest(prev => [...prev, vertex])
     actions['highlightVertex'](vertex, true)
@@ -46,51 +68,39 @@ function Question ({ question, questionNumber, progress, setProgress, nextQuesti
     }
   }
 
-  const qSelectPathControls = {
-    'tap_bg': noop,
-    'tap_node': SelectVertex,
-    'tap_edge': noop,
-    'cxttap_bg': noop,
-    'cxttap_node': noop,
-    'cxttap_edge': noop,
-    'keypress': noop
+  function addVertex (actions, event) {
+    actions['createNode'](event)
   }
 
-  const qSelectPathSettings = {
-    'autoungrabify': true,
-    'selectifyNodes': true,
-    'selectifyEdges': false,
-    'panning': false,
-    'boxSelection': false,
-    'weighted': false,
-    'directed': false,
-    'loops': false
-  }
+  useEffect(() => {
+    switch (question.type) {
+      case 'QSelectPath':
+        controls.current = qSelectPathControls
+        settings.current = qSelectPathSettings
+        inputAnswer.current = false
+        break
+      default:
+        controls.current = qSelectPathControls
+        settings.current = qSelectPathSettings
+        inputAnswer.current = false
+    }
+  })
 
-  switch (question.type) {
-    case 'QSelectPath':
-      controls = qSelectPathControls
-      settings = qSelectPathSettings
-      inputAnswer = false
-      break
-    default:
-      controls = qSelectPathControls
-      settings = qSelectPathSettings
-      inputAnswer = false
-  }
+  const updateAnswer = (event) => setAnswer(event.target.value)
 
   const submitAnswer = () => {
     // TODO: change how we process answers depending on the settings
     // Determine whether the answer is correct
-    const result = question.solutions.includes(answer)
-    // Update your progress status
-    const thisProgress = {
-      answer: result,
-      status: result ? 'correct' : 'incorrect'
+    let ans = answer.toString()
+    let result = 'incorrect'
+    for (let sol of question.solutions) {
+      if (sol.toString() === ans) {
+        result = 'correct'
+        break
+      }
     }
-    setProgress(progress.map((item, index) => {
-      return index === questionNumber - 1 ? thisProgress : item
-    }))
+    // Update your progress status
+    setProgress(answer, result)
     // Display the result screen
     setInProgress(false)
   }
@@ -101,27 +111,27 @@ function Question ({ question, questionNumber, progress, setProgress, nextQuesti
         <Row>
           <Col xs={9}>
             <Graph
-              settings={settings}
-              controls={controls}
+              settings={settings.current}
+              controls={controls.current}
               data={question.graph}
             />
           </Col>
           <Col>
+            <h2>Question {questionNumber}</h2>
             {
               inProgress &&
-              <QuestionInput
-                number={questionNumber}
+              <Answer
                 message={question.description}
                 answer={answer}
+                setAnswer={updateAnswer}
                 editable={inputAnswer}
                 onSubmit={submitAnswer}
               />
             }
             {
               !inProgress &&
-              <QuestionOutput
-                number={questionNumber}
-                success={answer.status === 'correct'}
+              <Solution
+                success={progress[questionNumber - 1].status === 'correct'}
                 message={explanation}
                 onSubmit={nextQuestion}
               />

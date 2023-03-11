@@ -7,7 +7,6 @@ import Home from './components/pages/Home'
 import TeacherLogin from './components/pages/TeacherLogin'
 import useToken from './components/functions/useToken'
 import Teacher from './components/pages/Teacher'
-import Header from './components/pages/Header'
 import Student from './components/pages/Student'
 
 function App () {
@@ -15,7 +14,6 @@ function App () {
 
   return (
     <div>
-      <Header token={token} removeToken={removeToken}/>
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<Home/>}/>
@@ -24,8 +22,8 @@ function App () {
               <TeacherLogin setToken={setToken}/> :
               <Teacher
                 token={token}
-                setToken={setToken}
                 removeToken={removeToken}
+                setToken={setToken}
               />
           }/>
           <Route path="/student/portal" element={<ChooseTopic/>}/>

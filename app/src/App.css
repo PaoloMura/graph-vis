@@ -74,6 +74,7 @@ h1, h2 {
 #btn-logout {
     position: absolute;
     top: 30px;
+    margin-left: 15px;
 }
 
 .Login-box {

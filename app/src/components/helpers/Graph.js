@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
 import cytoscape from 'cytoscape'
 import '../../App.css'
@@ -7,9 +7,8 @@ import cola from 'cytoscape-cola'
 
 cytoscape.use(cola)
 
-function Graph (props) {
+function Graph ({ settings, controls, data }) {
   // Local variables
-  let settings = props.settings
   // let editingEdge = null
   let layout = null
   let cy = null
@@ -88,30 +87,14 @@ function Graph (props) {
 
   // INITIALISATION
 
-  function initialise (data, fromFile) {
+  function initialise (data) {
     cy.remove(cy.nodes())
-    if (fromFile) {
-      cy.json(data)
-      cy.autoungrabify(settings.autoungrabify)
-      cy.userPanningEnabled(settings.panning)
-      cy.boxSelectionEnabled(settings.boxSelection)
-      // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
-      settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
-    } else {
-      cy.add([
-        { data: { id: '0' } },
-        { data: { id: '1' } },
-        {
-          data: {
-            id: '01',
-            source: '0',
-            target: '1',
-            weight: '5'
-          },
-          classes: edgeClasses
-        }
-      ])
-    }
+    cy.json(data)
+    cy.autoungrabify(settings.autoungrabify)
+    cy.userPanningEnabled(settings.panning)
+    cy.boxSelectionEnabled(settings.boxSelection)
+    // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
+    settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
     updateLayout()
   }
 
@@ -173,7 +156,9 @@ function Graph (props) {
   }
 
   function highlightVertex (vid, highlight) {
+    console.log('vid:', vid)
     let vertex = cy.nodes('[id = "' + vid + '"]')[0]
+    console.log('vertex:', vertex)
     if (highlight) vertex.addClass('highlight')
     else vertex.removeClass('highlight')
   }
@@ -213,23 +198,24 @@ function Graph (props) {
   // LISTENERS
 
   function setListeners () {
+    console.log('setListeners')
     // Left-click on the background
-    cy.on('tap', (event) => { if (event.target === cy) props.controls['tap_bg'](actions, event) })
+    cy.on('tap', (event) => { if (event.target === cy) controls['tap_bg'](actions, event) })
 
     // Left-click on a node
-    cy.on('tap', 'node', (event) => { props.controls['tap_node'](actions, event) })
+    cy.on('tap', 'node', (event) => { controls['tap_node'](actions, event) })
 
     // Left-click on an edge
-    cy.on('tap', 'edge', (event) => { props.controls['tap_edge'](actions, event) })
+    cy.on('tap', 'edge', (event) => { controls['tap_edge'](actions, event) })
 
     // Right-click on the background
-    cy.on('cxttap', (event) => { if (event.target === cy) props.controls['cxttap_bg'](event) })
+    cy.on('cxttap', (event) => { if (event.target === cy) controls['cxttap_bg'](event) })
 
     // Right-click on a node
-    cy.on('cxttap', 'node', (event) => { props.controls['cxttap_node'](actions, event) })
+    cy.on('cxttap', 'node', (event) => { controls['cxttap_node'](actions, event) })
 
     // Right-click on an edge
-    cy.on('cxttap', 'edge', (event) => { props.controls['cxttap_edge'](actions, event) })
+    cy.on('cxttap', 'edge', (event) => { controls['cxttap_edge'](actions, event) })
   }
 
   // TODO: add in safe key presses
@@ -241,6 +227,15 @@ function Graph (props) {
   //   }
   // }, [actions, props.controls])
 
+  useEffect(() => {
+    return () => {
+      console.log('removing listeners...')
+      cy.removeAllListeners()
+    }
+  }, [cy])
+
+  console.log('graph render')
+
   return (
     <>
       <CytoscapeComponent
@@ -250,7 +245,7 @@ function Graph (props) {
         stylesheet={cyStyle}
         cy={(c) => {
           cy = c
-          initialise(props.data, true)
+          initialise(data)
           setListeners()
         }}
       />

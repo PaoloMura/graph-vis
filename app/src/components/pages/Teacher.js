@@ -10,8 +10,9 @@ import DeleteModal from '../helpers/DeleteModal'
 import FileUploadModal from '../helpers/FileUploadModal'
 import TopicModal from '../helpers/TopicModal'
 import CodeModal from '../helpers/CodeModal'
+import Header from './Header'
 
-function Teacher ({ token, setToken }) {
+function Teacher ({ token, removeToken, setToken }) {
   function setInitialContent () {
     return {
       questions: [],
@@ -158,6 +159,7 @@ function Teacher ({ token, setToken }) {
 
   return (
     <div>
+      <Header btnType="logout" removeToken={removeToken}/>
       <Container>
         <Row>
           <Col>

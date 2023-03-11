@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import Header from './Header'
 
-function TeacherLogin (props) {
+function TeacherLogin ({ setToken }) {
   const [loginForm, setloginForm] = useState({
     username: '',
     password: ''
@@ -19,7 +20,7 @@ function TeacherLogin (props) {
       }
     })
       .then((response) => {
-        props.setToken(response.data.access_token)
+        setToken(response.data.access_token)
       }).catch((error) => {
       if (error.response) {
         console.log(error.response)
@@ -37,10 +38,10 @@ function TeacherLogin (props) {
   }
 
   return (
-    <>
+    <div>
+      <Header btnType="back" backPath="/"/>
       <Form className={'Login-box'}>
         <h2>Teacher Login</h2>
-        <Button variant={'secondary'} href={'/'}>Back</Button>
         <Form.Control
           className={'Login-row'}
           onChange={handleChange}
@@ -60,7 +61,7 @@ function TeacherLogin (props) {
         />
         <Button variant={'primary'} onClick={logMeIn} className={'Login-row'}>Login</Button>
       </Form>
-    </>
+    </div>
   )
 }
 

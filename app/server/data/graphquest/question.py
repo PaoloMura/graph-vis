@@ -35,7 +35,7 @@ class Question(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def generate_solutions(self, graph: nx.Graph) -> {any}:
+    def generate_solutions(self, graph: nx.Graph) -> list[any]:
         """
         Generates a set of possible solutions.
 
@@ -78,7 +78,7 @@ class QSelectPath(Question):
         raise NotImplementedError
 
     @abstractmethod
-    def generate_solutions(self, graph: nx.Graph) -> set[list[int]]:
+    def generate_solutions(self, graph: nx.Graph) -> list[list[int]]:
         """
         Generates a set of possible solutions.
 

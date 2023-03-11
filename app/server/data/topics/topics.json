@@ -1,1 +1,1 @@
-{"nwXqO": {"name": "Walks", "description": "This topic is about walks.", "settings": {"linear": false}, "questions": [{"file": "euler.py", "class": "EulerWalk"}, {"file": "euler.py", "class": "EulerWalk"}, {"file": "euler.py", "class": "EulerWalk"}]}}
+{"nwXqO": {"name": "Walks", "description": "This topic is about walks.", "settings": {"linear": true}, "questions": [{"file": "euler.py", "class": "EulerWalk"}, {"file": "euler.py", "class": "EulerWalk"}, {"file": "euler.py", "class": "EulerWalk"}, {"file": "euler2.py", "class": "EulerWalk"}]}}

@@ -3,8 +3,9 @@ import settings from '../../data/settings.json'
 import topic from '../../sample_topic.json'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
-import { Button } from 'react-bootstrap'
 import ProgressRow from '../helpers/ProgressRow'
+import Header from './Header'
+import NotFound from '../helpers/NotFound'
 
 function Student () {
   let { topic_code } = useParams()
@@ -70,19 +71,15 @@ function Student () {
     }
   }
 
-  function Topic () {
-    return (
-      <>
-        <h1>Topic: {topic.name}</h1>
-        <ProgressRow clickable={!data.settings.linear} questions={data.questions}/>
-      </>
-    )
-  }
-
   return (
-    <div className={'GraphArea'}>
-      <Button variant="secondary" href="/student/portal">Back</Button>
-      {err ? <h1>Topic not found :(</h1> : <Topic/>}
+    <div>
+      <Header btnType="back" backPath="/student/portal"/>
+      <div className={'GraphArea'}>
+        {
+          err ? <NotFound/> :
+            <ProgressRow topicName={topic.name} clickable={!data.settings.linear} questions={data.questions}/>
+        }
+      </div>
     </div>
   )
 }

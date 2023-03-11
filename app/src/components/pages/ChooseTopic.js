@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Header from './Header'
 
 function ChooseTopic () {
   const [topicCode, setTopicCode] = useState('')
@@ -10,7 +11,8 @@ function ChooseTopic () {
   const updateCode = (e) => setTopicCode(e.target.value)
 
   return (
-    <>
+    <div>
+      <Header btnType="back" backPath="/"/>
       <Form className={'Login-box'}>
         <h2>Choose a Topic</h2>
         <Form.Group className={'Login-row'}>
@@ -25,7 +27,7 @@ function ChooseTopic () {
           </Col>
         </Row>
       </Form>
-    </>
+    </div>
   )
 }
 

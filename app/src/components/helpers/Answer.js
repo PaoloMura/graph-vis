@@ -2,12 +2,11 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-function QuestionInput ({ number, message, answer, setAnswer, editable, onSubmit }) {
+function Answer ({ message, answer, setAnswer, editable, onSubmit }) {
   return (
     <>
-      <h2>Question {number}</h2>
       <p>{message}</p>
-      <Form onSubmit={onSubmit}>
+      <Form>
         {editable ? (
           <Form.Control
             value={answer.toString()}
@@ -16,15 +15,15 @@ function QuestionInput ({ number, message, answer, setAnswer, editable, onSubmit
         ) : (
           <Form.Control
             disabled
-            readOnly
+            readOnly={true}
             value={answer.toString()}
           />
         )}
         <br/>
-        <Button variant={'primary'} type={'submit'}>Submit</Button>
+        <Button variant={'primary'} onClick={onSubmit}>Submit</Button>
       </Form>
     </>
   )
 }
 
-export default QuestionInput
+export default Answer
