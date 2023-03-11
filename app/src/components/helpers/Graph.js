@@ -4,10 +4,11 @@ import cytoscape from 'cytoscape'
 import '../../App.css'
 import cyStyle from '../../cy-style.json'
 import cola from 'cytoscape-cola'
+import { triggerGraphEvent } from '../utilities/graph-events'
 
 cytoscape.use(cola)
 
-function Graph ({ settings, controls, data }) {
+function Graph ({ settings, data }) {
   // Local variables
   // let editingEdge = null
   let layout = null
@@ -17,9 +18,7 @@ function Graph ({ settings, controls, data }) {
     'createNode': createNode,
     'createEdge': createEdge,
     'unselect': unselect,
-    'remove': remove,
-    'highlightVertex': highlightVertex,
-    'highlightEdge': highlightEdge
+    'remove': remove
   }
 
   let edgeClasses = []
@@ -155,27 +154,6 @@ function Graph ({ settings, controls, data }) {
     if (selected[0] != null) cy.remove(selected[0])
   }
 
-  function highlightVertex (vid, highlight) {
-    console.log('vid:', vid)
-    let vertex = cy.nodes('[id = "' + vid + '"]')[0]
-    console.log('vertex:', vertex)
-    if (highlight) vertex.addClass('highlight')
-    else vertex.removeClass('highlight')
-  }
-
-  function highlightEdge (v1, v2, highlight) {
-    let edge
-    if (settings.directed) {
-      edge = cy.edges('[source = "' + v1 + '"][target = "' + v2 + '"]')[0]
-    } else {
-      edge = cy.edges('[source = "' + v1 + '"][target = "' + v2 + '"], [source = "' + v2 + '"][target = "' + v1 + '"]')[0]
-    }
-    if (!(edge === undefined)) {
-      if (highlight) edge.addClass('highlight')
-      else edge.removeClass('highlight')
-    }
-  }
-
   // TODO: finish adding support for editing weights
   // function editWeight (event) {
   //   if (!settings.weighted) return
@@ -197,44 +175,53 @@ function Graph ({ settings, controls, data }) {
 
   // LISTENERS
 
-  function setListeners () {
-    console.log('setListeners')
+  useEffect(() => {
     // Left-click on the background
-    cy.on('tap', (event) => { if (event.target === cy) controls['tap_bg'](actions, event) })
+    cy.on('tap', (event) => { if (event.target === cy) triggerGraphEvent('tap_bg', event) })
 
     // Left-click on a node
-    cy.on('tap', 'node', (event) => { controls['tap_node'](actions, event) })
+    cy.on('tap', 'node', (event) => { triggerGraphEvent('tap_node', event) })
 
     // Left-click on an edge
-    cy.on('tap', 'edge', (event) => { controls['tap_edge'](actions, event) })
+    cy.on('tap', 'edge', (event) => { triggerGraphEvent('tap_edge', event) })
 
     // Right-click on the background
-    cy.on('cxttap', (event) => { if (event.target === cy) controls['cxttap_bg'](event) })
+    cy.on('cxttap', (event) => { if (event.target === cy) triggerGraphEvent('cxttap_bg', event) })
 
     // Right-click on a node
-    cy.on('cxttap', 'node', (event) => { controls['cxttap_node'](actions, event) })
+    cy.on('cxttap', 'node', (event) => { triggerGraphEvent('cxttap_node', event) })
 
     // Right-click on an edge
-    cy.on('cxttap', 'edge', (event) => { controls['cxttap_edge'](actions, event) })
-  }
+    cy.on('cxttap', 'edge', (event) => { triggerGraphEvent('cxttap_edge', event) })
 
-  // TODO: add in safe key presses
-  // useEffect(() => {
-  //   const handleKeyDown = (event) => props.controls['keypress'](actions, event)
-  //   document.addEventListener('keydown', handleKeyDown, true)
-  //   return () => {
-  //     document.removeEventListener('keydown', handleKeyDown)
-  //   }
-  // }, [actions, props.controls])
-
-  useEffect(() => {
-    return () => {
-      console.log('removing listeners...')
-      cy.removeAllListeners()
+    function highlightVertex (event) {
+      let vertex = cy.nodes('[id = "' + event.detail.vertex + '"]')[0]
+      if (event.detail.highlight) vertex.addClass('highlight')
+      else vertex.removeClass('highlight')
     }
-  }, [cy])
 
-  console.log('graph render')
+    function highlightEdge (event) {
+      let edge
+      if (settings.directed) {
+        edge = cy.edges('[source = "' + event.detail.v1 + '"][target = "' + event.detail.v2 + '"]')[0]
+      } else {
+        edge = cy.edges('[source = "' + event.detail.v1 + '"][target = "' + event.detail.v2 + '"], [source = "' + event.detail.v2 + '"][target = "' + event.detail.v1 + '"]')[0]
+      }
+      if (!(edge === undefined)) {
+        if (event.detail.highlight) edge.addClass('highlight')
+        else edge.removeClass('highlight')
+      }
+    }
+
+    document.addEventListener('highlightVertex', highlightVertex)
+    document.addEventListener('highlightEdge', highlightEdge)
+
+    return () => {
+      cy.removeAllListeners()
+      document.removeEventListener('highlightVertex', highlightVertex)
+      document.removeEventListener('highlightEdge', highlightEdge)
+    }
+  }, [cy, settings])
 
   return (
     <>
@@ -246,7 +233,7 @@ function Graph ({ settings, controls, data }) {
         cy={(c) => {
           cy = c
           initialise(data)
-          setListeners()
+          // setListeners()
         }}
       />
     </>

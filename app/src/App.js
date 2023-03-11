@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import ChooseTopic from './components/pages/ChooseTopic'
 import Home from './components/pages/Home'
 import TeacherLogin from './components/pages/TeacherLogin'
-import useToken from './components/functions/useToken'
+import useToken from './components/hooks/useToken'
 import Teacher from './components/pages/Teacher'
 import Student from './components/pages/Student'
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import Question from './Question'
+import FinishedModal from './FinishedModal'
 
 export default function ProgressRow ({ topicName, clickable, questions }) {
   // TODO: use question status to highlight each question tab as you progress
@@ -10,6 +11,7 @@ export default function ProgressRow ({ topicName, clickable, questions }) {
 
   const [selected, setSelected] = useState(0)
   const [progress, setProgress] = useState(setInitialAnswers)
+  const [showFinished, setShowFinished] = useState(false)
 
   const onSelect = (k) => {
     if (clickable) {
@@ -17,19 +19,22 @@ export default function ProgressRow ({ topicName, clickable, questions }) {
     }
   }
 
-  const setCurrentProgress = (answer, status) => {
+  const nextQuestion = (answer, status) => {
     setProgress(progress.map((item, index) => {
       return index === selected ? { answer: answer, status: status } : item
     }))
-  }
-
-  const nextQuestion = () => {
     if (selected + 1 < progress.length) {
       setSelected(selected + 1)
+    } else {
+      setShowFinished(true)
     }
   }
 
-  console.log('progress row')
+  const getScore = () => {
+    return progress.reduce((tot, cur) => {
+      return cur.status === 'correct' ? tot + 1 : tot
+    }, 0)
+  }
 
   return (
     <div>
@@ -45,17 +50,19 @@ export default function ProgressRow ({ topicName, clickable, questions }) {
               unmountOnExit
             >
               <br/>
-              <Question
-                question={questions[index]}
-                questionNumber={index + 1}
-                progress={progress}
-                setProgress={setCurrentProgress}
-                nextQuestion={nextQuestion}
-              />
+              <Question question={questions[index]} onNext={nextQuestion}/>
             </Tab>
           )
         )}
       </Tabs>
+      {
+        showFinished &&
+        <FinishedModal
+          showModal={showFinished}
+          score={getScore()}
+          total={questions.length}
+        />
+      }
     </div>
   )
 }

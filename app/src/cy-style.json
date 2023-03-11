@@ -11,26 +11,12 @@
     }
   },
   {
-    "selector": "node:selected",
-    "style": {
-      "background-color": "#c00"
-    }
-  },
-  {
     "selector": "edge",
     "style": {
       "width": 3,
       "line-color": "#000",
       "curve-style": "bezier",
       "background-color": "#fff"
-    }
-  },
-  {
-    "selector": "edge:selected",
-    "style": {
-      "line-color": "#c00",
-      "source-arrow-color": "#c00",
-      "target-arrow-color": "#c00"
     }
   },
   {
