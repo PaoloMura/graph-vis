@@ -30,12 +30,6 @@ export default function ProgressRow ({ topicName, clickable, questions }) {
     }
   }
 
-  const getScore = () => {
-    return progress.reduce((tot, cur) => {
-      return cur.status === 'correct' ? tot + 1 : tot
-    }, 0)
-  }
-
   return (
     <div>
       <h1>Topic: {topicName}</h1>
@@ -59,8 +53,7 @@ export default function ProgressRow ({ topicName, clickable, questions }) {
         showFinished &&
         <FinishedModal
           showModal={showFinished}
-          score={getScore()}
-          total={questions.length}
+          progress={progress}
         />
       }
     </div>

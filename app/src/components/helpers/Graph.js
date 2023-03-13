@@ -29,18 +29,20 @@ function Graph ({ settings, data }) {
   // Cytoscape parameters
   const initialLayoutOptions = {
     name: 'cola',
-    animate: true,
-    infinite: true,
+    animate: false,
+    infinite: false,
     edgeLength: 100,
     centerGraph: true,
-    randomize: true
+    randomize: true,
+    padding: 30
   }
   const layoutOptions = {
     name: 'cola',
-    animate: true,
-    infinite: true,
+    animate: false,
+    infinite: false,
     edgeLength: 100,
     centerGraph: false,
+    padding: 30
   }
 
   // HELPER FUNCTIONS

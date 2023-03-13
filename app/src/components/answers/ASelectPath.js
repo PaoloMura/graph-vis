@@ -12,11 +12,8 @@ export default function ASelectPath ({ question, onNext }) {
     // TODO: change how we process answers depending on the settings
     // Determine whether the answer is correct
     let ans = answer.toString()
-    console.log('comparing', ans, 'to')
-    console.log(question.solutions)
     for (let sol of question.solutions) {
       if (sol.toString() === ans) {
-        console.log('correct')
         setCorrect(true)
         break
       }
@@ -33,10 +30,8 @@ export default function ASelectPath ({ question, onNext }) {
   useEffect(() => {
     function selectVertex (event) {
       // Find the selected vertex and update state
-      let vertex = parseInt(event.detail.vertex, 10)
+      let vertex = parseInt(event.detail, 10)
       setAnswer([...answer, vertex])
-      // Highlight this vertex
-      triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
       if (answer.length > 0) {
         // Un-highlight the previous vertex
         triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
@@ -48,21 +43,26 @@ export default function ASelectPath ({ question, onNext }) {
         }
         triggerGraphAction('highlightEdge', params)
       }
+      // Highlight this vertex
+      triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
     }
 
     function undo (event) {
       if (event.key === 'Backspace' && answer.length > 0) {
+        // Un-highlight the current vertex
         triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
         if (answer.length > 1) {
+          // Highlight the previously selected vertex
           triggerGraphAction('highlightVertex', { vertex: answer.at(-2), highlight: true })
-        }
-        if (answer.length > 1) {
-          const params = {
-            v1: answer.at(-2),
-            v2: answer.at(-1),
-            highlight: false
+          // Un-highlight the current edge if it does not appear anywhere else in the answer
+          let v1 = answer.at(-2)
+          let v2 = answer.at(-1)
+          let checkAdjacent = (val, idx) => {
+            return val === v1 && idx < answer.length - 2 && answer.at(idx + 1) === v2
           }
-          triggerGraphAction('highlightEdge', params)
+          if (answer.find(checkAdjacent) === undefined) {
+            triggerGraphAction('highlightEdge', { v1: v1, v2: v2, highlight: false })
+          }
         }
         setAnswer(answer.slice(0, -1))
       }
@@ -88,7 +88,15 @@ export default function ASelectPath ({ question, onNext }) {
 
   else return (
     <div>
+      <h3>Description</h3>
       <p>{question.description}</p>
+      <br/>
+      <h3>Controls</h3>
+      <ul>
+        <li>Click on a vertex to select it.</li>
+        <li>Press backspace to undo.</li>
+      </ul>
+      <br/>
       <Form>
         <Form.Control
           disabled
