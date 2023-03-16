@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
 import Header from '../helpers/Header'
 
 function ChooseTopic () {
@@ -13,19 +11,12 @@ function ChooseTopic () {
   return (
     <div>
       <Header btnType="back" backPath="/"/>
-      <Form className={'Login-box'}>
+      <Form className="Login-box d-grid gap-2">
         <h2>Choose a Topic</h2>
         <Form.Group className={'Login-row'}>
           <Form.Control placeholder={'Topic code'} value={topicCode} onChange={updateCode}></Form.Control>
         </Form.Group>
-        <Row className={'Login-row'}>
-          <Col>
-            <Button variant={'secondary'} href={'/'}>Back</Button>
-          </Col>
-          <Col className={'Right-button-container'}>
-            <Button variant={'primary'} href={'/student/topics/' + topicCode} className={'Right-button'}>Submit</Button>
-          </Col>
-        </Row>
+        <Button variant="primary" className="lg" href={'/student/topics/' + topicCode}>Submit</Button>
       </Form>
     </div>
   )
