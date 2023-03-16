@@ -1,3 +1,6 @@
+from pprint import pprint
+
+import converter
 from constants import *
 from datetime import datetime, timedelta, timezone
 from flask import Flask, request, jsonify, abort
@@ -71,7 +74,6 @@ def get_content():
     """Return a list of question files and topics"""
     try:
         questions = list(filter(lambda x: x.endswith('.py'), os.listdir(QUESTIONS_PATH)))
-        topics = []
         with open(TOPICS_FILE, 'r') as f:
             data = json.load(f)
             topics = [{'topic_code': item, 'name': data[item]['name']} for item in data]
@@ -146,9 +148,32 @@ def access_topic_data(topic_code):
         try:
             result['questions'][i] = generate_question(q_file, q_class)
         except Exception as e:
-            return f'Error trying to access question class "{q_file}:{q_class}": {e}', 400
+            return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404
     return result
+
+
+@app.route('/api/feedback/<q_file>/<q_class>', methods=['POST'])
+def get_feedback(q_file, q_class):
+    """Handle request for feedback on an answer"""
+    try:
+        print('q_file: ', q_file)
+        print('q_class: ', q_class)
+        q = load_question(q_file, q_class)
+        answer = request.json.get('answer')
+        data = request.json.get('graph')
+        print('answer:', answer)
+        print('data:')
+        pprint(data)
+        graph = converter.cy2nx(data)
+        print('nodes:', graph.nodes)
+        print('edges:', graph.edges)
+        result = q.verify_answer(graph, answer)
+        feedback = q.generate_feedback(graph, answer)
+        return {'result': result, 'feedback': feedback}
+    except Exception as e:
+        return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404
 
 
 if __name__ == '__main__':
     app.run()
+

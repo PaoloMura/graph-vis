@@ -8,6 +8,7 @@ from random import randint
 class EulerWalk(QSelectPath):
     def __init__(self):
         super().__init__()
+        self.feedback = True
 
     def generate_data(self) -> nx.Graph:
         # n = randint(5, 10)
@@ -68,11 +69,11 @@ class EulerWalk(QSelectPath):
 
     def generate_feedback(self, graph: nx.Graph, solution: list[int]) -> str:
         if self.verify_answer(graph, solution):
-            return "Correct!"
+            return "You found a valid Euler walk."
         else:
             path = list(nx.eulerian_path(graph))
             result = list(map(lambda x: x[0], path)) + [path[-1][1]]
-            return f'Incorrect.\n\nOne possible solution is:\n\n{result}'
+            return f'This is not a valid Euler Walk.\n\nOne possible solution is:\n\n{result}'
 
 
 if __name__ == '__main__':

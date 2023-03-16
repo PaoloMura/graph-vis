@@ -52,13 +52,3 @@ def generate_question(q_file: str, q_class: str) -> dict:
         'graph': q_graph,
         'solutions': q_sols
     }
-
-
-# Answer verification
-
-def generate_result(question: Question, answer: any) -> bool:
-    return True
-
-
-def generate_feedback(question: Question, answer: any) -> str:
-    return ''

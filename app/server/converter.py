@@ -13,6 +13,15 @@ def nx2cy(graph: nx.Graph) -> dict:
     return data
 
 
+def cy2nx(data: dict) -> nx.Graph:
+    """Converts the given JSON Cytoscape graph to a NetworkX graph."""
+    for edge in data['elements']['edges']:
+        edge['data']['source'] = int(edge['data']['source'])
+        edge['data']['target'] = int(edge['data']['target'])
+    graph = nx.cytoscape_graph(data)
+    return graph
+
+
 def export_question(q_type: str, message: str, graph: nx.Graph):
     """Exports a question to a JSON file."""
     graph_dict = nx2cy(graph)
