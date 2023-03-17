@@ -11,12 +11,19 @@ class EulerWalk(QSelectPath):
         self.feedback = True
 
     def generate_data(self) -> nx.Graph:
-        # n = randint(5, 10)
-        n = 5
+        n = randint(5, 7)
         p = 2 / n
         graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
-        while not nx.is_eulerian(graph):
+
+        def not_eulerian():
+            return sum((d % 2 for (_, d) in graph.degree)) not in [0, 2]
+
+        def not_connected():
+            return 0 in [d for (_, d) in graph.degree]
+
+        while not_eulerian() or not_connected():
             graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
+
         return graph
 
     def generate_question(self, graph: nx.Graph) -> str:
