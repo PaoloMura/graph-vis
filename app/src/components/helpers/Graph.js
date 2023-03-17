@@ -181,7 +181,13 @@ function Graph ({ settings, data }) {
     // Trigger graph events
     cy.on('tap', (event) => { if (event.target === cy) triggerGraphEvent('tap_bg', event) })
     cy.on('tap', 'node', (event) => { triggerGraphEvent('tap_node', event.target.id()) })
-    cy.on('tap', 'edge', (event) => { triggerGraphEvent('tap_edge', event) })
+    cy.on('tap', 'edge', (event) => {
+      let params = {
+        'source': parseInt(event.target._private.data.source),
+        'target': parseInt(event.target._private.data.target)
+      }
+      triggerGraphEvent('tap_edge', params)
+    })
     cy.on('cxttap', (event) => { if (event.target === cy) triggerGraphEvent('cxttap_bg', event) })
     cy.on('cxttap', 'node', (event) => { triggerGraphEvent('cxttap_node', event) })
     cy.on('cxttap', 'edge', (event) => { triggerGraphEvent('cxttap_edge', event) })

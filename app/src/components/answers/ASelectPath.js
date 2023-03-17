@@ -53,52 +53,95 @@ export default function ASelectPath ({ question, onNext }) {
   }
 
   useEffect(() => {
-    function selectVertex (event) {
-      // Find the selected vertex and update state
-      let vertex = parseInt(event.detail, 10)
-      setAnswer([...answer, vertex])
+    function addNode (value) {
+      setAnswer([...answer, value])
       if (answer.length > 0) {
         // Un-highlight the previous vertex
         triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
         // Highlight the edge
         const params = {
           v1: answer.at(-1),
-          v2: vertex,
+          v2: value,
           highlight: true
         }
         triggerGraphAction('highlightEdge', params)
       }
       // Highlight this vertex
-      triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
+      triggerGraphAction('highlightVertex', { vertex: value, highlight: true })
     }
 
-    function undo (event) {
-      if (event.key === 'Backspace' && answer.length > 0) {
-        // Un-highlight the current vertex
-        triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
-        if (answer.length > 1) {
-          // Highlight the previously selected vertex
-          triggerGraphAction('highlightVertex', { vertex: answer.at(-2), highlight: true })
-          // Un-highlight the current edge if it does not appear anywhere else in the answer
-          let v1 = answer.at(-2)
-          let v2 = answer.at(-1)
-          let checkAdjacent = (val, idx) => {
-            return val === v1 && idx < answer.length - 2 && answer.at(idx + 1) === v2
-          }
-          if (answer.find(checkAdjacent) === undefined) {
-            triggerGraphAction('highlightEdge', { v1: v1, v2: v2, highlight: false })
-          }
+    function popNode () {
+      if (answer.length === 0) return
+      // Un-highlight the current vertex
+      triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
+      if (answer.length > 1) {
+        // Highlight the previously selected vertex
+        triggerGraphAction('highlightVertex', { vertex: answer.at(-2), highlight: true })
+        // Un-highlight the current edge if it does not appear anywhere else in the answer
+        let v1 = answer.at(-2)
+        let v2 = answer.at(-1)
+        let checkAdjacent = (val, idx) => {
+          return val === v1 && idx < answer.length - 2 && answer.at(idx + 1) === v2
         }
-        setAnswer(answer.slice(0, -1))
+        if (answer.find(checkAdjacent) === undefined) {
+          triggerGraphAction('highlightEdge', { v1: v1, v2: v2, highlight: false })
+        }
       }
+      setAnswer(answer.slice(0, -1))
     }
 
-    document.addEventListener('tap_node', selectVertex)
-    document.addEventListener('keydown', undo)
+    function areAdjacent (v1, v2) {
+      for (let edge of question.graph.elements.edges) {
+        let [w1, w2] = [parseInt(edge.data.source), parseInt(edge.data.target)]
+        if ((v1 === w1 && v2 === w2) || (v1 === w2 && v2 === w1)) return true
+      }
+      return false
+    }
+
+    // Returns true if the given edge is unvisited
+    function isUnvisited (v1, v2) {
+      if (answer.length < 2) return true
+      for (let i = 0; i < answer.length - 1; i++) {
+        if (
+          (v1 === answer[i] && v2 === answer[i + 1]) ||
+          (v2 === answer[i] && v1 === answer[i + 1])
+        ) return false
+      }
+      return true
+    }
+
+    function handleTapNode (event) {
+      let vertex = parseInt(event.detail, 10)
+      // If clicking on the latest vertex or its predecessor, remove it
+      if (answer.length > 0 && answer.at(-1) === vertex) popNode()
+      else if (answer.length > 1 && answer.at(-2) === vertex) popNode()
+      // Only add a vertex if adjacent to the previous and the edge is unvisited
+      else if (answer.length === 0) addNode(vertex)
+      else if (areAdjacent(vertex, answer.at(-1)) && isUnvisited(vertex, answer.at(-1))) addNode(vertex)
+    }
+
+    function handleTapEdge (event) {
+      let [v1, v2] = [event.detail.source, event.detail.target]
+      if (answer.length > 1 &&
+        (
+          (v1 === answer.at(-2) && v2 === answer.at(-1)) ||
+          (v2 === answer.at(-2) && v1 === answer.at(-1))
+        )
+      ) popNode()
+    }
+
+    function handleKeyDown (event) {
+      if (event.key === 'Backspace') popNode()
+    }
+
+    document.addEventListener('tap_node', handleTapNode)
+    document.addEventListener('tap_edge', handleTapEdge)
+    document.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      document.removeEventListener('tap_node', selectVertex)
-      document.removeEventListener('keydown', undo)
+      document.removeEventListener('tap_node', handleTapNode)
+      document.removeEventListener('tap_edge', handleTapEdge)
+      document.removeEventListener('keydown', handleKeyDown)
     }
   }, [answer])
 
@@ -121,6 +164,7 @@ export default function ASelectPath ({ question, onNext }) {
         <h3>Controls</h3>
         <ul>
           <li>Click on a vertex to select it.</li>
+          <li>Click on the last visited vertex/edge to remove it.</li>
           <li>Press backspace to undo.</li>
         </ul>
         <br/>

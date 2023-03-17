@@ -45,5 +45,18 @@
       "source-arrow-color": "#c00",
       "target-arrow-color": "#c00"
     }
+  },
+  {
+    "selector": "edge.highlight",
+    "style": {
+      "width": 7
+    }
+  },
+  {
+    "selector": "node.highlight",
+    "style": {
+      "width": 40,
+      "height": 40
+    }
   }
 ]

@@ -4,6 +4,7 @@ A graph action is an event that the graph listens and responds to (e.g. highligh
 
 Supported Graph Events:
 tap_node (vertex: int)
+tap_edge (source: int, target: int)
 
 Supported Graph Actions:
 highlightVertex (vertex: int, highlight: bool)
