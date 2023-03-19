@@ -6,7 +6,7 @@ import axios from 'axios'
 
 export default function ASelectPath ({ question, onNext }) {
   const [answer, setAnswer] = useState([])
-  const [submittted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [correct, setCorrect] = useState(false)
   const [feedback, setFeedback] = useState('')
 
@@ -47,7 +47,7 @@ export default function ASelectPath ({ question, onNext }) {
   }
 
   const onNextPress = () => {
-    if (!submittted) onNext(answer, 'unanswered')
+    if (!submitted) onNext(answer, 'unanswered')
     else if (correct) onNext(answer, 'correct')
     else onNext(answer, 'incorrect')
   }
@@ -145,7 +145,7 @@ export default function ASelectPath ({ question, onNext }) {
     }
   }, [answer])
 
-  if (submittted) {
+  if (submitted) {
     return (
       <div>
         {correct ? 'Correct!' : 'Incorrect'}

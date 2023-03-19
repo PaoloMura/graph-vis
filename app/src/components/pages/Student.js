@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import settings from '../../data/settings.json'
-import topic from '../../sample_topic.json'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import ProgressRow from '../helpers/ProgressRow'
@@ -41,43 +39,13 @@ function Student () {
     return () => {setData(setInitialData)}
   }, [topic_code])
 
-  let graphSettings = {}
-  for (let item of settings) {
-    graphSettings[item.setting] = item.default === 'true'
-  }
-
-  // let graph_controls = {}
-  // for (let item of controls) {
-  //   if (!(item.type in graph_controls)) {
-  //     graph_controls[item.type] = {}
-  //   }
-  //   graph_controls[item.type][item.trigger] = 'noop'
-  // }
-
-  let graphControls = {
-    tap: {
-      background: 'createNode',
-      node: 'noop',
-      edge: 'noop'
-    },
-    cxttap: {
-      background: 'unselect',
-      node: 'createEdge',
-      edge: 'noop'
-    },
-    keypress: {
-      'Backspace': 'remove',
-      'Enter': 'editWeight'
-    }
-  }
-
   return (
     <div>
       <Header btnType="back" backPath="/student/portal"/>
       <div className={'GraphArea'}>
         {
           err ? <NotFound/> :
-            <ProgressRow topicName={topic.name} clickable={!data.settings.linear} questions={data.questions}/>
+            <ProgressRow topicName={data.name} clickable={!data.settings.linear} questions={data.questions}/>
         }
       </div>
     </div>

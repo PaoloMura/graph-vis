@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from data.graphquest.question import QTextInput, QMultipleChoice
+from data.graphquest.question import *
 import networkx as nx
 from random import randint
 
@@ -81,6 +81,27 @@ class TestMCQ2(QMultipleChoice):
         return True
 
     def generate_feedback(self, graph: nx.Graph, answer: list[[str, bool]]) -> str:
+        return ""
+
+
+class TestVertexSet(QVertexSet):
+    def generate_data(self) -> nx.Graph:
+        n = randint(5, 10)
+        p = 0.4
+        graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
+        return graph
+
+    def generate_question(self, graph: nx.Graph) -> str:
+        return "Select all vertices with degree > 2"
+
+    def generate_solutions(self, graph: nx.Graph) -> list[[int]]:
+        solution = [n for (n, d) in graph.degree if d > 2]
+        return [solution]
+
+    def verify_answer(self, graph: nx.Graph, answer: list[int]) -> bool:
+        return True
+
+    def generate_feedback(self, graph: nx.Graph, answer: list[int]) -> str:
         return ""
 
 
