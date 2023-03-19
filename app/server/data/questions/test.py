@@ -7,7 +7,7 @@ from random import randint
 
 class Test(QTextInput):
     def __init__(self):
-        super().__init__()
+        super().__init__(data_type="integer")
 
     def generate_data(self) -> nx.Graph:
         n = randint(5, 7)
@@ -64,7 +64,7 @@ class TestMCQ2(QMultipleChoice):
 
     def generate_data(self) -> nx.Graph:
         n = randint(10, 15)
-        p = 0.25
+        p = 0.15
         graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
         return graph
 

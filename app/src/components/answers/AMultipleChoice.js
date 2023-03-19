@@ -58,7 +58,11 @@ export default function AMultipleChoice ({ question, onNext }) {
 
   const handleChangeAnswer = (event, key) => {
     setAnswer(answer.map((ans, idx) => {
-      return idx === key ? [ans[0], !ans[1]] : [ans[0], false]
+      if (question.settings.single_selection) {
+        return idx === key ? [ans[0], !ans[1]] : [ans[0], false]
+      } else {
+        return idx === key ? [ans[0], !ans[1]] : [ans[0], ans[1]]
+      }
     }))
   }
 

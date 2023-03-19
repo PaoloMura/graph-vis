@@ -4,10 +4,11 @@ import Form from 'react-bootstrap/Form'
 import axios from 'axios'
 
 export default function ATextInput ({ question, onNext }) {
-  const [answer, setAnswer] = useState([])
-  const [submittted, setSubmitted] = useState(false)
+  const [answer, setAnswer] = useState('')
+  const [submitted, setSubmitted] = useState(false)
   const [correct, setCorrect] = useState(false)
   const [feedback, setFeedback] = useState('')
+  const [error, setError] = useState('')
 
   const getSolution = () => {
     axios({
@@ -30,7 +31,25 @@ export default function ATextInput ({ question, onNext }) {
     })
   }
 
+  const validateAnswer = () => {
+    if (question.settings.data_type === 'integer') {
+      const parsed = Number(answer)
+      if (isNaN(parsed)) {
+        setError('Answer must be an integer')
+        return false
+      } else if (!Number.isInteger(parsed)) {
+        setError('Answer must be an integer')
+        return false
+      } else {
+        setAnswer(parsed.toString())
+        return true
+      }
+    }
+  }
+
   const onSubmit = () => {
+    // Validate the answer format
+    if (!validateAnswer()) return
     // Determine whether the answer is correct
     let ans = answer.toString()
     if (question.settings.feedback) getSolution()
@@ -46,16 +65,17 @@ export default function ATextInput ({ question, onNext }) {
   }
 
   const onNextPress = () => {
-    if (!submittted) onNext(answer, 'unanswered')
+    if (!submitted) onNext(answer, 'unanswered')
     else if (correct) onNext(answer, 'correct')
     else onNext(answer, 'incorrect')
   }
 
   const handleChangeAnswer = (event) => {
     setAnswer(event.target.value)
+    setError('')
   }
 
-  if (submittted) {
+  if (submitted) {
     return (
       <div>
         {correct ? 'Correct!' : 'Incorrect'}
@@ -78,6 +98,8 @@ export default function ATextInput ({ question, onNext }) {
           />
           <br/>
           <Button variant="primary" onClick={onSubmit}>Submit</Button>
+          <br/>
+          {error !== '' && <Form.Text muted>{error}</Form.Text>}
         </Form>
       </div>
     )

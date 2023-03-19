@@ -11,9 +11,9 @@ class Question(ABC):
     verify_answer(self, solution: int) -> bool
     generate_feedback(self, graph: nx.Graph, solution: int) -> str
     """
-    def __init__(self):
-        self.layout = 'force-directed'
-        self.feedback = False
+    def __init__(self, layout='force-directed', feedback=False):
+        self.layout = layout
+        self.feedback = feedback
 
     @abstractmethod
     def generate_data(self) -> any:
@@ -111,6 +111,10 @@ class QSelectPath(Question):
 
 
 class QTextInput(Question):
+    def __init__(self, data_type='string'):
+        super().__init__()
+        self.data_type = data_type
+
     @abstractmethod
     def generate_data(self) -> nx.Graph:
         """

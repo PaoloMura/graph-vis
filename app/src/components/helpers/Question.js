@@ -5,7 +5,6 @@ import QTextInput from '../questions/QTextInput'
 import QMultipleChoice from '../questions/QMultipleChoice'
 
 export default function Question ({ question, onNext }) {
-  console.log(question.type)
   switch (question.type) {
     case 'QSelectPath':
       return <QSelectPath question={question} onNext={onNext}/>
