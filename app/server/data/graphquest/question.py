@@ -205,6 +205,10 @@ class QMultipleChoice(Question):
 
 
 class QVertexSet(Question):
+    def __init__(self, selection_limit=-1):
+        super().__init__()
+        self.selection_limit = selection_limit
+
     @abstractmethod
     def generate_data(self) -> nx.Graph:
         """

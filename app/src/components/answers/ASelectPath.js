@@ -143,7 +143,7 @@ export default function ASelectPath ({ question, onNext }) {
       document.removeEventListener('tap_edge', handleTapEdge)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [answer])
+  }, [answer, question.graph.elements.edges])
 
   if (submitted) {
     return (

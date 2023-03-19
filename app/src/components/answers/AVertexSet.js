@@ -64,8 +64,11 @@ export default function AVertexSet ({ question, onNext }) {
         setAnswer(answer.filter(v => v !== vertex))
         triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false })
       } else {
-        setAnswer([...answer, vertex])
-        triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
+        const limit = question.settings.selection_limit
+        if (limit === -1 || answer.length < limit) {
+          setAnswer([...answer, vertex])
+          triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
+        }
       }
     }
 
@@ -74,7 +77,7 @@ export default function AVertexSet ({ question, onNext }) {
     return () => {
       document.removeEventListener('tap_node', handleTapNode)
     }
-  }, [answer])
+  }, [answer, question.settings.selection_limit])
 
   if (submitted) {
     return (
@@ -95,6 +98,10 @@ export default function AVertexSet ({ question, onNext }) {
         <h3>Controls</h3>
         <ul>
           <li>Click on a vertex to select/unselect it.</li>
+          {
+            question.settings.selection_limit !== -1 &&
+            <li>You can select at most {question.settings.selection_limit} vertices</li>
+          }
         </ul>
         <br/>
         <Form>

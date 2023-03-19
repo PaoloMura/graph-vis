@@ -85,6 +85,9 @@ class TestMCQ2(QMultipleChoice):
 
 
 class TestVertexSet(QVertexSet):
+    def __init__(self):
+        super().__init__(selection_limit=2)
+
     def generate_data(self) -> nx.Graph:
         n = randint(5, 10)
         p = 0.4
