@@ -58,7 +58,7 @@ export default function AMultipleChoice ({ question, onNext }) {
 
   const handleChangeAnswer = (event, key) => {
     setAnswer(answer.map((ans, idx) => {
-      return idx === key ? [ans[0], !ans[1]] : [ans[0], ans[1]]
+      return idx === key ? [ans[0], !ans[1]] : [ans[0], false]
     }))
   }
 
@@ -84,7 +84,7 @@ export default function AMultipleChoice ({ question, onNext }) {
               return (
                 <Form.Check
                   key={ans[0]}
-                  type="checkbox"
+                  type={question.settings.single_selection ? 'radio' : 'checkbox'}
                   label={ans[0]}
                   checked={ans[1]}
                   onChange={(e) => handleChangeAnswer(e, idx)}

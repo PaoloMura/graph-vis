@@ -154,6 +154,10 @@ class QTextInput(Question):
 
 
 class QMultipleChoice(Question):
+    def __init__(self, single_selection=False):
+        super().__init__()
+        self.single_selection = single_selection
+
     @abstractmethod
     def generate_data(self) -> nx.Graph:
         """

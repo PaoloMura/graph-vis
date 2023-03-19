@@ -47,9 +47,35 @@ class TestMCQ(QMultipleChoice):
         ans2 = min((d for (n, d) in graph.degree)) == 2
         options.append(["The smallest degree in the graph is 2", ans2])
         n = len(list(graph.nodes)) - 1
-        ans3 = nx.has_path(graph, 1, n)
+        ans3 = nx.has_path(graph, 0, n)
         options.append([f"There is a path from v0 to v{n}", ans3])
         return options
+
+    def verify_answer(self, graph: nx.Graph, answer: list[[str, bool]]) -> bool:
+        return True
+
+    def generate_feedback(self, graph: nx.Graph, answer: list[[str, bool]]) -> str:
+        return ""
+
+
+class TestMCQ2(QMultipleChoice):
+    def __init__(self):
+        super().__init__(single_selection=True)
+
+    def generate_data(self) -> nx.Graph:
+        n = randint(10, 15)
+        p = 0.25
+        graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
+        return graph
+
+    def generate_question(self, graph: nx.Graph) -> str:
+        n = len(list(graph.nodes)) - 1
+        return f"Is there a path from v0 to v{n}?"
+
+    def generate_solutions(self, graph: nx.Graph) -> list[[str, bool]]:
+        n = len(list(graph.nodes)) - 1
+        path_exists = nx.has_path(graph, 0, n)
+        return [["Yes", path_exists], ["No", not path_exists]]
 
     def verify_answer(self, graph: nx.Graph, answer: list[[str, bool]]) -> bool:
         return True
