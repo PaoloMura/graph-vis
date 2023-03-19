@@ -39,8 +39,8 @@ def generate_question(q_file: str, q_class: str) -> dict:
     q = load_question(q_file, q_class)
     q_type = type(q).__bases__[0].__name__
     data = q.generate_data()
-    q_descr = q.generate_question(data)
-    q_sols = list(q.generate_solutions(data))
+    q_descr = q.generate_question(data.copy())
+    q_sols = list(q.generate_solutions(data.copy()))
     q_sett = q.__dict__
     q_graph = converter.nx2cy(data)
     return {

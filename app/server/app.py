@@ -156,19 +156,12 @@ def access_topic_data(topic_code):
 def get_feedback(q_file, q_class):
     """Handle request for feedback on an answer"""
     try:
-        print('q_file: ', q_file)
-        print('q_class: ', q_class)
         q = load_question(q_file, q_class)
         answer = request.json.get('answer')
         data = request.json.get('graph')
-        print('answer:', answer)
-        print('data:')
-        pprint(data)
         graph = converter.cy2nx(data)
-        print('nodes:', graph.nodes)
-        print('edges:', graph.edges)
-        result = q.verify_answer(graph, answer)
-        feedback = q.generate_feedback(graph, answer)
+        result = q.verify_answer(graph.copy(), answer)
+        feedback = q.generate_feedback(graph.copy(), answer)
         return {'result': result, 'feedback': feedback}
     except Exception as e:
         return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404

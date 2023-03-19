@@ -45,23 +45,23 @@ class Question(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def verify_answer(self, graph: nx.Graph, solution: any) -> bool:
+    def verify_answer(self, graph: nx.Graph, answer: any) -> bool:
         """
         Checks whether a given solution is correct.
 
         :param graph: the NetworkX graph used in the question.
-        :param solution: the student's choice of answer.
+        :param answer: the student's choice of answer.
         :return: True if the solution is correct, or False otherwise.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def generate_feedback(self, graph: nx.Graph, solution: any) -> str:
+    def generate_feedback(self, graph: nx.Graph, answer: any) -> str:
         """
         Generates a message to be displayed when the solution has been submitted.
 
         :param graph: the NetworkX graph used in the question.
-        :param solution: the student's choice of answer.
+        :param answer: the student's choice of answer.
         :return: the message to be displayed.
         """
         raise NotImplementedError
@@ -69,7 +69,7 @@ class Question(ABC):
 
 class QSelectPath(Question):
     @abstractmethod
-    def generate_data(self) -> (nx.Graph, nx.Graph):
+    def generate_data(self) -> nx.Graph:
         """
         Generates a NetworkX graph for the question.
 
@@ -88,23 +88,66 @@ class QSelectPath(Question):
         raise NotImplementedError
 
     @abstractmethod
-    def verify_answer(self, graph: nx.Graph, solution: list[int]) -> bool:
+    def verify_answer(self, graph: nx.Graph, answer: list[int]) -> bool:
         """
         Checks whether a given solution is correct.
 
         :param graph: the NetworkX graph used in the question.
-        :param solution: the student's choice of answer, a list of vertices.
+        :param answer: the student's choice of answer, a list of vertices.
         :return: True if the solution is correct, or False otherwise.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def generate_feedback(self, graph: nx.Graph, solution: list[int]) -> str:
+    def generate_feedback(self, graph: nx.Graph, answer: list[int]) -> str:
         """
         Generates a message to be displayed when the solution has been submitted.
 
         :param graph: the NetworkX graph used in the question.
-        :param solution: the student's choice of answer, a list of vertices.
+        :param answer: the student's choice of answer, a list of vertices.
+        :return: the message to be displayed.
+        """
+        raise NotImplementedError
+
+
+class QTextInput(Question):
+    @abstractmethod
+    def generate_data(self) -> nx.Graph:
+        """
+        Generates a NetworkX graph for the question.
+
+        :return: a NetworkX Graph
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def generate_solutions(self, graph: nx.Graph) -> list[str]:
+        """
+        Generates a set of possible solutions.
+
+        :param graph: the NetworkX graph used in the question.
+        :return: a set of possible solutions, a list of strings.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def verify_answer(self, graph: nx.Graph, answer: str) -> bool:
+        """
+        Checks whether a given solution is correct.
+
+        :param graph: the NetworkX graph used in the question.
+        :param answer: the student's choice of answer, a string.
+        :return: True if the solution is correct, or False otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def generate_feedback(self, graph: nx.Graph, answer: str) -> str:
+        """
+        Generates a message to be displayed when the solution has been submitted.
+
+        :param graph: the NetworkX graph used in the question.
+        :param answer: the student's choice of answer, a string.
         :return: the message to be displayed.
         """
         raise NotImplementedError
