@@ -1,21 +1,48 @@
 import React from 'react'
-import QSelectPath from '../questions/QSelectPath'
-import NotFound from './NotFound'
-import QTextInput from '../questions/QTextInput'
-import QMultipleChoice from '../questions/QMultipleChoice'
-import QVertexSet from '../questions/QVertexSet'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Graph from './Graph'
+import ASelectPath from '../answers/ASelectPath'
+import ATextInput from '../answers/ATextInput'
+import AVertexSet from '../answers/AVertexSet'
+import AMultipleChoice from '../answers/AMultipleChoice'
+import settings from '../../data/settings.json'
 
 export default function Question ({ question, onNext }) {
-  switch (question.type) {
-    case 'QSelectPath':
-      return <QSelectPath question={question} onNext={onNext}/>
-    case 'QVertexSet':
-      return <QVertexSet question={question} onNext={onNext}/>
-    case 'QTextInput':
-      return <QTextInput question={question} onNext={onNext}/>
-    case 'QMultipleChoice':
-      return <QMultipleChoice question={question} onNext={onNext}/>
-    default:
-      return <NotFound/>
+
+  const answerComponents = {
+    'QSelectPath': <ASelectPath question={question} onNext={onNext}/>,
+    'QVertexSet': <AVertexSet question={question} onNext={onNext}/>,
+    'QTextInput': <ATextInput question={question} onNext={onNext}/>,
+    'QMultipleChoice': <AMultipleChoice question={question} onNext={onNext}/>,
   }
+
+  return (
+    <div>
+      <Container>
+        <Row>
+          <Col xs={9}>
+            <Row className="Graph-area">
+              {
+                question.graphs.map((graph, idx) => (
+                  <Col key={idx}>
+                    <h2>G{idx + 1}</h2>
+                    <Graph
+                      myKey={idx}
+                      settings={settings[question.type]}
+                      data={graph}
+                    />
+                  </Col>
+                ))
+              }
+            </Row>
+          </Col>
+          <Col>
+            {answerComponents[question.type]}
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  )
 }

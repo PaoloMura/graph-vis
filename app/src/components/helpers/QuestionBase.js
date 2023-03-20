@@ -1,23 +1,10 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import Col from 'react-bootstrap/Col'
 import Graph from '../helpers/Graph'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
-import ASelectPath from '../answers/ASelectPath'
 
-export default function QSelectPath ({ question, onNext }) {
-
-  const settings = useRef({
-    'autoungrabify': true,
-    'selectifyNodes': true,
-    'selectifyEdges': false,
-    'panning': false,
-    'boxSelection': false,
-    'weighted': false,
-    'directed': false,
-    'loops': false
-  })
-
+export default function QuestionBase ({ question, answerComponent, graphSettings }) {
   return (
     <div>
       <Container>
@@ -26,12 +13,11 @@ export default function QSelectPath ({ question, onNext }) {
             <Row className="Graph-area">
               {
                 question.graphs.map((graph, idx) => (
-                  <Col>
+                  <Col key={idx}>
                     <h2>G{idx + 1}</h2>
                     <Graph
-                      key={idx}
                       myKey={idx}
-                      settings={settings.current}
+                      settings={graphSettings.current}
                       data={graph}
                     />
                   </Col>
@@ -40,7 +26,7 @@ export default function QSelectPath ({ question, onNext }) {
             </Row>
           </Col>
           <Col>
-            <ASelectPath question={question} onNext={onNext}/>
+            {answerComponent}
           </Col>
         </Row>
       </Container>

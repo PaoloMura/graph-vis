@@ -1,26 +1,30 @@
-[
-  {
-    "setting": "weighted",
-    "options": [
-      "false",
-      "true"
-    ],
-    "default": "false"
+{
+  "QSelectPath": {
+    "autoungrabify": true,
+    "selectifyNodes": true,
+    "selectifyEdges": false,
+    "panning": false,
+    "boxSelection": false
   },
-  {
-    "setting": "directed",
-    "options": [
-      "false",
-      "true"
-    ],
-    "default": "false"
+  "QVertexSet": {
+    "autoungrabify": true,
+    "selectifyNodes": true,
+    "selectifyEdges": false,
+    "panning": false,
+    "boxSelection": false
   },
-  {
-    "setting": "loops",
-    "options": [
-      "false",
-      "true"
-    ],
-    "default": "false"
+  "QTextInput": {
+    "autoungrabify": true,
+    "selectifyNodes": false,
+    "selectifyEdges": false,
+    "panning": false,
+    "boxSelection": false
+  },
+  "QMultipleChoice": {
+    "autoungrabify": true,
+    "selectifyNodes": false,
+    "selectifyEdges": false,
+    "panning": false,
+    "boxSelection": false
   }
-]
+}
