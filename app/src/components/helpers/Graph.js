@@ -14,16 +14,9 @@ function Graph ({ settings, data }) {
   let layout = null
   let cy = null
 
-  const actions = {
-    'createNode': createNode,
-    'createEdge': createEdge,
-    'unselect': unselect,
-    'remove': remove
-  }
-
   let edgeClasses = []
   if (settings.weighted) edgeClasses.push('weighted')
-  if (settings.directed) edgeClasses.push('directed')
+  if (data.directed) edgeClasses.push('directed')
   edgeClasses = edgeClasses.join(' ')
 
   // Cytoscape parameters
@@ -96,6 +89,9 @@ function Graph ({ settings, data }) {
     cy.boxSelectionEnabled(settings.boxSelection)
     // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
     settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
+    for (let edge of cy.edges()) {
+      edge.addClass(edgeClasses)
+    }
     updateLayout()
   }
 
@@ -139,7 +135,7 @@ function Graph ({ settings, data }) {
     if (v1 === v2 && !settings.loops) return
 
     // We need to check that there isn't an existing edge here already
-    if (settings.directed) {
+    if (data.directed) {
       if (!(cy.$(`[source = "${v1}"][target = "${v2}"]`).length)) addEdge(v1, v2)
     } else {
       if (!(cy.$(`[source = "${v1}"][target = "${v2}"], [source = "${v2}"][target = "${v1}"]`).length)) {
@@ -200,7 +196,7 @@ function Graph ({ settings, data }) {
 
     function highlightEdge (event) {
       let edge
-      if (settings.directed) {
+      if (data.directed) {
         edge = cy.edges('[source = "' + event.detail.v1 + '"][target = "' + event.detail.v2 + '"]')[0]
       } else {
         edge = cy.edges('[source = "' + event.detail.v1 + '"][target = "' + event.detail.v2 + '"], [source = "' + event.detail.v2 + '"][target = "' + event.detail.v1 + '"]')[0]
@@ -221,7 +217,7 @@ function Graph ({ settings, data }) {
       document.removeEventListener('highlightVertex', highlightVertex)
       document.removeEventListener('highlightEdge', highlightEdge)
     }
-  }, [cy, settings])
+  }, [cy, data.directed, settings])
 
   return (
     <>

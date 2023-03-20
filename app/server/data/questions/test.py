@@ -86,7 +86,7 @@ class TestMCQ2(QMultipleChoice):
 
 class TestVertexSet(QVertexSet):
     def __init__(self):
-        super().__init__(selection_limit=2)
+        super().__init__()
 
     def generate_data(self) -> nx.Graph:
         n = randint(5, 10)
@@ -106,6 +106,57 @@ class TestVertexSet(QVertexSet):
 
     def generate_feedback(self, graph: nx.Graph, answer: list[int]) -> str:
         return ""
+
+
+class TestSelectVertex(QVertexSet):
+    def __init__(self):
+        super().__init__(selection_limit=1)
+
+    def generate_data(self) -> nx.Graph:
+        n = randint(5, 10)
+        p = 0.4
+        graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
+        return graph
+
+    def generate_question(self, graph: nx.Graph) -> str:
+        return "Select a vertex that has exactly two neighbours"
+
+    def generate_solutions(self, graph: nx.Graph) -> list[[int]]:
+        solution = [[n] for (n, d) in graph.degree if d == 2]
+        return solution
+
+    def verify_answer(self, graph: nx.Graph, answer: list[int]) -> bool:
+        return True
+
+    def generate_feedback(self, graph: nx.Graph, answer: list[int]) -> str:
+        return ""
+
+
+class TestDiGraph(QSelectPath):
+    def __init__(self):
+        super().__init__()
+
+    def generate_data(self) -> nx.Graph:
+        n = 5
+        graph = nx.random_k_out_graph(n, 2, 2, self_loops=False)
+        while not nx.has_path(graph, 0, n - 1):
+            graph = nx.random_k_out_graph(n, 2, 2, self_loops=False)
+        return graph
+
+    def generate_question(self, graph: nx.Graph) -> str:
+        n = len(list(graph.nodes)) - 1
+        return f"Find a simple path in the graph from v0 to v{n}"
+
+    def generate_solutions(self, graph: nx.Graph) -> list[list[int]]:
+        n = len(list(graph.nodes)) - 1
+        solutions = nx.all_simple_paths(graph, 0, n)
+        return list(solutions)
+
+    def verify_answer(self, graph: nx.Graph, answer: list[int]) -> bool:
+        return True
+
+    def generate_feedback(self, graph: nx.Graph, answer: list[int]) -> str:
+        return ''
 
 
 if __name__ == '__main__':

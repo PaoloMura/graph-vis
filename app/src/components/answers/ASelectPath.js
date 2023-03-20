@@ -93,7 +93,11 @@ export default function ASelectPath ({ question, onNext }) {
     function areAdjacent (v1, v2) {
       for (let edge of question.graph.elements.edges) {
         let [w1, w2] = [parseInt(edge.data.source), parseInt(edge.data.target)]
-        if ((v1 === w1 && v2 === w2) || (v1 === w2 && v2 === w1)) return true
+        if (question.graph.directed) {
+          if (v1 === w1 && v2 === w2) return true
+        } else {
+          if ((v1 === w1 && v2 === w2) || (v1 === w2 && v2 === w1)) return true
+        }
       }
       return false
     }
@@ -102,10 +106,14 @@ export default function ASelectPath ({ question, onNext }) {
     function isUnvisited (v1, v2) {
       if (answer.length < 2) return true
       for (let i = 0; i < answer.length - 1; i++) {
-        if (
-          (v1 === answer[i] && v2 === answer[i + 1]) ||
-          (v2 === answer[i] && v1 === answer[i + 1])
-        ) return false
+        if (question.graph.directed) {
+          if (v1 === answer[i] && v2 === answer[i + 1]) return false
+        } else {
+          if (
+            (v1 === answer[i] && v2 === answer[i + 1]) ||
+            (v2 === answer[i] && v1 === answer[i + 1])
+          ) return false
+        }
       }
       return true
     }
@@ -114,10 +122,10 @@ export default function ASelectPath ({ question, onNext }) {
       let vertex = parseInt(event.detail, 10)
       // If clicking on the latest vertex or its predecessor, remove it
       if (answer.length > 0 && answer.at(-1) === vertex) popNode()
-      else if (answer.length > 1 && answer.at(-2) === vertex) popNode()
+        // else if (answer.length > 1 && answer.at(-2) === vertex) popNode()
       // Only add a vertex if adjacent to the previous and the edge is unvisited
       else if (answer.length === 0) addNode(vertex)
-      else if (areAdjacent(vertex, answer.at(-1)) && isUnvisited(vertex, answer.at(-1))) addNode(vertex)
+      else if (areAdjacent(answer.at(-1), vertex) && isUnvisited(answer.at(-1), vertex)) addNode(vertex)
     }
 
     function handleTapEdge (event) {

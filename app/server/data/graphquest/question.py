@@ -7,9 +7,14 @@ class Question(ABC):
     Methods to implement:
 
     generate_graph(self) -> nx.Graph
-    generate_question(self) -> str
-    verify_answer(self, solution: int) -> bool
-    generate_feedback(self, graph: nx.Graph, solution: int) -> str
+
+    generate_question(self, graph: nx.Graph) -> str
+
+    generate_solutions(self, graph: nx.Graph) -> list[any]
+
+    verify_answer(self, graph: nx.Graph, answer: any) -> bool
+
+    generate_feedback(self, graph: nx.Graph, answer: any) -> str
     """
     def __init__(self, layout='force-directed', feedback=False):
         self.layout = layout
@@ -68,6 +73,9 @@ class Question(ABC):
 
 
 class QSelectPath(Question):
+    def __init__(self, layout='force-directed', feedback=False):
+        super().__init__(layout=layout, feedback=feedback)
+
     @abstractmethod
     def generate_data(self) -> nx.Graph:
         """
@@ -111,8 +119,8 @@ class QSelectPath(Question):
 
 
 class QTextInput(Question):
-    def __init__(self, data_type='string'):
-        super().__init__()
+    def __init__(self, layout='force-directed', feedback=False, data_type='string'):
+        super().__init__(layout=layout, feedback=feedback)
         self.data_type = data_type
 
     @abstractmethod
@@ -158,8 +166,8 @@ class QTextInput(Question):
 
 
 class QMultipleChoice(Question):
-    def __init__(self, single_selection=False):
-        super().__init__()
+    def __init__(self, layout='force-directed', feedback=False, single_selection=False):
+        super().__init__(layout=layout, feedback=feedback)
         self.single_selection = single_selection
 
     @abstractmethod
@@ -205,8 +213,8 @@ class QMultipleChoice(Question):
 
 
 class QVertexSet(Question):
-    def __init__(self, selection_limit=-1):
-        super().__init__()
+    def __init__(self, layout='force-directed', feedback=False, selection_limit=-1):
+        super().__init__(layout=layout, feedback=feedback)
         self.selection_limit = selection_limit
 
     @abstractmethod

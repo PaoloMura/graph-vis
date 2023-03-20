@@ -1,5 +1,6 @@
 import json
 import random
+from pprint import pprint
 
 import converter
 import server
@@ -43,6 +44,14 @@ def test_get_feedback():
     res = json.loads(response.data.decode('utf-8'))
     assert not res['result']
     assert res['feedback'] != ''
+
+
+def test_digraph():
+    q = server.generate_question('test.py', 'TestDiGraph')
+    pprint(q)
+
+    q = server.generate_question('test.py', 'TestSelectVertex')
+    pprint(q)
 
 
 def test_generate_question():
