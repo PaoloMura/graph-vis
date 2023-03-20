@@ -1,3 +1,4 @@
+import random
 from pprint import pprint
 
 from data.graphquest.question import *
@@ -151,6 +152,30 @@ class TestDiGraph(QSelectPath):
         n = len(list(graph.nodes)) - 1
         solutions = nx.all_simple_paths(graph, 0, n)
         return list(solutions)
+
+    def verify_answer(self, graph: nx.Graph, answer: list[int]) -> bool:
+        return True
+
+    def generate_feedback(self, graph: nx.Graph, answer: list[int]) -> str:
+        return ''
+
+
+class TestWeighted(QSelectPath):
+    def generate_data(self) -> nx.Graph:
+        n = randint(5, 10)
+        p = 0.4
+        graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
+        for u, v, d in graph.edges(data=True):
+            d['weight'] = round(random.random(), 2)
+        return graph
+
+    def generate_question(self, graph: nx.Graph) -> str:
+        return "Select an edge with weight < 0.5"
+
+    def generate_solutions(self, graph: nx.Graph) -> list[list[int]]:
+        solutions = [[u, v] for u, v, d in graph.edges(data=True) if d['weight'] < 0.5] + \
+                    [[v, u] for u, v, d in graph.edges(data=True) if d['weight'] < 0.5]
+        return solutions
 
     def verify_answer(self, graph: nx.Graph, answer: list[int]) -> bool:
         return True

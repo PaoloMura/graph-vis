@@ -46,8 +46,8 @@ def test_get_feedback():
     assert res['feedback'] != ''
 
 
-def test_digraph():
-    q = server.generate_question('test.py', 'TestDiGraph')
+def test_graph():
+    q = server.generate_question('test.py', 'TestWeighted')
     pprint(q)
 
     q = server.generate_question('test.py', 'TestSelectVertex')

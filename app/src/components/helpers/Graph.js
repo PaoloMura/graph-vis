@@ -15,7 +15,11 @@ function Graph ({ settings, data }) {
   let cy = null
 
   let edgeClasses = []
-  if (settings.weighted) edgeClasses.push('weighted')
+  console.log(data.elements.edges[0].data)
+  if ('weight' in data.elements.edges[0].data) {
+    console.log('weighted')
+    edgeClasses.push('weighted')
+  }
   if (data.directed) edgeClasses.push('directed')
   edgeClasses = edgeClasses.join(' ')
 
