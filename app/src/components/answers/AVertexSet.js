@@ -59,15 +59,15 @@ export default function AVertexSet ({ question, onNext }) {
 
   useEffect(() => {
     function handleTapNode (event) {
-      const vertex = parseInt(event.detail, 10)
+      const vertex = parseInt(event.detail.vertex, 10)
       if (answer.includes(vertex)) {
         setAnswer(answer.filter(v => v !== vertex))
-        triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false })
+        triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false }, event.detail.graphKey)
       } else {
         const limit = question.settings.selection_limit
         if (limit === -1 || answer.length < limit) {
           setAnswer([...answer, vertex])
-          triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true })
+          triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true }, event.detail.graphKey)
         }
       }
     }

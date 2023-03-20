@@ -8,16 +8,14 @@ import { triggerGraphEvent } from '../utilities/graph-events'
 
 cytoscape.use(cola)
 
-function Graph ({ settings, data }) {
+function Graph ({ myKey, settings, data }) {
   // Local variables
   // let editingEdge = null
   let layout = null
   let cy = null
 
   let edgeClasses = []
-  console.log(data.elements.edges[0].data)
-  if ('weight' in data.elements.edges[0].data) {
-    console.log('weighted')
+  if (data.elements.edges.length > 0 && 'weight' in data.elements.edges[0].data) {
     edgeClasses.push('weighted')
   }
   if (data.directed) edgeClasses.push('directed')
@@ -179,26 +177,61 @@ function Graph ({ settings, data }) {
 
   useEffect(() => {
     // Trigger graph events
-    cy.on('tap', (event) => { if (event.target === cy) triggerGraphEvent('tap_bg', event) })
-    cy.on('tap', 'node', (event) => { triggerGraphEvent('tap_node', event.target.id()) })
+    cy.on('tap', (event) => {
+      if (event.target === cy) {
+        const params = {
+          'x': event.position.x,
+          'y': event.position.y
+        }
+        triggerGraphEvent('tap_bg', params, myKey)
+      }
+    })
+
+    cy.on('tap', 'node', (event) => {
+      const params = { 'vertex': event.target.id() }
+      triggerGraphEvent('tap_node', params, myKey)
+    })
+
     cy.on('tap', 'edge', (event) => {
-      let params = {
+      const params = {
         'source': parseInt(event.target._private.data.source),
         'target': parseInt(event.target._private.data.target)
       }
-      triggerGraphEvent('tap_edge', params)
+      triggerGraphEvent('tap_edge', params, myKey)
     })
-    cy.on('cxttap', (event) => { if (event.target === cy) triggerGraphEvent('cxttap_bg', event) })
-    cy.on('cxttap', 'node', (event) => { triggerGraphEvent('cxttap_node', event) })
-    cy.on('cxttap', 'edge', (event) => { triggerGraphEvent('cxttap_edge', event) })
+
+    cy.on('cxttap', (event) => {
+      if (event.target === cy) {
+        const params = {
+          'x': event.position.x,
+          'y': event.position.y
+        }
+        triggerGraphEvent('cxttap_bg', params, myKey)
+      }
+    })
+
+    cy.on('cxttap', 'node', (event) => {
+      const params = { 'vertex': event.target.id() }
+      triggerGraphEvent('cxttap_node', params, myKey)
+    })
+
+    cy.on('cxttap', 'edge', (event) => {
+      const params = {
+        'source': parseInt(event.target._private.data.source),
+        'target': parseInt(event.target._private.data.target)
+      }
+      triggerGraphEvent('cxttap_edge', params, myKey)
+    })
 
     function highlightVertex (event) {
+      if (event.detail.graphKey !== myKey) return
       let vertex = cy.nodes('[id = "' + event.detail.vertex + '"]')[0]
       if (event.detail.highlight) vertex.addClass('highlight')
       else vertex.removeClass('highlight')
     }
 
     function highlightEdge (event) {
+      if (event.detail.graphKey !== myKey) return
       let edge
       if (data.directed) {
         edge = cy.edges('[source = "' + event.detail.v1 + '"][target = "' + event.detail.v2 + '"]')[0]
@@ -221,7 +254,7 @@ function Graph ({ settings, data }) {
       document.removeEventListener('highlightVertex', highlightVertex)
       document.removeEventListener('highlightEdge', highlightEdge)
     }
-  }, [cy, data.directed, settings])
+  }, [cy, data.directed, myKey, settings])
 
   return (
     <>

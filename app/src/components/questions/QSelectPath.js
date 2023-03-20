@@ -23,10 +23,21 @@ export default function QSelectPath ({ question, onNext }) {
       <Container>
         <Row>
           <Col xs={9}>
-            <Graph
-              settings={settings.current}
-              data={question.graph}
-            />
+            <Row className="Graph-area">
+              {
+                question.graphs.map((graph, idx) => (
+                  <Col>
+                    <h2>G{idx + 1}</h2>
+                    <Graph
+                      key={idx}
+                      myKey={idx}
+                      settings={settings.current}
+                      data={graph}
+                    />
+                  </Col>
+                ))
+              }
+            </Row>
           </Col>
           <Col>
             <ASelectPath question={question} onNext={onNext}/>

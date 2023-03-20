@@ -43,14 +43,16 @@ h1, h2 {
 
 #cy {
     width: 100%;
-    height: 60vh;
+    height: 53vh;
     margin: auto;
     display: block;
-    border-style: solid;
 }
 
 .Graph-area {
     margin: 20px 150px;
+    height: 60vh;
+    display: block;
+    border-style: solid;
 }
 
 .Home-box {

@@ -57,3 +57,8 @@ def test_graph():
 def test_generate_question():
     data = server.generate_question('euler.py', 'EulerWalk')
     assert data is not None
+
+
+def test_subgraph():
+    q = server.generate_question('test.py', 'TestMultipleGraphs')
+    pprint(q)

@@ -3,20 +3,32 @@ A graph event is an event that is triggered by the graph, usually in response to
 A graph action is an event that the graph listens and responds to (e.g. highlight a given vertex).
 
 Supported Graph Events:
-tap_node (vertex: int)
-tap_edge (source: int, target: int)
+tap_bg (x: int, y: int, graphKey: int)
+tap_node (vertex: int, graphKey: int)
+tap_edge (source: int, target: int, graphKey: int)
+cxttap_bg (x: int, y: int, graphKey: int)
+cxttap_node (vertex: int, graphKey: int)
+cxttap_edge (source: int, target: int, graphKey: int)
 
 Supported Graph Actions:
-highlightVertex (vertex: int, highlight: bool)
-highlightEdge (v1: int, v2: int, highlight: bool)
+highlightVertex (vertex: int, highlight: bool, graphKey: int)
+highlightEdge (v1: int, v2: int, highlight: bool, graphKey: int)
  */
 
-export function triggerGraphEvent (name, value) {
-  const newEvent = new CustomEvent(name, { detail: value })
+export function triggerGraphEvent (name, value, graphKey) {
+  const newValue = {
+    ...value,
+    graphKey: graphKey
+  }
+  const newEvent = new CustomEvent(name, { detail: newValue })
   document.dispatchEvent(newEvent)
 }
 
-export function triggerGraphAction (name, value) {
-  const newEvent = new CustomEvent(name, { detail: value })
+export function triggerGraphAction (name, value, graphKey) {
+  const newValue = {
+    ...value,
+    graphKey: graphKey
+  }
+  const newEvent = new CustomEvent(name, { detail: newValue })
   document.dispatchEvent(newEvent)
 }

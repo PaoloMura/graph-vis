@@ -23,10 +23,20 @@ export default function QMultipleChoice ({ question, onNext }) {
       <Container>
         <Row>
           <Col xs={9}>
-            <Graph
-              settings={settings.current}
-              data={question.graph}
-            />
+            <Row className="Graph-area">
+              {
+                question.graphs.map((graph, idx) => (
+                  <Col key={idx}>
+                    <h2>G{idx + 1}</h2>
+                    <Graph
+                      myKey={idx}
+                      settings={settings.current}
+                      data={graph}
+                    />
+                  </Col>
+                ))
+              }
+            </Row>
           </Col>
           <Col>
             <AMultipleChoice question={question} onNext={onNext}/>

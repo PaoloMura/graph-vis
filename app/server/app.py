@@ -159,10 +159,10 @@ def get_feedback(q_file, q_class):
     try:
         q = load_question(q_file, q_class)
         answer = request.json.get('answer')
-        data = request.json.get('graph')
-        graph = converter.cy2nx(data)
-        result = q.verify_answer(graph.copy(), answer)
-        feedback = q.generate_feedback(graph.copy(), answer)
+        data = request.json.get('graphs')
+        graphs = [converter.cy2nx(d) for d in data]
+        result = q.verify_answer(graphs.copy(), answer)
+        feedback = q.generate_feedback(graphs.copy(), answer)
         return {'result': result, 'feedback': feedback}
     except Exception as e:
         return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404

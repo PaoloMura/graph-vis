@@ -16,7 +16,7 @@ export default function ASelectPath ({ question, onNext }) {
       url: '/api/feedback/' + question.file + '/' + question.class,
       data: {
         answer: answer,
-        graph: question.graph
+        graphs: question.graphs
       }
     }).then((response) => {
       const res = response.data
@@ -53,30 +53,30 @@ export default function ASelectPath ({ question, onNext }) {
   }
 
   useEffect(() => {
-    function addNode (value) {
+    function addNode (value, graphKey) {
       setAnswer([...answer, value])
       if (answer.length > 0) {
         // Un-highlight the previous vertex
-        triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
+        triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false }, graphKey)
         // Highlight the edge
         const params = {
           v1: answer.at(-1),
           v2: value,
           highlight: true
         }
-        triggerGraphAction('highlightEdge', params)
+        triggerGraphAction('highlightEdge', params, graphKey)
       }
       // Highlight this vertex
-      triggerGraphAction('highlightVertex', { vertex: value, highlight: true })
+      triggerGraphAction('highlightVertex', { vertex: value, highlight: true }, graphKey)
     }
 
-    function popNode () {
+    function popNode (graphKey) {
       if (answer.length === 0) return
       // Un-highlight the current vertex
-      triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false })
+      triggerGraphAction('highlightVertex', { vertex: answer.at(-1), highlight: false }, graphKey)
       if (answer.length > 1) {
         // Highlight the previously selected vertex
-        triggerGraphAction('highlightVertex', { vertex: answer.at(-2), highlight: true })
+        triggerGraphAction('highlightVertex', { vertex: answer.at(-2), highlight: true }, graphKey)
         // Un-highlight the current edge if it does not appear anywhere else in the answer
         let v1 = answer.at(-2)
         let v2 = answer.at(-1)
@@ -84,16 +84,16 @@ export default function ASelectPath ({ question, onNext }) {
           return val === v1 && idx < answer.length - 2 && answer.at(idx + 1) === v2
         }
         if (answer.find(checkAdjacent) === undefined) {
-          triggerGraphAction('highlightEdge', { v1: v1, v2: v2, highlight: false })
+          triggerGraphAction('highlightEdge', { v1: v1, v2: v2, highlight: false }, graphKey)
         }
       }
       setAnswer(answer.slice(0, -1))
     }
 
-    function areAdjacent (v1, v2) {
-      for (let edge of question.graph.elements.edges) {
+    function areAdjacent (v1, v2, graphKey) {
+      for (let edge of question.graphs[graphKey].elements.edges) {
         let [w1, w2] = [parseInt(edge.data.source), parseInt(edge.data.target)]
-        if (question.graph.directed) {
+        if (question.graphs[graphKey].directed) {
           if (v1 === w1 && v2 === w2) return true
         } else {
           if ((v1 === w1 && v2 === w2) || (v1 === w2 && v2 === w1)) return true
@@ -103,10 +103,10 @@ export default function ASelectPath ({ question, onNext }) {
     }
 
     // Returns true if the given edge is unvisited
-    function isUnvisited (v1, v2) {
+    function isUnvisited (v1, v2, graphKey) {
       if (answer.length < 2) return true
       for (let i = 0; i < answer.length - 1; i++) {
-        if (question.graph.directed) {
+        if (question.graphs[graphKey].directed) {
           if (v1 === answer[i] && v2 === answer[i + 1]) return false
         } else {
           if (
@@ -119,13 +119,16 @@ export default function ASelectPath ({ question, onNext }) {
     }
 
     function handleTapNode (event) {
-      let vertex = parseInt(event.detail, 10)
+      let vertex = parseInt(event.detail.vertex, 10)
       // If clicking on the latest vertex or its predecessor, remove it
-      if (answer.length > 0 && answer.at(-1) === vertex) popNode()
+      if (answer.length > 0 && answer.at(-1) === vertex) popNode(event.detail.graphKey)
         // else if (answer.length > 1 && answer.at(-2) === vertex) popNode()
       // Only add a vertex if adjacent to the previous and the edge is unvisited
-      else if (answer.length === 0) addNode(vertex)
-      else if (areAdjacent(answer.at(-1), vertex) && isUnvisited(answer.at(-1), vertex)) addNode(vertex)
+      else if (answer.length === 0) addNode(vertex, event.detail.graphKey)
+      else if (areAdjacent(answer.at(-1), vertex, event.detail.graphKey) &&
+        isUnvisited(answer.at(-1), vertex, event.detail.graphKey)) {
+        addNode(vertex, event.detail.graphKey)
+      }
     }
 
     function handleTapEdge (event) {
@@ -135,11 +138,12 @@ export default function ASelectPath ({ question, onNext }) {
           (v1 === answer.at(-2) && v2 === answer.at(-1)) ||
           (v2 === answer.at(-2) && v1 === answer.at(-1))
         )
-      ) popNode()
+      ) popNode(event.detail.graphKey)
     }
 
     function handleKeyDown (event) {
-      if (event.key === 'Backspace') popNode()
+      // TODO: add support for selecting entire graphs in order to use keydown events properly
+      if (event.key === 'Backspace') popNode(0)
     }
 
     document.addEventListener('tap_node', handleTapNode)
@@ -151,7 +155,7 @@ export default function ASelectPath ({ question, onNext }) {
       document.removeEventListener('tap_edge', handleTapEdge)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [answer, question.graph.elements.edges])
+  }, [answer, question.graphs])
 
   if (submitted) {
     return (

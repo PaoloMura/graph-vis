@@ -23,10 +23,16 @@ export default function QTextInput ({ question, onNext }) {
       <Container>
         <Row>
           <Col xs={9}>
-            <Graph
-              settings={settings.current}
-              data={question.graph}
-            />
+            {
+              question.graphs.map((graph, idx) => (
+                <Graph
+                  key={idx}
+                  myKey={idx}
+                  settings={settings.current}
+                  data={graph}
+                />
+              ))
+            }
           </Col>
           <Col>
             <ATextInput
