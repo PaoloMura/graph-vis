@@ -35,19 +35,31 @@ export default function AEdgeSet ({ question, onNext }) {
     return xs.size === ys.size && [...xs].every((x) => ys.has(x))
   }
 
-  const onSubmit = () => {
-    // Determine whether the answer is correct
-    const ans = new Set(answer)
-    if (question.settings.feedback) getSolution()
-    else {
-      for (let solution of question.solutions) {
-        const sol = new Set(solution)
-        if (equalSets(sol, ans)) {
-          setCorrect(true)
-          break
-        }
+  const equalNestedSets = (xs, ys) => {
+    if (xs.size !== ys.size) return false
+    for (let x of xs) {
+      for (let y of ys) {
+        if (equalSets(x, y)) return true
       }
     }
+    return false
+  }
+
+  const answerInSolutions = () => {
+    const ans = new Set(answer.map(edge => new Set(edge)))
+    for (let solution of question.solutions) {
+      const sol = new Set(solution.map(edge => new Set(edge)))
+      if (equalNestedSets(sol, ans)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  const onSubmit = () => {
+    // Determine whether the answer is correct
+    if (question.settings.feedback) getSolution()
+    else if (answerInSolutions()) setCorrect(true)
     setSubmitted(true)
   }
 

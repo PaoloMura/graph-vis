@@ -160,7 +160,10 @@ class TestDiGraph(QSelectPath):
         return ''
 
 
-class TestWeighted(QSelectPath):
+class TestWeighted(QEdgeSet):
+    def __init__(self):
+        super().__init__(selection_limit=1)
+
     def generate_data(self) -> list[nx.Graph]:
         n = randint(5, 10)
         p = 0.4
@@ -172,15 +175,15 @@ class TestWeighted(QSelectPath):
     def generate_question(self, graphs: list[nx.Graph]) -> str:
         return "Select an edge with weight < 0.5"
 
-    def generate_solutions(self, graphs: list[nx.Graph]) -> list[list[int]]:
-        solutions = [[u, v] for u, v, d in graphs[0].edges(data=True) if d['weight'] < 0.5] + \
-                    [[v, u] for u, v, d in graphs[0].edges(data=True) if d['weight'] < 0.5]
+    def generate_solutions(self, graphs: list[nx.Graph]) -> list[list[list[int, int]]]:
+        solutions = [[[u, v]] for u, v, d in graphs[0].edges(data=True) if d['weight'] < 0.5] + \
+                    [[[v, u]] for u, v, d in graphs[0].edges(data=True) if d['weight'] < 0.5]
         return solutions
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[int]) -> bool:
+    def verify_answer(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> bool:
         return True
 
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> str:
         return ''
 
 
