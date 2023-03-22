@@ -10,5 +10,16 @@
   "circle": {
     "name": "circle",
     "padding": 30
+  },
+  "grid": {
+    "name": "grid",
+    "padding": 30,
+    "nodeDimensionsIncludeLabels": true
+  },
+  "bipartite": {
+    "name": "grid",
+    "padding": 30,
+    "nodeDimensionsIncludeLabels": true,
+    "cols": 2
   }
 }

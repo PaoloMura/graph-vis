@@ -7,7 +7,7 @@ from random import randint
 
 class EulerWalk(QSelectPath):
     def __init__(self):
-        super().__init__(feedback=True, node_prefix='v', label_style='math', layout='circle')
+        super().__init__(feedback=True, node_prefix='v', label_style='math', layout='grid')
 
     def generate_data(self) -> list[nx.Graph]:
         n = randint(5, 7)

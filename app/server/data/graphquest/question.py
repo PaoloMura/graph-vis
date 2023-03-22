@@ -223,3 +223,41 @@ class QVertexSet(Question):
         :return: the message to be displayed.
         """
         raise NotImplementedError
+
+
+class QEdgeSet(Question):
+    def __init__(self, layout='force-directed', feedback=False, node_prefix='', label_style='none', selection_limit=-1):
+        super().__init__(layout=layout, feedback=feedback, node_prefix=node_prefix, label_style=label_style)
+        self.selection_limit = selection_limit
+
+    @abstractmethod
+    def generate_solutions(self, graphs: list[nx.Graph]) -> list[list[list[int, int]]]:
+        """
+        Generates a set of possible solutions.
+
+        :param graphs: the NetworkX graphs used in the question.
+        :return: a set of possible solutions, lists of edges.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def verify_answer(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> bool:
+        """
+        Checks whether a given solution is correct.
+
+        :param graphs: the NetworkX graphs used in the question.
+        :param answer: the student's choice of answer, a list of edges.
+        :return: True if the solution is correct, or False otherwise.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> str:
+        """
+        Generates a message to be displayed when the solution has been submitted.
+
+        :param graphs: the NetworkX graphs used in the question.
+        :param answer: the student's choice of answer, a list of edges.
+        :return: the message to be displayed.
+        """
+        raise NotImplementedError

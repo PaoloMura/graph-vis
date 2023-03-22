@@ -16,7 +16,7 @@ export default function ATextInput ({ question, onNext }) {
       url: '/api/feedback/' + question.file + '/' + question.class,
       data: {
         answer: answer,
-        graph: question.graph
+        graphs: question.graphs
       }
     }).then((response) => {
       const res = response.data

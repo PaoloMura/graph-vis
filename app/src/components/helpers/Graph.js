@@ -22,7 +22,19 @@ function Graph ({ myKey, settings, user_settings, data }) {
   if (data.directed) edgeClasses.push('directed')
   edgeClasses = edgeClasses.join(' ')
 
-  const layoutOptions = layouts[user_settings.layout]
+  const bipartitePosition = (node) => {
+    return { 'col': node.data().bipartite }
+  }
+
+  let layoutOptions
+  if (user_settings.layout === 'bipartite') {
+    layoutOptions = {
+      ...layouts[user_settings.layout],
+      position: bipartitePosition
+    }
+  } else {
+    layoutOptions = layouts[user_settings.layout]
+  }
 
   // HELPER FUNCTIONS
 

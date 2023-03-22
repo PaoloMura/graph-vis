@@ -215,6 +215,72 @@ class TestMultipleGraphs(QMultipleChoice):
         return ""
 
 
+class TestMatching(QEdgeSet):
+    def __init__(self):
+        super().__init__(layout='bipartite', feedback=True)
+
+    def generate_data(self) -> list[nx.Graph]:
+        graph = nx.Graph()
+
+        # Add 2 * n nodes to the graph (each partition has n nodes).
+        n = randint(4, 7)
+        top_nodes = [i for i in range(n)]
+        bottom_nodes = [i for i in range(n, 2 * n)]
+        graph.add_nodes_from(top_nodes, bipartite=0)
+        graph.add_nodes_from(bottom_nodes, bipartite=1)
+
+        # Add edges to the graph from top to bottom partition.
+        m = randint(n, n + 5)
+        edges = []
+        while len(edges) < m:
+            edge = (random.choice(top_nodes), random.choice(bottom_nodes))
+            if edge not in edges:
+                edges.append(edge)
+        graph.add_edges_from(edges)
+
+        return [graph]
+
+    def generate_question(self, graphs: list[nx.Graph]) -> str:
+        return "Find a maximum matching in the graph."
+
+    def generate_solutions(self, graphs: list[nx.Graph]) -> list[list[list[int, int]]]:
+        return [[[0, 0]]]
+
+    def verify_answer(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> bool:
+        top_selected = []
+        bottom_selected = []
+
+        for (u, v) in answer:
+            if u in top_selected or v in bottom_selected:
+                return False
+            top_selected.append(u)
+            bottom_selected.append(v)
+            graphs[0].remove_edge(u, v)
+
+        for (u, v) in graphs[0].edges:
+            if u not in top_selected and v not in bottom_selected:
+                return False
+
+        return True
+
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> str:
+        top_selected = []
+        bottom_selected = []
+
+        for (u, v) in answer:
+            if u in top_selected or v in bottom_selected:
+                return 'Two edges cannot share a vertex!'
+            top_selected.append(u)
+            bottom_selected.append(v)
+            graphs[0].remove_edge(u, v)
+
+        for (u, v) in graphs[0].edges:
+            if u not in top_selected and v not in bottom_selected:
+                return 'There is at least one more edge that can be added!'
+
+        return 'This is a maximal matching!'
+
+
 if __name__ == '__main__':
     q = Test()
     g = q.generate_data()

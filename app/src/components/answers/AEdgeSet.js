@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import axios from 'axios'
 
-export default function AVertexSet ({ question, onNext }) {
+export default function AEdgeSet ({ question, onNext }) {
   const [answer, setAnswer] = useState([])
   const [submitted, setSubmitted] = useState(false)
   const [correct, setCorrect] = useState(false)
@@ -58,26 +58,64 @@ export default function AVertexSet ({ question, onNext }) {
   }
 
   useEffect(() => {
-    function handleTapNode (event) {
-      const vertex = parseInt(event.detail.vertex, 10)
-      if (answer.includes(vertex)) {
-        setAnswer(answer.filter(v => v !== vertex))
-        triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false }, event.detail.graphKey)
+    function handleTapEdge (event) {
+      const source = parseInt(event.detail.source, 10)
+      const target = parseInt(event.detail.target, 10)
+
+      const edgeInAnswer = (u, v) => {
+        for (let [x, y] of answer) {
+          if (question.graphs[event.detail.graphKey].directed) {
+            if (u === x && v === y) return true
+          } else {
+            if ((u === x && v === y) || (u === y && v === x)) return true
+          }
+        }
+        return false
+      }
+
+      const eqEdges = (e, f) => {
+        return (e[0] === f[0] && e[1] === f[1])
+      }
+
+      const edgesDifferent = (e) => {
+        if (question.graphs[event.detail.graphKey].directed) {
+          return !eqEdges(e, [source, target])
+        } else {
+          return (!eqEdges(e, [source, target])) && (!eqEdges(e, [target, source]))
+        }
+      }
+
+      if (edgeInAnswer(source, target)) {
+        setAnswer(answer.filter(edgesDifferent))
+        triggerGraphAction(
+          'highlightEdge',
+          { v1: source, v2: target, highlight: false },
+          event.detail.graphKey
+        )
       } else {
         const limit = question.settings.selection_limit
         if (limit === -1 || answer.length < limit) {
-          setAnswer([...answer, vertex])
-          triggerGraphAction('highlightVertex', { vertex: vertex, highlight: true }, event.detail.graphKey)
+          setAnswer([...answer, [source, target]])
+          triggerGraphAction(
+            'highlightEdge',
+            { v1: source, v2: target, highlight: true },
+            event.detail.graphKey
+          )
         }
       }
     }
 
-    document.addEventListener('tap_node', handleTapNode)
+    document.addEventListener('tap_edge', handleTapEdge)
 
     return () => {
-      document.removeEventListener('tap_node', handleTapNode)
+      document.removeEventListener('tap_edge', handleTapEdge)
     }
-  }, [answer, question.settings.selection_limit])
+  }, [answer, question])
+
+  const answerToString = () => {
+    const edges = answer.map(([u, v], _) => `(${u},${v})`)
+    return edges.join(',')
+  }
 
   if (submitted) {
     return (
@@ -97,10 +135,10 @@ export default function AVertexSet ({ question, onNext }) {
         <br/>
         <h3>Controls</h3>
         <ul>
-          <li>Click on a vertex to select/unselect it.</li>
+          <li>Click on an edge to select/unselect it.</li>
           {
             question.settings.selection_limit !== -1 &&
-            <li>You can select at most {question.settings.selection_limit} vertices</li>
+            <li>You can select at most {question.settings.selection_limit} edges</li>
           }
         </ul>
         <br/>
@@ -108,7 +146,7 @@ export default function AVertexSet ({ question, onNext }) {
           <Form.Control
             disabled
             readOnly
-            value={answer.toString()}
+            value={answerToString()}
           />
           <br/>
           <Button variant="primary" onClick={onSubmit}>Submit</Button>

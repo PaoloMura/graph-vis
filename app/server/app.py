@@ -1,3 +1,4 @@
+import copy
 from pprint import pprint
 
 import converter
@@ -161,8 +162,8 @@ def get_feedback(q_file, q_class):
         answer = request.json.get('answer')
         data = request.json.get('graphs')
         graphs = [converter.cy2nx(d) for d in data]
-        result = q.verify_answer(graphs.copy(), answer)
-        feedback = q.generate_feedback(graphs.copy(), answer)
+        result = q.verify_answer(copy.deepcopy(graphs), answer)
+        feedback = q.generate_feedback(copy.deepcopy(graphs), answer)
         return {'result': result, 'feedback': feedback}
     except Exception as e:
         return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404

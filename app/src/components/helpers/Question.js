@@ -8,6 +8,7 @@ import ATextInput from '../answers/ATextInput'
 import AVertexSet from '../answers/AVertexSet'
 import AMultipleChoice from '../answers/AMultipleChoice'
 import settings from '../../data/settings.json'
+import AEdgeSet from '../answers/AEdgeSet'
 
 export default function Question ({ question, onNext }) {
 
@@ -16,6 +17,7 @@ export default function Question ({ question, onNext }) {
     'QVertexSet': <AVertexSet question={question} onNext={onNext}/>,
     'QTextInput': <ATextInput question={question} onNext={onNext}/>,
     'QMultipleChoice': <AMultipleChoice question={question} onNext={onNext}/>,
+    'QEdgeSet': <AEdgeSet question={question} onNext={onNext}/>
   }
 
   return (

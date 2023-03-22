@@ -13,6 +13,13 @@
     "panning": false,
     "boxSelection": false
   },
+  "QEdgeSet": {
+    "autoungrabify": true,
+    "selectifyNodes": false,
+    "selectifyEdges": true,
+    "panning": false,
+    "boxSelection": false
+  },
   "QTextInput": {
     "autoungrabify": true,
     "selectifyNodes": false,
