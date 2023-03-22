@@ -31,6 +31,7 @@ export default function Question ({ question, onNext }) {
                     <Graph
                       myKey={idx}
                       settings={settings[question.type]}
+                      user_settings={question.settings}
                       data={graph}
                     />
                   </Col>

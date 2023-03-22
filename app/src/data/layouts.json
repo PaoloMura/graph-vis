@@ -1,0 +1,14 @@
+{
+  "force-directed": {
+    "name": "cola",
+    "animate": false,
+    "infinite": false,
+    "edgeLength": 100,
+    "centerGraph": false,
+    "padding": 30
+  },
+  "circle": {
+    "name": "circle",
+    "padding": 30
+  }
+}

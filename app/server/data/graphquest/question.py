@@ -16,9 +16,11 @@ class Question(ABC):
 
     generate_feedback(self, graph: nx.Graph, answer: any) -> str
     """
-    def __init__(self, layout='force-directed', feedback=False):
+    def __init__(self, layout='force-directed', feedback=False, node_prefix='', label_style='none'):
         self.layout = layout
         self.feedback = feedback
+        self.node_prefix = node_prefix
+        self.label_style = label_style
 
     @abstractmethod
     def generate_data(self) -> list[nx.Graph]:
@@ -73,8 +75,8 @@ class Question(ABC):
 
 
 class QSelectPath(Question):
-    def __init__(self, layout='force-directed', feedback=False):
-        super().__init__(layout=layout, feedback=feedback)
+    def __init__(self, layout='force-directed', feedback=False, node_prefix='', label_style='none'):
+        super().__init__(layout=layout, feedback=feedback, node_prefix=node_prefix, label_style=label_style)
 
     @abstractmethod
     def generate_solutions(self, graphs: list[nx.Graph]) -> list[list[int]]:
@@ -110,8 +112,8 @@ class QSelectPath(Question):
 
 
 class QTextInput(Question):
-    def __init__(self, layout='force-directed', feedback=False, data_type='string'):
-        super().__init__(layout=layout, feedback=feedback)
+    def __init__(self, layout='force-directed', feedback=False, node_prefix='', data_type='string', label_style='none'):
+        super().__init__(layout=layout, feedback=feedback, node_prefix=node_prefix, label_style=label_style)
         self.data_type = data_type
 
     @abstractmethod
@@ -148,8 +150,8 @@ class QTextInput(Question):
 
 
 class QMultipleChoice(Question):
-    def __init__(self, layout='force-directed', feedback=False, single_selection=False):
-        super().__init__(layout=layout, feedback=feedback)
+    def __init__(self, layout='force-directed', feedback=False, node_prefix='', label_style='none', single_selection=False):
+        super().__init__(layout=layout, feedback=feedback, node_prefix=node_prefix, label_style=label_style)
         self.single_selection = single_selection
 
     @abstractmethod
@@ -186,8 +188,8 @@ class QMultipleChoice(Question):
 
 
 class QVertexSet(Question):
-    def __init__(self, layout='force-directed', feedback=False, selection_limit=-1):
-        super().__init__(layout=layout, feedback=feedback)
+    def __init__(self, layout='force-directed', feedback=False, node_prefix='', label_style='none', selection_limit=-1):
+        super().__init__(layout=layout, feedback=feedback, node_prefix=node_prefix, label_style=label_style)
         self.selection_limit = selection_limit
 
     @abstractmethod

@@ -5,7 +5,14 @@
       "background-color": "#000",
       "width": 15,
       "height": 15,
-      "label": "data(id)"
+      "label": "data(label)"
+    }
+  },
+  {
+    "selector": ".styled-label",
+    "style": {
+      "font-style": "italic",
+      "font-family": "serif"
     }
   },
   {
@@ -14,7 +21,6 @@
       "background-color": "#fff",
       "border-style": "solid",
       "border-width": 2,
-      "label": "data(id)",
       "text-valign": "center",
       "text-halign": "center"
     }

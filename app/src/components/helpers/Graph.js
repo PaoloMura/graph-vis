@@ -5,10 +5,11 @@ import '../../App.css'
 import cyStyle from '../../cy-style.json'
 import cola from 'cytoscape-cola'
 import { triggerGraphEvent } from '../utilities/graph-events'
+import layouts from '../../data/layouts.json'
 
 cytoscape.use(cola)
 
-function Graph ({ myKey, settings, data }) {
+function Graph ({ myKey, settings, user_settings, data }) {
   // Local variables
   // let editingEdge = null
   let layout = null
@@ -21,24 +22,7 @@ function Graph ({ myKey, settings, data }) {
   if (data.directed) edgeClasses.push('directed')
   edgeClasses = edgeClasses.join(' ')
 
-  // Cytoscape parameters
-  const initialLayoutOptions = {
-    name: 'cola',
-    animate: false,
-    infinite: false,
-    edgeLength: 100,
-    centerGraph: true,
-    randomize: true,
-    padding: 30
-  }
-  const layoutOptions = {
-    name: 'cola',
-    animate: false,
-    infinite: false,
-    edgeLength: 100,
-    centerGraph: false,
-    padding: 30
-  }
+  const layoutOptions = layouts[user_settings.layout]
 
   // HELPER FUNCTIONS
 
@@ -91,6 +75,13 @@ function Graph ({ myKey, settings, data }) {
     cy.boxSelectionEnabled(settings.boxSelection)
     // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
     settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
+    for (let node of cy.nodes()) {
+      const label = user_settings.node_prefix + node.data('id')
+      node.data('label', label)
+      if (user_settings.label_style === 'math') {
+        node.addClass('styled-label')
+      }
+    }
     for (let edge of cy.edges()) {
       edge.addClass(edgeClasses)
     }
@@ -261,7 +252,7 @@ function Graph ({ myKey, settings, data }) {
       <CytoscapeComponent
         id={'cy'}
         // elements={elements}
-        layout={initialLayoutOptions}
+        layout={layoutOptions}
         stylesheet={cyStyle}
         cy={(c) => {
           cy = c
