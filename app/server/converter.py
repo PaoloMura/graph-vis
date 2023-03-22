@@ -10,6 +10,9 @@ def nx2cy(graph: nx.Graph) -> dict:
         id = f"{edge['data']['source']}-{edge['data']['target']}"
         edge['data'].update({'id': id})
 
+    for node in data['elements']['nodes']:
+        node['data'].pop('name')
+
     return data
 
 
