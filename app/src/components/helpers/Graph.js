@@ -87,12 +87,55 @@ function Graph ({ myKey, settings, user_settings, data }) {
     cy.boxSelectionEnabled(settings.boxSelection)
     // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
     settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
+
+    const n = cy.nodes().length
+    const TR = 1 / 16
+    const RT = 3 / 16
+    const RB = 5 / 16
+    const BR = 7 / 16
+    const BL = 9 / 16
+    const LB = 11 / 16
+    const LT = 13 / 16
+    const TL = 15 / 16
+
+    const setLabelPosition = (node) => {
+      if (user_settings.layout === 'circle') {
+        const v = node.data('value')
+        const pos = v / n
+        console.log('n:', n)
+        console.log('node', v, 'pos', pos)
+        if (BL <= pos && pos < TL) {
+          node.style('text-halign', 'left')
+          node.style('text-margin-x', -10)
+        } else if ((TL <= pos && pos < TR) || (BR <= pos && pos < BL)) {
+          node.style('text-halign', 'center')
+        } else if (TR <= pos && pos < BR) {
+          node.style('text-halign', 'right')
+          node.style('text-margin-x', 10)
+        } else {
+          console.log('Invalid node position for node', v)
+        }
+        if (LT <= pos && pos < RT) {
+          node.style('text-valign', 'top')
+          node.style('text-margin-y', -10)
+        } else if ((RT <= pos && pos < RB) || (LB <= pos && pos < LT)) {
+          node.style('text-valign', 'center')
+        } else if (RB <= pos && pos < LB) {
+          node.style('text-valign', 'bottom')
+          node.style('text-margin-y', 10)
+        } else {
+          console.log('Invalid node position for node', v)
+        }
+      }
+    }
+
     for (let node of cy.nodes()) {
       const label = user_settings.node_prefix + node.data('id')
       node.data('label', label)
       if (user_settings.label_style === 'math') {
         node.addClass('styled-label')
       }
+      setLabelPosition(node)
     }
     for (let edge of cy.edges()) {
       edge.addClass(edgeClasses)

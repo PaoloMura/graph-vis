@@ -162,7 +162,7 @@ class TestDiGraph(QSelectPath):
 
 class TestWeighted(QEdgeSet):
     def __init__(self):
-        super().__init__(selection_limit=1)
+        super().__init__(selection_limit=1, layout='circle')
 
     def generate_data(self) -> list[nx.Graph]:
         n = randint(5, 10)
@@ -279,9 +279,29 @@ class TestMatching(QEdgeSet):
 
         for (u, v) in graphs[0].edges:
             if u not in top_selected and v not in bottom_selected:
-                return 'There is at least one more edge that can be added!'
+                return f'There is at least one more edge that can be added! ({u}, {v})'
 
         return 'This is a maximal matching!'
+
+
+class TestLabels(QTextInput):
+    def __init__(self):
+        super().__init__(layout='circle')
+
+    def generate_data(self) -> list[nx.Graph]:
+        return [nx.complete_graph(8)]
+
+    def generate_question(self, graphs: list[nx.Graph]) -> str:
+        return ""
+
+    def generate_solutions(self, graphs: list[nx.Graph]) -> list[str]:
+        return ['']
+
+    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
+        return True
+
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
+        return ''
 
 
 if __name__ == '__main__':
