@@ -10,11 +10,10 @@ import layouts from '../../data/layouts.json'
 cytoscape.use(cola)
 
 function Graph ({ myKey, settings, user_settings, data }) {
-  // Local variables
-  // let editingEdge = null
   let layout = null
   let cy = null
 
+  // Set graph style for directed and weighted graphs.
   let edgeClasses = []
   if (data.elements.edges.length > 0 && 'weight' in data.elements.edges[0].data) {
     edgeClasses.push('weighted')
@@ -22,6 +21,7 @@ function Graph ({ myKey, settings, user_settings, data }) {
   if (data.directed) edgeClasses.push('directed')
   edgeClasses = edgeClasses.join(' ')
 
+  // Set the graph layout
   const bipartitePosition = (node) => {
     return { 'col': node.data().bipartite }
   }
@@ -36,58 +36,13 @@ function Graph ({ myKey, settings, user_settings, data }) {
     layoutOptions = layouts[user_settings.layout]
   }
 
-  // HELPER FUNCTIONS
-
-  function nextVertexLabel () {
-    // Sort the existing vertex labels in order
-    let vertices = cy.$('node')
-      .map(x => parseInt(x.id()))
-      .sort((a, b) => a - b)
-    // Find the smallest available integer >= 0
-    let prev = -1
-    for (let v of vertices) {
-      if (v === prev + 1) prev = v
-      else break
-    }
-    return prev + 1
-  }
-
-  function addEdge (v1, v2) {
-    cy.add({
-      group: 'edges',
-      data: {
-        source: v1,
-        target: v2,
-        weight: '0'
-      },
-      classes: edgeClasses
-    })
-    if (layout != null) layout.stop()
-    layout = cy.layout(layoutOptions)
-    layout.start()
-  }
-
   function updateLayout () {
     if (layout != null) layout.stop()
     layout = cy.layout(layoutOptions)
     layout.start()
   }
 
-  function isPositional (event) {
-    return ['tap', 'cxttap'].includes(event.type)
-  }
-
-  // INITIALISATION
-
-  function initialise (data) {
-    cy.remove(cy.nodes())
-    cy.json(data)
-    cy.autoungrabify(settings.autoungrabify)
-    cy.userPanningEnabled(settings.panning)
-    cy.boxSelectionEnabled(settings.boxSelection)
-    // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
-    settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
-
+  function initialiseLabels () {
     const n = cy.nodes().length
     const TR = 1 / 16
     const RT = 3 / 16
@@ -98,35 +53,88 @@ function Graph ({ myKey, settings, user_settings, data }) {
     const LT = 13 / 16
     const TL = 15 / 16
 
-    const setLabelPosition = (node) => {
-      if (user_settings.layout === 'circle') {
-        const v = node.data('value')
-        const pos = v / n
-        console.log('n:', n)
-        console.log('node', v, 'pos', pos)
-        if (BL <= pos && pos < TL) {
-          node.style('text-halign', 'left')
-          node.style('text-margin-x', -10)
-        } else if ((TL <= pos && pos < TR) || (BR <= pos && pos < BL)) {
-          node.style('text-halign', 'center')
-        } else if (TR <= pos && pos < BR) {
-          node.style('text-halign', 'right')
-          node.style('text-margin-x', 10)
-        } else {
-          console.log('Invalid node position for node', v)
-        }
-        if (LT <= pos && pos < RT) {
-          node.style('text-valign', 'top')
-          node.style('text-margin-y', -10)
-        } else if ((RT <= pos && pos < RB) || (LB <= pos && pos < LT)) {
-          node.style('text-valign', 'center')
-        } else if (RB <= pos && pos < LB) {
-          node.style('text-valign', 'bottom')
-          node.style('text-margin-y', 10)
-        } else {
-          console.log('Invalid node position for node', v)
-        }
+    const setLabelPosCircle = (node) => {
+      const v = node.data('value')
+      const pos = v / n
+      if (BL <= pos && pos < TL) {
+        node.style('text-halign', 'left')
+        node.style('text-margin-x', -10)
+      } else if (TL <= pos || pos < TR || (BR <= pos && pos < BL)) {
+        node.style('text-halign', 'center')
+      } else if (TR <= pos && pos < BR) {
+        node.style('text-halign', 'right')
+        node.style('text-margin-x', 10)
+      } else {
+        console.log('Invalid x position for node', v)
       }
+      if (LT <= pos || pos < RT) {
+        node.style('text-valign', 'top')
+        node.style('text-margin-y', -10)
+      } else if ((RT <= pos && pos < RB) || (LB <= pos && pos < LT)) {
+        node.style('text-valign', 'center')
+      } else if (RB <= pos && pos < LB) {
+        node.style('text-valign', 'bottom')
+        node.style('text-margin-y', 10)
+      } else {
+        console.log('Invalid y position for node', v)
+      }
+    }
+
+    const setLabelPos = (node) => {
+      // Define 8 zones for the circle region around the node.
+      let zones = [
+        { x: 'center', y: 'top', mx: 0, my: -5, 'occupied': false },
+        { x: 'right', y: 'top', mx: 5, my: -5, 'occupied': false },
+        { x: 'right', y: 'center', mx: 5, my: 0, 'occupied': false },
+        { x: 'right', y: 'bottom', mx: 5, my: 5, 'occupied': false },
+        { x: 'center', y: 'bottom', mx: 0, my: 5, 'occupied': false },
+        { x: 'left', y: 'bottom', mx: -5, my: 5, 'occupied': false },
+        { x: 'left', y: 'center', mx: -5, my: 0, 'occupied': false },
+        { x: 'left', y: 'top', mx: -5, my: -5, 'occupied': false },
+      ]
+      // Determine which zones are occupied by the neighbouring edges.
+      const u = node.position('x'), v = node.position('y')
+      const neighbours = node.neighbourhood().filter('node')
+      for (let n of neighbours) {
+        const a = n.position('x'), b = n.position('y')
+        const x = a - u
+        const y = v - b === 0 ? 0.0001 : v - b
+        const angle = Math.atan2(-x, -y) + Math.PI
+        const zone_id = Math.floor((angle + (Math.PI / 8)) / (Math.PI / 4)) % 8
+        zones[zone_id].occupied = true
+      }
+      // Count the adjacent unoccupied zones forwards and backwards with memoization.
+      let xs = []
+      let xs_max = 0
+      for (let i = 0; i < 8; i++) {
+        if (!zones[i].occupied) {
+          i === 0 ? xs.push(1) : xs.push(xs[i - 1] + 1)
+          if (xs[i] > xs[xs_max]) xs_max = i
+        } else xs.push(0)
+      }
+      let ys = []
+      for (let i = 7; i >= 0; i--) {
+        if (!zones[i].occupied) {
+          i === 7 ? ys.push(1) : ys.push(ys[7 - i - 1] + 1)
+        } else ys.push(0)
+      }
+      // Find the midpoint of the largest contiguous region of unoccupied zones.
+      let s, e, mid
+      const wrap_max = xs[7] + ys[7]
+      if (wrap_max > xs[xs_max]) {
+        s = 7 - xs[7] + 1
+        e = 7 + ys[7]
+      } else {
+        s = xs_max - xs[xs_max] + 1
+        e = xs_max
+      }
+      mid = Math.floor(0.5 * (s + e)) % 8
+      // Set the label to be in this zone.
+      let zone = zones[mid]
+      node.style('text-halign', zone.x)
+      node.style('text-valign', zone.y)
+      node.style('text-margin-x', zone.mx)
+      node.style('text-margin-y', zone.my)
     }
 
     for (let node of cy.nodes()) {
@@ -135,92 +143,32 @@ function Graph ({ myKey, settings, user_settings, data }) {
       if (user_settings.label_style === 'math') {
         node.addClass('styled-label')
       }
-      setLabelPosition(node)
+      if (user_settings.layout === 'circle') {
+        setLabelPosCircle(node)
+      } else {
+        setLabelPos(node)
+      }
     }
+  }
+
+  // Initial graph setup.
+  function initialise (data) {
+    cy.remove(cy.nodes())
+    cy.json(data)
+    cy.autoungrabify(settings.autoungrabify)
+    cy.userPanningEnabled(settings.panning)
+    cy.boxSelectionEnabled(settings.boxSelection)
+    // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
+    settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
+    updateLayout()
+    initialiseLabels()
     for (let edge of cy.edges()) {
       edge.addClass(edgeClasses)
     }
-    updateLayout()
+    // updateLayout()
   }
 
-  // ACTIONS
-
-  function createNode (event) {
-    let label = nextVertexLabel()
-    if (isPositional(event)) {
-      cy.add({
-        group: 'nodes',
-        position: { x: event.position.x, y: event.position.y },
-        data: { id: label }
-      })
-    } else {
-      cy.add({
-        group: 'nodes',
-        data: { id: label }
-      })
-    }
-    // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
-    updateLayout()
-  }
-
-  function unselect (event) {
-    let elems = cy.$(':selected')
-    for (let elem of elems) {
-      elem.unselect()
-    }
-  }
-
-  function createEdge (event) {
-    // Find the previously selected node
-    let selected = cy.$('node:selected')
-    if (selected.size() === 0) return
-    let v1 = selected[0].id()
-
-    // Find the currently selected node
-    let v2 = event.target.id()
-
-    // We need to check if loops are allowed
-    if (v1 === v2 && !settings.loops) return
-
-    // We need to check that there isn't an existing edge here already
-    if (data.directed) {
-      if (!(cy.$(`[source = "${v1}"][target = "${v2}"]`).length)) addEdge(v1, v2)
-    } else {
-      if (!(cy.$(`[source = "${v1}"][target = "${v2}"], [source = "${v2}"][target = "${v1}"]`).length)) {
-        addEdge(v1, v2)
-      }
-    }
-
-    // Set whether the edges are selectable
-    settings.selectifyEdges ? cy.edges().selectify() : cy.edges().unselectify()
-  }
-
-  function remove (event) {
-    let selected = cy.$(':selected')
-    if (selected[0] != null) cy.remove(selected[0])
-  }
-
-  // TODO: finish adding support for editing weights
-  // function editWeight (event) {
-  //   if (!settings.weighted) return
-  //   if (editingEdge === null) {
-  //     let selected = cy.$('edge:selected')
-  //     if (selected[0] != null) editingEdge = selected[0]
-  //   } else if (editingEdge.data('weight') === '') {
-  //     editingEdge.data('weight', '0')
-  //   }
-  // }
-  //
-  // function appendNumber (event) {
-  //   if (editingEdge != null) {
-  //     let value = editingEdge.data('weight')
-  //     if (value === '0') editingEdge.data('weight', event.key)
-  //     else editingEdge.data('weight', value + event.key)
-  //   }
-  // }
-
-  // LISTENERS
-
+  // Events and listeners (graph manipulation).
   useEffect(() => {
     // Trigger graph events
     cy.on('tap', (event) => {
@@ -306,7 +254,6 @@ function Graph ({ myKey, settings, user_settings, data }) {
     <>
       <CytoscapeComponent
         id={'cy'}
-        // elements={elements}
         layout={layoutOptions}
         stylesheet={cyStyle}
         cy={(c) => {

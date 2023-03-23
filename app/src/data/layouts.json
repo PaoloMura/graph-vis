@@ -5,20 +5,22 @@
     "infinite": false,
     "edgeLength": 100,
     "centerGraph": false,
-    "padding": 30
+    "padding": 50,
+    "nodeDimensionsIncludeLabels": true
   },
   "circle": {
     "name": "circle",
-    "padding": 30
+    "padding": 50,
+    "nodeDimensionsIncludeLabels": true
   },
   "grid": {
     "name": "grid",
-    "padding": 30,
+    "padding": 50,
     "nodeDimensionsIncludeLabels": true
   },
   "bipartite": {
     "name": "grid",
-    "padding": 30,
+    "padding": 50,
     "nodeDimensionsIncludeLabels": true,
     "cols": 2
   }

@@ -12,6 +12,7 @@ def nx2cy(graph: nx.Graph) -> dict:
 
     for node in data['elements']['nodes']:
         node['data'].pop('name')
+        node['data']['label'] = ''
 
     return data
 
