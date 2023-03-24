@@ -10,6 +10,13 @@ export default function AVertexSet ({ question, onNext }) {
   const [correct, setCorrect] = useState(false)
   const [feedback, setFeedback] = useState('')
 
+  const handleReset = () => {
+    for (let vertex of answer) {
+      triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false }, 0)
+    }
+    setAnswer([])
+  }
+
   const getSolution = () => {
     axios({
       method: 'POST',
@@ -110,6 +117,9 @@ export default function AVertexSet ({ question, onNext }) {
             readOnly
             value={answer.toString()}
           />
+          <br/>
+          <Button variant="secondary" onClick={handleReset}>Reset</Button>
+          <br/>
           <br/>
           <Button variant="primary" onClick={onSubmit}>Submit</Button>
         </Form>

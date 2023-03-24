@@ -10,6 +10,17 @@ export default function AEdgeSet ({ question, onNext }) {
   const [correct, setCorrect] = useState(false)
   const [feedback, setFeedback] = useState('')
 
+  const handleReset = () => {
+    for (let [source, target] of answer) {
+      triggerGraphAction(
+        'highlightEdge',
+        { v1: source, v2: target, highlight: false },
+        0
+      )
+    }
+    setAnswer([])
+  }
+
   const getSolution = () => {
     axios({
       method: 'POST',
@@ -160,6 +171,9 @@ export default function AEdgeSet ({ question, onNext }) {
             readOnly
             value={answerToString()}
           />
+          <br/>
+          <Button variant="secondary" onClick={handleReset}>Reset</Button>
+          <br/>
           <br/>
           <Button variant="primary" onClick={onSubmit}>Submit</Button>
         </Form>

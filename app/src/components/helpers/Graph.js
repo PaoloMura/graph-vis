@@ -11,38 +11,25 @@ import { setLabelPos, setLabelPosBipartite, setLabelPosCircle } from '../utiliti
 cytoscape.use(cola)
 
 function Graph ({ myKey, settings, user_settings, data }) {
-  let layout = null
+  // Do not modify these after initialisation!
+  // It will trigger a rerender of the component and, in the worst case, an infinite loop.
   let cy = null
+  let layoutOptions = null
 
-  // Set graph style for directed and weighted graphs.
-  let edgeClasses = []
-  if (data.elements.edges.length > 0 && 'weight' in data.elements.edges[0].data) {
-    edgeClasses.push('weighted')
-  }
-  if (data.directed) edgeClasses.push('directed')
-  edgeClasses = edgeClasses.join(' ')
-
-  // Set the graph layout
-  const bipartitePosition = (node) => {
-    return { 'col': node.data('bipartite') }
-  }
-
-  let layoutOptions
-  if (user_settings.layout === 'bipartite') {
-    layoutOptions = {
-      ...layouts[user_settings.layout],
-      position: bipartitePosition
+  // Set the graph layout options (if bipartite, we also need to determine which column each node belongs in).
+  function setLayoutOptions () {
+    if (user_settings.layout === 'bipartite') {
+      layoutOptions = {
+        ...layouts[user_settings.layout],
+        position: (node) => {
+          return { 'col': node.data('bipartite') }
+        }
+      }
+    } else {
+      layoutOptions = layouts[user_settings.layout]
     }
-  } else {
-    layoutOptions = layouts[user_settings.layout]
   }
-
-  function updateLayout () {
-    if (layout != null) layout.stop()
-    layout = cy.layout(layoutOptions)
-    layout.start()
-  }
-
+  
   function initialiseLabels () {
     const n_nodes = cy.nodes().length
     for (let node of cy.nodes()) {
@@ -66,26 +53,39 @@ function Graph ({ myKey, settings, user_settings, data }) {
     }
   }
 
-  // Initial graph setup.
-  function initialise (data) {
-    cy.remove(cy.nodes())
-    cy.json(data)
-    cy.autoungrabify(settings.autoungrabify)
-    cy.userPanningEnabled(settings['panning'])
-    cy.boxSelectionEnabled(settings['boxSelection'])
-    // settings.selectifyNodes ? cy.nodes().selectify() : cy.nodes().unselectify()
-    const edges = cy.edges()
-    if (edges !== undefined) {
-      settings['selectifyEdges'] ? edges.selectify() : edges.unselectify()
+  // Set graph style for edges of directed and weighted graphs.
+  function setEdgeClasses () {
+    let edgeClasses = []
+    if (data.elements.edges.length > 0 && 'weight' in data.elements.edges[0].data) {
+      edgeClasses.push('weighted')
     }
-    updateLayout()
-    initialiseLabels()
+    if (data.directed) edgeClasses.push('directed')
+    edgeClasses = edgeClasses.join(' ')
     for (let edge of cy.edges()) {
       edge.addClass(edgeClasses)
     }
   }
 
-  // Events and listeners (graph manipulation).
+  // Initial graph setup (order matters!).
+  function initialise (data) {
+    // Set layout and import data.
+    setLayoutOptions()
+    cy.remove(cy.nodes())
+    cy.json(data)
+    const layout = cy.layout(layoutOptions)
+    layout.start()
+    // Apply interactive settings.
+    cy.autoungrabify(settings.autoungrabify)
+    cy.userPanningEnabled(settings['panning'])
+    cy.boxSelectionEnabled(settings['boxSelection'])
+    settings['selectifyNodes'] ? cy.nodes()?.selectify() : cy.nodes()?.unselectify()
+    settings['selectifyEdges'] ? cy.edges()?.selectify() : cy.edges()?.unselectify()
+    // Apply styling to nodes and edges.
+    initialiseLabels()
+    setEdgeClasses()
+  }
+
+  // Events and listeners for graph manipulation.
   useEffect(() => {
     // Trigger graph events
     cy.on('tap', (event) => {
