@@ -128,6 +128,7 @@ export default function AVertexSet ({ question, onNext }) {
         <h3>Controls</h3>
         <ul>
           <li>Click on a vertex to select/unselect it.</li>
+          <li>Click and drag to select/unselect multiple vertices.</li>
           {
             question.settings.selection_limit !== -1 &&
             <li>You can select at most {question.settings.selection_limit} vertices</li>

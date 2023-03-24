@@ -81,35 +81,44 @@ export default function AEdgeSet ({ question, onNext }) {
   }
 
   useEffect(() => {
-    function handleTapEdge (event) {
-      const source = parseInt(event.detail.source, 10)
-      const target = parseInt(event.detail.target, 10)
-
-      const edgeInAnswer = (u, v) => {
-        for (let [x, y] of answer) {
-          if (question.graphs[event.detail.graphKey].directed) {
-            if (u === x && v === y) return true
-          } else {
-            if ((u === x && v === y) || (u === y && v === x)) return true
-          }
-        }
-        return false
-      }
-
-      const eqEdges = (e, f) => {
-        return (e[0] === f[0] && e[1] === f[1])
-      }
-
-      const edgesDifferent = (e) => {
-        if (question.graphs[event.detail.graphKey].directed) {
-          return !eqEdges(e, [source, target])
+    const edgeInAnswer = (edge, graphKey) => {
+      const [u, v] = edge
+      for (let [x, y] of answer) {
+        if (question.graphs[graphKey].directed) {
+          if (u === x && v === y) return true
         } else {
-          return (!eqEdges(e, [source, target])) && (!eqEdges(e, [target, source]))
+          if ((u === x && v === y) || (u === y && v === x)) return true
         }
       }
+      return false
+    }
 
-      if (edgeInAnswer(source, target)) {
-        setAnswer(answer.filter(edgesDifferent))
+    const edgeInArray = (edge, array) => {
+      const [u, v] = edge
+      for (let [x, y] of array) {
+        if (u === x && v === y) return true
+      }
+      return false
+    }
+
+    const eqEdges = (e, f) => {
+      return (e[0] === f[0] && e[1] === f[1])
+    }
+
+    const edgesDifferent = (e, f, graphKey) => {
+      if (question.graphs[graphKey].directed) {
+        return !eqEdges(e, [f[0], f[1]])
+      } else {
+        return (!eqEdges(e, [f[0], f[1]])) && (!eqEdges(e, [f[1], f[0]]))
+      }
+    }
+
+    function handleTapEdge (event) {
+      const source = event.detail.source
+      const target = event.detail.target
+
+      if (edgeInAnswer([source, target], event.detail.graphKey)) {
+        setAnswer(answer.filter((e) => edgesDifferent(e, [source, target], event.detail.graphKey)))
         triggerGraphAction(
           'highlightEdge',
           { v1: source, v2: target, highlight: false },
@@ -128,10 +137,44 @@ export default function AEdgeSet ({ question, onNext }) {
       }
     }
 
+    function handleBoxEnd (event) {
+      const edges = event.detail.edges
+      const numInAnswer = edges.reduce((acc, e) => {
+        return edgeInAnswer(e, event.detail.graphKey) ? acc + 1 : acc
+      }, 0)
+      if (numInAnswer === edges.length) {
+        // Un-highlight all and remove them from answer
+        for (let e of edges) {
+          triggerGraphAction(
+            'highlightEdge',
+            { v1: e[0], v2: e[1], highlight: false },
+            event.detail.graphKey
+          )
+        }
+        setAnswer(answer.filter(e => !edgeInArray(e, edges)))
+      } else {
+        // Highlight and add all missing to answer
+        const missing = edges.filter(e => !edgeInAnswer(e, event.detail.graphKey))
+        if (question.settings.selection_limit === -1 ||
+          answer.length + missing.length <= question.settings.selection_limit) {
+          for (let m of missing) {
+            triggerGraphAction(
+              'highlightEdge',
+              { v1: m[0], v2: m[1], highlight: true },
+              event.detail.graphKey
+            )
+          }
+          setAnswer(answer.concat(missing))
+        }
+      }
+    }
+
     document.addEventListener('tap_edge', handleTapEdge)
+    document.addEventListener('box_end', handleBoxEnd)
 
     return () => {
       document.removeEventListener('tap_edge', handleTapEdge)
+      document.removeEventListener('box_end', handleBoxEnd)
     }
   }, [answer, question])
 
@@ -159,6 +202,7 @@ export default function AEdgeSet ({ question, onNext }) {
         <h3>Controls</h3>
         <ul>
           <li>Click on an edge to select/unselect it.</li>
+          <li>Click and drag to select/unselect multiple edges.</li>
           {
             question.settings.selection_limit !== -1 &&
             <li>You can select at most {question.settings.selection_limit} edges</li>

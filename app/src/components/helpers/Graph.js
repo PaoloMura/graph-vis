@@ -89,13 +89,13 @@ function Graph ({ myKey, settings, user_settings, data }) {
   useEffect(() => {
     const parseSource = (e) => {
       const sourceId = e.data('source')
-      const sourceNode = cy.node(`[id='${sourceId}']`)
+      const sourceNode = cy.nodes(`[id='${sourceId}']`)[0]
       return sourceNode.data('value')
     }
 
     const parseTarget = (e) => {
       const targetId = e.data('target')
-      const targetNode = cy.node(`[id='${targetId}']`)
+      const targetNode = cy.nodes(`[id='${targetId}']`)[0]
       return targetNode.data('value')
     }
 

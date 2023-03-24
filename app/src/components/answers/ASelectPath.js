@@ -138,7 +138,7 @@ export default function ASelectPath ({ question, onNext }) {
     }
 
     function handleTapNode (event) {
-      let vertex = parseInt(event.detail.vertex, 10)
+      let vertex = event.detail.vertex
       // If clicking on the latest vertex or its predecessor, remove it
       if (answer.length > 0 && answer.at(-1) === vertex) popNode(event.detail.graphKey)
         // else if (answer.length > 1 && answer.at(-2) === vertex) popNode()
