@@ -80,6 +80,18 @@ function Graph ({ myKey, settings, user_settings, data }) {
       }
     }
 
+    const setLabelPosBipartite = (node) => {
+      const partition = node.data('bipartite')
+      if (partition === 0) {
+        node.style('text-halign', 'left')
+        node.style('text-margin-x', -5)
+      } else {
+        node.style('text-halign', 'right')
+        node.style('text-margin-x', 5)
+      }
+      node.style('text-valign', 'center')
+    }
+
     const setLabelPos = (node) => {
       // Define 8 zones for the circle region around the node.
       let zones = [
@@ -97,13 +109,18 @@ function Graph ({ myKey, settings, user_settings, data }) {
       const neighbours = node.neighbourhood().filter('node')
       for (let n of neighbours) {
         const a = n.position('x'), b = n.position('y')
-        const x = a - u
-        const y = v - b === 0 ? 0.0001 : v - b
-        const angle = Math.atan2(-x, -y) + Math.PI
+        const x = u - a
+        // Avoid division by zero
+        const y = b - v === 0 ? 0.0001 : b - v
+        // Add an offset of π to the angle to map it to the range 0..2π
+        const angle = Math.atan2(x, y) + Math.PI
+        // + π/8 shifts the zone lines round the circle by half a segment;
+        // floor(_ / (π/4)) maps to an integer zone (8 zones take up π/4 radians each);
+        // % 8 keeps it in range 0..7
         const zone_id = Math.floor((angle + (Math.PI / 8)) / (Math.PI / 4)) % 8
         zones[zone_id].occupied = true
       }
-      // Count the adjacent unoccupied zones forwards and backwards with memoization.
+      // Count the adjacent unoccupied zones forwards and backwards.
       let xs = []
       let xs_max = 0
       for (let i = 0; i < 8; i++) {
@@ -143,10 +160,15 @@ function Graph ({ myKey, settings, user_settings, data }) {
       if (user_settings.label_style === 'math') {
         node.addClass('styled-label')
       }
-      if (user_settings.layout === 'circle') {
-        setLabelPosCircle(node)
-      } else {
-        setLabelPos(node)
+      switch (user_settings.layout) {
+        case 'circle':
+          setLabelPosCircle(node)
+          break
+        case 'bipartite':
+          setLabelPosBipartite(node)
+          break
+        default:
+          setLabelPos(node)
       }
     }
   }
