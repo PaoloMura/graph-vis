@@ -66,7 +66,7 @@ export default function AVertexSet ({ question, onNext }) {
 
   useEffect(() => {
     function handleTapNode (event) {
-      const vertex = parseInt(event.detail.vertex, 10)
+      const vertex = event.detail.vertex
       if (answer.includes(vertex)) {
         setAnswer(answer.filter(v => v !== vertex))
         triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false }, event.detail.graphKey)
@@ -79,10 +79,33 @@ export default function AVertexSet ({ question, onNext }) {
       }
     }
 
+    function handleBoxEnd (event) {
+      const nodes = event.detail.nodes
+      const numInAnswer = nodes.reduce((acc, n) => answer.includes(n) ? acc + 1 : acc, 0)
+      if (numInAnswer === nodes.length) {
+        // Un-highlight all and remove them from answer
+        for (let n of nodes) {
+          triggerGraphAction('highlightVertex', { vertex: n, highlight: false }, event.detail.graphKey)
+        }
+        setAnswer(answer.filter(a => !nodes.includes(a)))
+      } else {
+        // Highlight and add all missing to answer
+        const missing = nodes.filter(n => !answer.includes(n))
+        if (answer.length + missing.length <= question.settings.selection_limit) {
+          for (let n of nodes) {
+            triggerGraphAction('highlightVertex', { vertex: n, highlight: true }, event.detail.graphKey)
+          }
+          setAnswer(answer.concat(missing))
+        }
+      }
+    }
+
     document.addEventListener('tap_node', handleTapNode)
+    document.addEventListener('box_end', handleBoxEnd)
 
     return () => {
       document.removeEventListener('tap_node', handleTapNode)
+      document.removeEventListener('box_end', handleBoxEnd)
     }
   }, [answer, question.settings.selection_limit])
 

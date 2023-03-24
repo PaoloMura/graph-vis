@@ -9,6 +9,7 @@ tap_edge (source: int, target: int, graphKey: int)
 cxttap_bg (x: int, y: int, graphKey: int)
 cxttap_node (vertex: int, graphKey: int)
 cxttap_edge (source: int, target: int, graphKey: int)
+box_end (vertices: [int], edges: [[int, int]], graphKey: int)
 
 Supported Graph Actions:
 highlightVertex (vertex: int, highlight: bool, graphKey: int)

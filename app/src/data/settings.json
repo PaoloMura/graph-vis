@@ -11,7 +11,7 @@
     "selectifyNodes": true,
     "selectifyEdges": false,
     "panning": false,
-    "boxSelection": false
+    "boxSelection": true
   },
   "QEdgeSet": {
     "autoungrabify": true,

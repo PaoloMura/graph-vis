@@ -29,7 +29,7 @@ function Graph ({ myKey, settings, user_settings, data }) {
       layoutOptions = layouts[user_settings.layout]
     }
   }
-  
+
   function initialiseLabels () {
     const n_nodes = cy.nodes().length
     for (let node of cy.nodes()) {
@@ -87,7 +87,20 @@ function Graph ({ myKey, settings, user_settings, data }) {
 
   // Events and listeners for graph manipulation.
   useEffect(() => {
-    // Trigger graph events
+    const parseSource = (e) => {
+      const sourceId = e.data('source')
+      const sourceNode = cy.node(`[id='${sourceId}']`)
+      return sourceNode.data('value')
+    }
+
+    const parseTarget = (e) => {
+      const targetId = e.data('target')
+      const targetNode = cy.node(`[id='${targetId}']`)
+      return targetNode.data('value')
+    }
+
+    const parseEdge = (e) => [parseSource(e), parseTarget(e)]
+
     cy.on('tap', (event) => {
       if (event.target === cy) {
         const params = {
@@ -99,14 +112,14 @@ function Graph ({ myKey, settings, user_settings, data }) {
     })
 
     cy.on('tap', 'node', (event) => {
-      const params = { 'vertex': event.target.id() }
+      const params = { 'vertex': event.target.data('value') }
       triggerGraphEvent('tap_node', params, myKey)
     })
 
     cy.on('tap', 'edge', (event) => {
       const params = {
-        'source': parseInt(event.target._private.data.source),
-        'target': parseInt(event.target._private.data.target)
+        'source': parseSource(event.target),
+        'target': parseTarget(event.target)
       }
       triggerGraphEvent('tap_edge', params, myKey)
     })
@@ -122,16 +135,33 @@ function Graph ({ myKey, settings, user_settings, data }) {
     })
 
     cy.on('cxttap', 'node', (event) => {
-      const params = { 'vertex': event.target.id() }
+      const params = { 'vertex': event.target.data('value') }
       triggerGraphEvent('cxttap_node', params, myKey)
     })
 
     cy.on('cxttap', 'edge', (event) => {
       const params = {
-        'source': parseInt(event.target._private.data.source),
-        'target': parseInt(event.target._private.data.target)
+        'source': parseSource(event.target),
+        'target': parseTarget(event.target)
       }
       triggerGraphEvent('cxttap_edge', params, myKey)
+    })
+
+    const broadcastSelected = () => {
+      const selectedNodes = cy.nodes(':selected')
+      const selectedEdges = cy.edges(':selected')
+      selectedNodes.unselect()
+      selectedEdges.unselect()
+      const params = {
+        'nodes': selectedNodes.map(n => n.data('value')),
+        'edges': selectedEdges.map(e => parseEdge(e))
+      }
+      triggerGraphEvent('box_end', params, myKey)
+    }
+
+    cy.on('boxend', () => {
+      clearTimeout(cy.selectionTimeout)
+      cy.selectionTimeout = setTimeout(broadcastSelected, 300)
     })
 
     function highlightVertex (event) {
