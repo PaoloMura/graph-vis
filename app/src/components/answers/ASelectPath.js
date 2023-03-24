@@ -10,6 +10,25 @@ export default function ASelectPath ({ question, onNext }) {
   const [correct, setCorrect] = useState(false)
   const [feedback, setFeedback] = useState('')
 
+  const getEdge = (u, v) => {
+    if (question.graphs[0].directed) return [u, v]
+    else if (question.graphs[0].elements.edges.find(e => e[0] === u && e[1] === v)) return [u, v]
+    else return [v, u]
+  }
+
+  const handleReset = () => {
+    let prev = undefined
+    for (let vertex of answer) {
+      triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false }, 0)
+      if (prev !== undefined) {
+        const [u, v] = getEdge(prev, vertex)
+        triggerGraphAction('highlightEdge', { v1: u, v2: v, highlight: false }, 0)
+      }
+      prev = vertex
+    }
+    setAnswer([])
+  }
+
   const getSolution = () => {
     axios({
       method: 'POST',
@@ -186,6 +205,9 @@ export default function ASelectPath ({ question, onNext }) {
             readOnly
             value={answer.toString()}
           />
+          <br/>
+          <Button variant="secondary" onClick={handleReset}>Reset</Button>
+          <br/>
           <br/>
           <Button variant="primary" onClick={onSubmit}>Submit</Button>
         </Form>
