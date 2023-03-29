@@ -2,70 +2,55 @@ import React, { useEffect, useState } from 'react'
 import { triggerGraphAction } from '../utilities/graph-events'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import axios from 'axios'
+import Description from '../helpers/Description'
+import { equalSets } from '../utilities/sets'
+import { getSolution } from '../utilities/http'
 
-export default function AVertexSet ({ question, onNext }) {
-  const [answer, setAnswer] = useState([])
-  const [submitted, setSubmitted] = useState(false)
-  const [correct, setCorrect] = useState(false)
-  const [feedback, setFeedback] = useState('')
+export default function AVertexSet ({ question, progress, onSubmit, onNext }) {
+  const [answer, setAnswer] = useState(() => (
+    progress['answer'] === undefined ? [] : progress['answer']
+  ))
+
+  let controls = [
+    'Click on a vertex to select/unselect it.',
+    'Click and drag to select/unselect multiple vertices.',
+  ]
+
+  if (question.settings.selection_limit !== -1) {
+    controls.push(`You can select at most ${question.settings.selection_limit} vertices.`)
+  }
 
   const handleReset = () => {
     for (let vertex of answer) {
-      triggerGraphAction('highlightVertex', { vertex: vertex, highlight: false }, 0)
+      triggerGraphAction(
+        'highlightVertex',
+        { vertex: vertex, highlight: false },
+        0
+      )
     }
     setAnswer([])
   }
 
-  const getSolution = () => {
-    axios({
-      method: 'POST',
-      url: '/api/feedback/' + question.file + '/' + question.class,
-      data: {
-        answer: answer,
-        graphs: question.graphs
-      }
-    }).then((response) => {
-      const res = response.data
-      setCorrect(res.result)
-      setFeedback(res.feedback)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response)
-        console.log(error.response.status)
-        console.log(error.headers)
-      }
-    })
-  }
-
-  const equalSets = (xs, ys) => {
-    return xs.size === ys.size && [...xs].every((x) => ys.has(x))
-  }
-
-  const onSubmit = () => {
+  const handleSubmit = () => {
     // Determine whether the answer is correct
     const ans = new Set(answer)
-    if (question.settings.feedback) getSolution()
-    else {
-      for (let solution of question.solutions) {
+    if (question.settings.feedback) {
+      getSolution(question, answer, onSubmit)
+    } else {
+      for (let solution of question['solutions']) {
         const sol = new Set(solution)
         if (equalSets(sol, ans)) {
-          setCorrect(true)
-          break
+          onSubmit(answer, 'correct', '')
+          return
         }
       }
+      onSubmit(answer, 'incorrect', '')
     }
-    setSubmitted(true)
-  }
-
-  const onNextPress = () => {
-    if (!submitted) onNext(answer, 'unanswered')
-    else if (correct) onNext(answer, 'correct')
-    else onNext(answer, 'incorrect')
   }
 
   useEffect(() => {
     function handleTapNode (event) {
+      if (progress['status'] !== 'unanswered') return
       const vertex = event.detail.vertex
       if (answer.includes(vertex)) {
         setAnswer(answer.filter(v => v !== vertex))
@@ -80,6 +65,7 @@ export default function AVertexSet ({ question, onNext }) {
     }
 
     function handleBoxEnd (event) {
+      if (progress['status'] !== 'unanswered') return
       const nodes = event.detail.nodes
       const numInAnswer = nodes.reduce((acc, n) => answer.includes(n) ? acc + 1 : acc, 0)
       if (numInAnswer === nodes.length) {
@@ -91,7 +77,8 @@ export default function AVertexSet ({ question, onNext }) {
       } else {
         // Highlight and add all missing to answer
         const missing = nodes.filter(n => !answer.includes(n))
-        if (answer.length + missing.length <= question.settings.selection_limit) {
+        const limit = question.settings.selection_limit
+        if (limit === -1 || answer.length + missing.length <= limit) {
           for (let n of nodes) {
             triggerGraphAction('highlightVertex', { vertex: n, highlight: true }, event.detail.graphKey)
           }
@@ -107,47 +94,46 @@ export default function AVertexSet ({ question, onNext }) {
       document.removeEventListener('tap_node', handleTapNode)
       document.removeEventListener('box_end', handleBoxEnd)
     }
-  }, [answer, question.settings.selection_limit])
+  }, [answer, progress, question.settings.selection_limit])
 
-  if (submitted) {
-    return (
-      <div>
-        {correct ? 'Correct!' : 'Incorrect'}
+  if (progress.status === 'unanswered') return (
+    <div>
+      <Description
+        description={question.description}
+        controls={controls}
+      />
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answer.toString()}
+        />
         <br/>
-        {feedback}
+        <Button variant="secondary" onClick={handleReset}>Reset</Button>
         <br/>
-        <Button variant={'primary'} onClick={onNextPress}>Next</Button>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Description</h3>
-        <p>{question.description}</p>
         <br/>
-        <h3>Controls</h3>
-        <ul>
-          <li>Click on a vertex to select/unselect it.</li>
-          <li>Click and drag to select/unselect multiple vertices.</li>
-          {
-            question.settings.selection_limit !== -1 &&
-            <li>You can select at most {question.settings.selection_limit} vertices</li>
-          }
-        </ul>
+        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+      </Form>
+    </div>
+  )
+
+  else return (
+    <div>
+      <Description description={question.description}/>
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answer.toString()}
+        />
+        <p>
+          {progress['status'] === 'correct' ? 'Correct!' : 'Incorrect.'}
+        </p>
         <br/>
-        <Form>
-          <Form.Control
-            disabled
-            readOnly
-            value={answer.toString()}
-          />
-          <br/>
-          <Button variant="secondary" onClick={handleReset}>Reset</Button>
-          <br/>
-          <br/>
-          <Button variant="primary" onClick={onSubmit}>Submit</Button>
-        </Form>
-      </div>
-    )
-  }
+        {progress['feedback']}
+        <br/>
+        <Button variant="primary" onClick={onNext}>Next</Button>
+      </Form>
+    </div>
+  )
 }

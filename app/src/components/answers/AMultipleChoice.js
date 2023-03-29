@@ -1,59 +1,28 @@
 import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import axios from 'axios'
+import { getSolution } from '../utilities/http'
+import Description from '../helpers/Description'
 
-export default function AMultipleChoice ({ question, onNext }) {
-  const setInitialAnswer = () => {
-    return question.solutions.map((txt, _) => [txt, false])
-  }
+export default function AMultipleChoice ({ question, progress, onSubmit, onNext }) {
+  const [answer, setAnswer] = useState(() => {
+    if (progress['answer'] !== undefined) return progress['answer']
+    else return question['solutions'].map((txt, _) => [txt, false])
+  })
 
-  const [answer, setAnswer] = useState(setInitialAnswer)
-  const [submittted, setSubmitted] = useState(false)
-  const [correct, setCorrect] = useState(false)
-  const [feedback, setFeedback] = useState('')
-
-  const getSolution = () => {
-    axios({
-      method: 'POST',
-      url: '/api/feedback/' + question.file + '/' + question.class,
-      data: {
-        answer: answer,
-        graphs: question.graphs
-      }
-    }).then((response) => {
-      const res = response.data
-      setCorrect(res.result)
-      setFeedback(res.feedback)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response)
-        console.log(error.response.status)
-        console.log(error.headers)
-      }
-    })
-  }
-
-  const onSubmit = () => {
+  const handleSubmit = () => {
     // Determine whether the answer is correct
-    if (question.settings.feedback) getSolution()
-    else {
-      for (let i = 0; i < question.solutions.length; i++) {
-        if (question.solutions[i][1] !== answer[i][1]) {
-          setCorrect(false)
-          setSubmitted(true)
+    if (question.settings.feedback) {
+      getSolution(question, answer, onSubmit)
+    } else {
+      for (let i = 0; i < question['solutions'].length; i++) {
+        if (question['solutions'][i][1] !== answer[i][1]) {
+          onSubmit(answer, 'incorrect', '')
           return
         }
       }
+      onSubmit(answer, 'correct', '')
     }
-    setCorrect(true)
-    setSubmitted(true)
-  }
-
-  const onNextPress = () => {
-    if (!submittted) onNext(answer, 'unanswered')
-    else if (correct) onNext(answer, 'correct')
-    else onNext(answer, 'incorrect')
   }
 
   const handleChangeAnswer = (event, key) => {
@@ -66,40 +35,57 @@ export default function AMultipleChoice ({ question, onNext }) {
     }))
   }
 
-  if (submittted) {
-    return (
-      <div>
-        {correct ? 'Correct!' : 'Incorrect'}
+  if (progress['status'] === 'unanswered') return (
+    <div>
+      <Description
+        description={question['description']}
+      />
+      <Form>
+        {
+          answer.map((ans, idx) => {
+            return (
+              <Form.Check
+                key={ans[0]}
+                type={question.settings.single_selection ? 'radio' : 'checkbox'}
+                label={ans[0]}
+                checked={ans[1]}
+                onChange={(e) => handleChangeAnswer(e, idx)}
+              />
+            )
+          })
+        }
         <br/>
-        {feedback}
+        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+      </Form>
+    </div>
+  )
+
+  else return (
+    <div>
+      <Description description={question.description}/>
+      <Form>
+        {
+          answer.map(ans => {
+            return (
+              <Form.Check
+                key={ans[0]}
+                disabled
+                readOnly
+                type={question['settings']['single_selection'] ? 'radio' : 'checkbox'}
+                label={ans[0]}
+                checked={ans[1]}
+              />
+            )
+          })
+        }
+        <p>
+          {progress['status'] === 'correct' ? 'Correct!' : 'Incorrect.'}
+        </p>
         <br/>
-        <Button variant={'primary'} onClick={onNextPress}>Next</Button>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Description</h3>
-        <p>{question.description}</p>
+        {progress['feedback']}
         <br/>
-        <Form>
-          {
-            answer.map((ans, idx) => {
-              return (
-                <Form.Check
-                  key={ans[0]}
-                  type={question.settings.single_selection ? 'radio' : 'checkbox'}
-                  label={ans[0]}
-                  checked={ans[1]}
-                  onChange={(e) => handleChangeAnswer(e, idx)}
-                />
-              )
-            })
-          }
-          <br/>
-          <Button variant="primary" onClick={onSubmit}>Submit</Button>
-        </Form>
-      </div>
-    )
-  }
+        <Button variant="primary" onClick={onNext}>Next</Button>
+      </Form>
+    </div>
+  )
 }

@@ -149,8 +149,8 @@ def access_topic_data(topic_code):
         try:
             result['questions'][i] = generate_question(q_file, q_class)
         except Exception as e:
-            print(e)
             return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404
+    # pprint(result)
     return result
 
 

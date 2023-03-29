@@ -2,13 +2,22 @@ import React, { useEffect, useState } from 'react'
 import { triggerGraphAction } from '../utilities/graph-events'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import axios from 'axios'
+import { equalSets } from '../utilities/sets'
+import { getSolution } from '../utilities/http'
+import Description from '../helpers/Description'
 
-export default function AEdgeSet ({ question, onNext }) {
-  const [answer, setAnswer] = useState([])
-  const [submitted, setSubmitted] = useState(false)
-  const [correct, setCorrect] = useState(false)
-  const [feedback, setFeedback] = useState('')
+export default function AEdgeSet ({ question, progress, onSubmit, onNext }) {
+  const [answer, setAnswer] = useState(() => (
+    progress['status'] !== 'unanswered' ? progress['status'] : []
+  ))
+
+  let controls = [
+    'Click on an edge to select/unselect it.',
+    'Click and drag to select/unselect multiple edges.'
+  ]
+  if (question['settings']['selection_limit'] !== -1) {
+    controls.push(`You can select at most ${question.settings.selection_limit} edges`)
+  }
 
   const handleReset = () => {
     for (let [source, target] of answer) {
@@ -19,31 +28,6 @@ export default function AEdgeSet ({ question, onNext }) {
       )
     }
     setAnswer([])
-  }
-
-  const getSolution = () => {
-    axios({
-      method: 'POST',
-      url: '/api/feedback/' + question.file + '/' + question.class,
-      data: {
-        answer: answer,
-        graphs: question.graphs
-      }
-    }).then((response) => {
-      const res = response.data
-      setCorrect(res.result)
-      setFeedback(res.feedback)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response)
-        console.log(error.response.status)
-        console.log(error.headers)
-      }
-    })
-  }
-
-  const equalSets = (xs, ys) => {
-    return xs.size === ys.size && [...xs].every((x) => ys.has(x))
   }
 
   const equalNestedSets = (xs, ys) => {
@@ -58,7 +42,7 @@ export default function AEdgeSet ({ question, onNext }) {
 
   const answerInSolutions = () => {
     const ans = new Set(answer.map(edge => new Set(edge)))
-    for (let solution of question.solutions) {
+    for (let solution of question['solutions']) {
       const sol = new Set(solution.map(edge => new Set(edge)))
       if (equalNestedSets(sol, ans)) {
         return true
@@ -67,17 +51,12 @@ export default function AEdgeSet ({ question, onNext }) {
     return false
   }
 
-  const onSubmit = () => {
+  const handleSubmit = () => {
     // Determine whether the answer is correct
-    if (question.settings.feedback) getSolution()
-    else if (answerInSolutions()) setCorrect(true)
-    setSubmitted(true)
-  }
-
-  const onNextPress = () => {
-    if (!submitted) onNext(answer, 'unanswered')
-    else if (correct) onNext(answer, 'correct')
-    else onNext(answer, 'incorrect')
+    if (question['settings']['feedback']) {
+      getSolution(question, answer, onSubmit)
+    } else if (answerInSolutions()) onSubmit(answer, 'correct', '')
+    else onSubmit(answer, 'incorrect', '')
   }
 
   useEffect(() => {
@@ -114,6 +93,7 @@ export default function AEdgeSet ({ question, onNext }) {
     }
 
     function handleTapEdge (event) {
+      if (progress['status'] !== 'unanswered') return
       const source = event.detail.source
       const target = event.detail.target
 
@@ -138,6 +118,7 @@ export default function AEdgeSet ({ question, onNext }) {
     }
 
     function handleBoxEnd (event) {
+      if (progress['status'] !== 'unanswered') return
       const edges = event.detail.edges
       const numInAnswer = edges.reduce((acc, e) => {
         return edgeInAnswer(e, event.detail.graphKey) ? acc + 1 : acc
@@ -176,52 +157,53 @@ export default function AEdgeSet ({ question, onNext }) {
       document.removeEventListener('tap_edge', handleTapEdge)
       document.removeEventListener('box_end', handleBoxEnd)
     }
-  }, [answer, question])
+  }, [answer, progress, question])
 
   const answerToString = () => {
     const edges = answer.map(([u, v], _) => `(${u},${v})`)
     return edges.join(',')
   }
 
-  if (submitted) {
-    return (
-      <div>
-        {correct ? 'Correct!' : 'Incorrect'}
+  if (progress['status'] === 'unanswered') return (
+    <div>
+      <Description
+        description={question['description']}
+        controls={controls}
+      />
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answerToString()}
+        />
         <br/>
-        {feedback}
+        <Button variant="secondary" onClick={handleReset}>Reset</Button>
         <br/>
-        <Button variant={'primary'} onClick={onNextPress}>Next</Button>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Description</h3>
-        <p>{question.description}</p>
         <br/>
-        <h3>Controls</h3>
-        <ul>
-          <li>Click on an edge to select/unselect it.</li>
-          <li>Click and drag to select/unselect multiple edges.</li>
-          {
-            question.settings.selection_limit !== -1 &&
-            <li>You can select at most {question.settings.selection_limit} edges</li>
-          }
-        </ul>
+        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+      </Form>
+    </div>
+  )
+
+  else return (
+    <div>
+      <Description
+        description={question['description']}
+      />
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answerToString()}
+        />
+        <p>
+          {progress['status'] === 'correct' ? 'Correct!' : 'Incorrect.'}
+        </p>
         <br/>
-        <Form>
-          <Form.Control
-            disabled
-            readOnly
-            value={answerToString()}
-          />
-          <br/>
-          <Button variant="secondary" onClick={handleReset}>Reset</Button>
-          <br/>
-          <br/>
-          <Button variant="primary" onClick={onSubmit}>Submit</Button>
-        </Form>
-      </div>
-    )
-  }
+        {progress['feedback']}
+        <br/>
+        <Button variant="primary" onClick={onNext}>Next</Button>
+      </Form>
+    </div>
+  )
 }

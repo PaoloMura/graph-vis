@@ -2,13 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { triggerGraphAction } from '../utilities/graph-events'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import axios from 'axios'
+import { getSolution } from '../utilities/http'
+import Description from '../helpers/Description'
 
-export default function ASelectPath ({ question, onNext }) {
-  const [answer, setAnswer] = useState([])
-  const [submitted, setSubmitted] = useState(false)
-  const [correct, setCorrect] = useState(false)
-  const [feedback, setFeedback] = useState('')
+export default function ASelectPath ({ question, progress, onSubmit, onNext }) {
+  const [answer, setAnswer] = useState(() => (
+    progress['status'] !== 'unanswered' ? progress['status'] : []
+  ))
+
+  const controls = [
+    'Click on a vertex to select it.',
+    'Click on the last visited vertex/edge to remove it.',
+  ]
 
   const getEdge = (u, v) => {
     if (question.graphs[0].directed) return [u, v]
@@ -29,46 +34,20 @@ export default function ASelectPath ({ question, onNext }) {
     setAnswer([])
   }
 
-  const getSolution = () => {
-    axios({
-      method: 'POST',
-      url: '/api/feedback/' + question.file + '/' + question.class,
-      data: {
-        answer: answer,
-        graphs: question.graphs
-      }
-    }).then((response) => {
-      const res = response.data
-      setCorrect(res.result)
-      setFeedback(res.feedback)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response)
-        console.log(error.response.status)
-        console.log(error.headers)
-      }
-    })
-  }
-
-  const onSubmit = () => {
+  const handleSubmit = () => {
     // Determine whether the answer is correct
     let ans = answer.toString()
-    if (question.settings.feedback) getSolution()
-    else {
-      for (let sol of question.solutions) {
+    if (question.settings.feedback) {
+      getSolution(question, answer, onSubmit)
+    } else {
+      for (let sol of question['solutions']) {
         if (sol.toString() === ans) {
-          setCorrect(true)
-          break
+          onSubmit(answer, 'correct', '')
+          return
         }
       }
+      onSubmit(answer, 'incorrect', '')
     }
-    setSubmitted(true)
-  }
-
-  const onNextPress = () => {
-    if (!submitted) onNext(answer, 'unanswered')
-    else if (correct) onNext(answer, 'correct')
-    else onNext(answer, 'incorrect')
   }
 
   useEffect(() => {
@@ -138,6 +117,7 @@ export default function ASelectPath ({ question, onNext }) {
     }
 
     function handleTapNode (event) {
+      if (progress['status'] !== 'unanswered') return
       let vertex = event.detail.vertex
       // If clicking on the latest vertex or its predecessor, remove it
       if (answer.length > 0 && answer.at(-1) === vertex) popNode(event.detail.graphKey)
@@ -151,6 +131,7 @@ export default function ASelectPath ({ question, onNext }) {
     }
 
     function handleTapEdge (event) {
+      if (progress['status'] !== 'unanswered') return
       let [v1, v2] = [event.detail.source, event.detail.target]
       if (answer.length > 1 &&
         (
@@ -160,58 +141,50 @@ export default function ASelectPath ({ question, onNext }) {
       ) popNode(event.detail.graphKey)
     }
 
-    function handleKeyDown (event) {
-      // TODO: add support for selecting entire graphs in order to use keydown events properly
-      if (event.key === 'Backspace') popNode(0)
-    }
-
     document.addEventListener('tap_node', handleTapNode)
     document.addEventListener('tap_edge', handleTapEdge)
-    document.addEventListener('keydown', handleKeyDown)
 
     return () => {
       document.removeEventListener('tap_node', handleTapNode)
       document.removeEventListener('tap_edge', handleTapEdge)
-      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [answer, question.graphs])
+  }, [answer, progress, question.graphs])
 
-  if (submitted) {
-    return (
-      <div>
-        {correct ? 'Correct!' : 'Incorrect'}
+  if (progress['status'] === 'unanswered') return (
+    <div>
+      <Description description={question['description']} controls={controls}/>
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answer.toString()}
+        />
         <br/>
-        {feedback}
+        <Button variant="secondary" onClick={handleReset}>Reset</Button>
         <br/>
-        <Button variant={'primary'} onClick={onNextPress}>Next</Button>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Description</h3>
-        <p>{question.description}</p>
         <br/>
-        <h3>Controls</h3>
-        <ul>
-          <li>Click on a vertex to select it.</li>
-          <li>Click on the last visited vertex/edge to remove it.</li>
-          <li>Press backspace to undo.</li>
-        </ul>
+        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+      </Form>
+    </div>
+  )
+
+  else return (
+    <div>
+      <Description description={question['description']}/>
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answer.toString()}
+        />
+        <p>
+          {progress['status'] === 'correct' ? 'Correct!' : 'Incorrect.'}
+        </p>
         <br/>
-        <Form>
-          <Form.Control
-            disabled
-            readOnly
-            value={answer.toString()}
-          />
-          <br/>
-          <Button variant="secondary" onClick={handleReset}>Reset</Button>
-          <br/>
-          <br/>
-          <Button variant="primary" onClick={onSubmit}>Submit</Button>
-        </Form>
-      </div>
-    )
-  }
+        {progress['feedback']}
+        <br/>
+        <Button variant="primary" onClick={onNext}>Next</Button>
+      </Form>
+    </div>
+  )
 }

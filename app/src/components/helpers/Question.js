@@ -10,14 +10,14 @@ import AMultipleChoice from '../answers/AMultipleChoice'
 import settings from '../../data/settings.json'
 import AEdgeSet from '../answers/AEdgeSet'
 
-export default function Question ({ question, onNext }) {
+export default function Question ({ question, progress, onSubmit, onNext }) {
 
   const answerComponents = {
-    'QSelectPath': <ASelectPath question={question} onNext={onNext}/>,
-    'QVertexSet': <AVertexSet question={question} onNext={onNext}/>,
-    'QTextInput': <ATextInput question={question} onNext={onNext}/>,
-    'QMultipleChoice': <AMultipleChoice question={question} onNext={onNext}/>,
-    'QEdgeSet': <AEdgeSet question={question} onNext={onNext}/>
+    'QSelectPath': <ASelectPath question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
+    'QVertexSet': <AVertexSet question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
+    'QTextInput': <ATextInput question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
+    'QMultipleChoice': <AMultipleChoice question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
+    'QEdgeSet': <AEdgeSet question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>
   }
 
   return (
@@ -42,7 +42,7 @@ export default function Question ({ question, onNext }) {
             </Row>
           </Col>
           <Col>
-            {answerComponents[question.type]}
+            {answerComponents[question['type']]}
           </Col>
         </Row>
       </Container>

@@ -1,38 +1,17 @@
 import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import axios from 'axios'
+import { getSolution } from '../utilities/http'
+import Description from '../helpers/Description'
 
-export default function ATextInput ({ question, onNext }) {
-  const [answer, setAnswer] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [correct, setCorrect] = useState(false)
-  const [feedback, setFeedback] = useState('')
+export default function ATextInput ({ question, progress, onSubmit, onNext }) {
+  const [answer, setAnswer] = useState(() => (
+    progress['answer'] !== undefined ? progress['answer'] : ''
+  ))
   const [error, setError] = useState('')
 
-  const getSolution = () => {
-    axios({
-      method: 'POST',
-      url: '/api/feedback/' + question.file + '/' + question.class,
-      data: {
-        answer: answer,
-        graphs: question.graphs
-      }
-    }).then((response) => {
-      const res = response.data
-      setCorrect(res.result)
-      setFeedback(res.feedback)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response)
-        console.log(error.response.status)
-        console.log(error.headers)
-      }
-    })
-  }
-
   const validateAnswer = () => {
-    if (question.settings.data_type === 'integer') {
+    if (question['settings']['data_type'] === 'integer') {
       const parsed = Number(answer)
       if (isNaN(parsed)) {
         setError('Answer must be an integer')
@@ -47,27 +26,22 @@ export default function ATextInput ({ question, onNext }) {
     }
   }
 
-  const onSubmit = () => {
+  const handleSubmit = () => {
     // Validate the answer format
     if (!validateAnswer()) return
     // Determine whether the answer is correct
     let ans = answer.toString()
-    if (question.settings.feedback) getSolution()
-    else {
-      for (let sol of question.solutions) {
+    if (question['settings']['feedback']) {
+      getSolution(question, answer, onSubmit)
+    } else {
+      for (let sol of question['solutions']) {
         if (sol.toString() === ans) {
-          setCorrect(true)
-          break
+          onSubmit(answer, 'correct', '')
+          return
         }
       }
+      onSubmit(answer, 'incorrect', '')
     }
-    setSubmitted(true)
-  }
-
-  const onNextPress = () => {
-    if (!submitted) onNext(answer, 'unanswered')
-    else if (correct) onNext(answer, 'correct')
-    else onNext(answer, 'incorrect')
   }
 
   const handleChangeAnswer = (event) => {
@@ -75,33 +49,39 @@ export default function ATextInput ({ question, onNext }) {
     setError('')
   }
 
-  if (submitted) {
-    return (
-      <div>
-        {correct ? 'Correct!' : 'Incorrect'}
+  if (progress['status'] === 'unanswered') return (
+    <div>
+      <Description description={question['description']}/>
+      <Form>
+        <Form.Control
+          value={answer}
+          onChange={handleChangeAnswer}
+        />
         <br/>
-        {feedback}
+        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
         <br/>
-        <Button variant={'primary'} onClick={onNextPress}>Next</Button>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Description</h3>
-        <p>{question.description}</p>
+        {error !== '' && <Form.Text muted>{error}</Form.Text>}
+      </Form>
+    </div>
+  )
+
+  else return (
+    <div>
+      <Description description={question['description']}/>
+      <Form>
+        <Form.Control
+          disabled
+          readOnly
+          value={answer}
+        />
+        <p>
+          {progress['status'] === 'correct' ? 'Correct!' : 'Incorrect.'}
+        </p>
         <br/>
-        <Form>
-          <Form.Control
-            value={answer}
-            onChange={handleChangeAnswer}
-          />
-          <br/>
-          <Button variant="primary" onClick={onSubmit}>Submit</Button>
-          <br/>
-          {error !== '' && <Form.Text muted>{error}</Form.Text>}
-        </Form>
-      </div>
-    )
-  }
+        {progress['feedback']}
+        <br/>
+        <Button variant="primary" onClick={onNext}>Next</Button>
+      </Form>
+    </div>
+  )
 }

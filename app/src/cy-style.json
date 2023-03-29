@@ -38,12 +38,13 @@
   {
     "selector": ".weighted",
     "style": {
-      "label": "data(weight)",
       "text-background-color": "#fff",
       "text-background-opacity": 1,
       "text-border-color": "#fff",
       "text-border-width": 5,
-      "text-border-opacity": 1
+      "text-border-opacity": 1,
+      "source-text-offset": 25,
+      "source-label": "data(weight)"
     }
   },
   {

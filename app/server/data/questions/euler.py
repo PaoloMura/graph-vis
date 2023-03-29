@@ -7,10 +7,10 @@ from random import randint
 
 class EulerWalk(QSelectPath):
     def __init__(self):
-        super().__init__(feedback=True, node_prefix='v', label_style='math', layout='grid')
+        super().__init__(feedback=True, layout='circle')
 
     def generate_data(self) -> list[nx.Graph]:
-        n = randint(5, 7)
+        n = randint(7, 9)
         p = 2 / n
         graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
 
@@ -26,8 +26,7 @@ class EulerWalk(QSelectPath):
         return [graph]
 
     def generate_question(self, graphs: list[nx.Graph]) -> str:
-        question = """Find an Euler walk in the graph.\n\nSelect vertices in order."""
-        return question
+        return "Find an Euler walk in the graph."
 
     def __dfs(self, graph: nx.Graph, source: int, visited: list[tuple[int, int]], path: list[int]) -> list[list[int]]:
         neighbors = graph.neighbors(source)

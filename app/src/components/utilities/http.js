@@ -1,0 +1,22 @@
+import axios from 'axios'
+
+export function getSolution (question, answer, setProgress) {
+  axios({
+    method: 'POST',
+    url: '/api/feedback/' + question['file'] + '/' + question['class'],
+    data: {
+      answer: answer,
+      graphs: question['graphs']
+    }
+  }).then((response) => {
+    const res = response.data
+    const status = res.result ? 'correct' : 'incorrect'
+    setProgress(answer, status, res.feedback)
+  }).catch((error) => {
+    if (error.response) {
+      console.log(error.response)
+      console.log(error.response.status)
+      console.log(error.headers)
+    }
+  })
+}

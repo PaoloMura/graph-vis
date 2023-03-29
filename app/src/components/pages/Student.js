@@ -45,7 +45,7 @@ function Student () {
       <div className={'GraphArea'}>
         {
           err ? <NotFound/> :
-            <ProgressRow topicName={data.name} clickable={!data.settings.linear} questions={data.questions}/>
+            <ProgressRow topicName={data['name']} settings={data['settings']} questions={data['questions']}/>
         }
       </div>
     </div>

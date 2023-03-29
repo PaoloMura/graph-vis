@@ -23,7 +23,8 @@ export default function TopicModal ({
       name: '',
       description: '',
       settings: {
-        linear: true
+        linear: true,
+        feedback: 'none'
       },
       questions: []
     }
@@ -136,6 +137,16 @@ export default function TopicModal ({
     })
   }
 
+  const setFeedback = (e) => {
+    setData({
+      ...data,
+      settings: {
+        ...data.settings,
+        feedback: e.target.value
+      }
+    })
+  }
+
   const validateForm = () => {
     let valid = true
     if (data.name === '') {
@@ -202,10 +213,20 @@ export default function TopicModal ({
             </Col>
           </Form.Group>
           <h3>Settings</h3>
-          <Form.Group as={Row} controlId="formSettings" className="mb-3">
+          <Form.Group as={Row} controlId="formLinearSetting" className="mb-3">
             <Form.Label column sm={3}>Linear progression</Form.Label>
             <Col sm={9}>
               <Form.Check type="checkbox" checked={data.settings.linear} onChange={setLinear}/>
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} controlId="formFeedbackSetting" className="mb-3">
+            <Form.Label column sm={3}>Feedback</Form.Label>
+            <Col sm={9}>
+              <Form.Select value={data.settings.feedback} onChange={setFeedback}>
+                <option value="none">None</option>
+                <option value="each">After each question</option>
+                <option value="end">At the end</option>
+              </Form.Select>
             </Col>
           </Form.Group>
           <h3>Questions</h3>
