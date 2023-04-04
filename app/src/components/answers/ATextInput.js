@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { getSolution } from '../utilities/http'
@@ -9,6 +9,11 @@ export default function ATextInput ({ question, progress, onSubmit, onNext }) {
     progress['answer'] !== undefined ? progress['answer'] : ''
   ))
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (progress['answer'] !== undefined) setAnswer(progress['answer'])
+    else setAnswer('')
+  }, [progress])
 
   const validateAnswer = () => {
     if (question['settings']['data_type'] === 'integer') {

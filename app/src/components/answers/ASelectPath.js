@@ -7,8 +7,13 @@ import Description from '../helpers/Description'
 
 export default function ASelectPath ({ question, progress, onSubmit, onNext }) {
   const [answer, setAnswer] = useState(() => (
-    progress['status'] !== 'unanswered' ? progress['status'] : []
+    progress['answer'] !== undefined ? progress['answer'] : []
   ))
+
+  useEffect(() => {
+    if (progress['answer'] !== undefined) setAnswer(progress['answer'])
+    else setAnswer([])
+  }, [progress])
 
   const controls = [
     'Click on a vertex to select it.',

@@ -8,8 +8,13 @@ import Description from '../helpers/Description'
 
 export default function AEdgeSet ({ question, progress, onSubmit, onNext }) {
   const [answer, setAnswer] = useState(() => (
-    progress['status'] !== 'unanswered' ? progress['status'] : []
+    progress['answer'] !== undefined ? progress['answer'] : []
   ))
+
+  useEffect(() => {
+    if (progress['answer'] !== undefined) setAnswer(progress['answer'])
+    else setAnswer([])
+  }, [progress])
 
   let controls = [
     'Click on an edge to select/unselect it.',

@@ -8,8 +8,13 @@ import { getSolution } from '../utilities/http'
 
 export default function AVertexSet ({ question, progress, onSubmit, onNext }) {
   const [answer, setAnswer] = useState(() => (
-    progress['answer'] === undefined ? [] : progress['answer']
+    progress['answer'] !== undefined ? progress['answer'] : []
   ))
+
+  useEffect(() => {
+    if (progress['answer'] !== undefined) setAnswer(progress['answer'])
+    else setAnswer([])
+  }, [progress])
 
   let controls = [
     'Click on a vertex to select/unselect it.',

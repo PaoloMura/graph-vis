@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { getSolution } from '../utilities/http'
@@ -9,6 +9,11 @@ export default function AMultipleChoice ({ question, progress, onSubmit, onNext 
     if (progress['answer'] !== undefined) return progress['answer']
     else return question['solutions'].map((txt, _) => [txt, false])
   })
+
+  useEffect(() => {
+    if (progress['answer'] !== undefined) setAnswer(progress['answer'])
+    else setAnswer(question['solutions'].map((txt, _) => [txt, false]))
+  }, [progress, question])
 
   const handleSubmit = () => {
     // Determine whether the answer is correct
