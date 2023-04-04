@@ -43,8 +43,7 @@
       "text-border-color": "#fff",
       "text-border-width": 5,
       "text-border-opacity": 1,
-      "source-text-offset": 25,
-      "source-label": "data(weight)"
+      "label": "data(weight)"
     }
   },
   {

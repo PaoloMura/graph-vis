@@ -37,11 +37,13 @@ def __random_positions(n: int):
     return {i: {'x': m[0], 'y': m[1]} for i, m in enumerate(nodes)}
 
 
-def generate_graph(n: int):
+def generate_graph(n: int, connected=True, sparseness=0.3):
     """
     Generate an aesthetically pleasing graph.
 
     :param n: number of nodes
+    :param connected: if True, the graph must be connected, otherwise it may be disconnected
+    :param sparseness: a value between 0 (no edges) and 1 (many edges)
     :return:
     """
     # Set the coordinates of the nodes.
@@ -111,9 +113,13 @@ def generate_graph(n: int):
         v0, v1 = new_edge
         return large_angle(v0, v1) and large_angle(v1, v0)
 
-    for edge in edges:
+    for i, edge in enumerate(edges):
         if keeps_planarity(edge) and large_angles(edge):
             result.add_edge(edge[0], edge[1])
+        if result.number_of_nodes() == n and \
+                i > sparseness * len(edges) and \
+                (not connected or nx.is_connected(result)):
+            break
 
     new_positions = {p: v for p, v in positions.items() if p in result.nodes}
     nx.set_node_attributes(result, new_positions)
@@ -121,5 +127,5 @@ def generate_graph(n: int):
 
 
 if __name__ == '__main__':
-    g = generate_graph(8)
-    pprint(list(g.nodes(data=True)))
+    g = generate_graph(10)
+    # pprint(list(g.nodes(data=True)))

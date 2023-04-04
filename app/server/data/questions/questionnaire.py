@@ -2,6 +2,7 @@ import random
 from pprint import pprint
 
 from data.graphquest.question import *
+from data.graphquest.graph import *
 import networkx as nx
 
 # Questions:
@@ -61,13 +62,16 @@ class MinSpanTree(QMultipleChoice):
         self.w_max = 3
 
     def generate_data(self) -> list[nx.Graph]:
-        # Generate a random graph.
-        graph = nx.gnp_random_graph(n=self.n, p=self.p, directed=False)
-
         # With probability 1/5, choose a disconnected graph.
         want_connected = random.random() > 0.2
-        while not valid_connectivity(graph, want_connected):
+
+        # Generate the random graph.
+        if want_connected:
+            graph = generate_graph(self.n, connected=want_connected, sparseness=0.4)
+        else:
             graph = nx.gnp_random_graph(n=self.n, p=self.p, directed=False)
+            while not valid_connectivity(graph, want_connected):
+                graph = nx.gnp_random_graph(n=self.n, p=self.p, directed=False)
 
         # Randomly assign weights to each edge.
         weights = {(i, j): random.randint(self.w_min, self.w_max) for (i, j) in graph.edges}

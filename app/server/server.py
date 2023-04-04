@@ -43,7 +43,6 @@ def generate_question(q_file: str, q_class: str) -> dict:
     q_descr = q.generate_question(data.copy())
     q_sols = list(q.generate_solutions(data.copy()))
     q_sett = q.__dict__
-    pprint(q_sett)
     q_graphs = [converter.nx2cy(d) for d in data]
     return {
         'file': q_file,

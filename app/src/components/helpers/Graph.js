@@ -72,6 +72,18 @@ function Graph ({ myKey, settings, user_settings, data }) {
     setLayoutOptions()
     cy.remove(cy.nodes())
     cy.json(data)
+
+    // console.log(data['elements']['nodes'][0]['data'])
+
+    if (data['elements']['nodes'].length > 0 &&
+      'x' in data['elements']['nodes'][0]['data'] &&
+      'y' in data['elements']['nodes'][0]['data']) {
+      for (let node of cy.nodes()) {
+        node.position('x', node.data('x'))
+        node.position('y', node.data('y'))
+      }
+    }
+
     const layout = cy.layout(layoutOptions)
     layout.start()
     // Apply interactive settings.
