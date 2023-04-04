@@ -5,6 +5,8 @@ from data.graphquest.question import *
 import networkx as nx
 from random import randint
 
+from data.graphquest.graph import *
+
 
 class Test(QTextInput):
     def __init__(self):
@@ -286,10 +288,11 @@ class TestMatching(QEdgeSet):
 
 class TestLabels(QTextInput):
     def __init__(self):
-        super().__init__(layout='circle')
+        super().__init__(layout='force-directed')
 
     def generate_data(self) -> list[nx.Graph]:
-        return [nx.complete_graph(8)]
+        graph = generate_graph(8)
+        return [graph]
 
     def generate_question(self, graphs: list[nx.Graph]) -> str:
         return ""

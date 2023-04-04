@@ -4,11 +4,19 @@ from pprint import pprint
 from data.graphquest.question import *
 import networkx as nx
 
+# Questions:
+'''
+[x] MinSpanTree(QMultipleChoice) - what is the weight of the minimum spanning tree
+[x] DFS (QVertexSet) - select the vertex that will be visited 6th in a DFS
+[x] Distance (QTextInput) - what is the distance between 2 vertices
+[x] EulerWalk(QSelectPath) - find an Euler walk in the graph
+[ ] VertexSet(QMultipleChoice) - which of the options are vertex covers 
+[ ] AugmentingPath(QSelectPath/QMultipleChoice) - find an augmenting path / which is not an augmenting path
+[ ] MaximumMatching(QTextInput) - how large is the maximum matching for the graph
+'''
 
 # TODO:
 #   VerSet: vertex cover
-#   TexInp: after a DFS, given a start vertex, which vertex will be visited 6th?
-#   TexInp: what is the distance from u to v?
 #   MCQ/SelPat: augmenting path
 
 '''
