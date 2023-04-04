@@ -19,7 +19,7 @@ export default function ProgressRow ({ topicName, settings, questions }) {
 
   const onSelect = (k) => {
     if (!settings['linear']) {
-      setSelected(k)
+      setSelected(parseInt(k))
     }
   }
 
