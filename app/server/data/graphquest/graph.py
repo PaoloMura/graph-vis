@@ -37,37 +37,22 @@ def __random_positions(n: int):
     return {i: {'x': m[0], 'y': m[1]} for i, m in enumerate(nodes)}
 
 
-def generate_graph(n: int, connected=True, sparseness=0.3):
+def random_planar_graph(n: int, connected=True, s=0.3):
     """
     Generate an aesthetically pleasing graph.
 
     :param n: number of nodes
     :param connected: if True, the graph must be connected, otherwise it may be disconnected
-    :param sparseness: a value between 0 (no edges) and 1 (many edges)
+    :param s: a sparseness value between 0 (no edges) and 1 (many edges)
     :return:
     """
+    assert n >= 0
+    assert 0.0 <= s <= 1.0
+
     # Set the coordinates of the nodes.
     positions = __random_positions(n)
     cg = nx.complete_graph(n)
     nx.set_node_attributes(cg, positions)
-
-    # TODO: remove this
-    # fig, ax = plt.subplots(1, 1)
-    # skew = 10.0
-    # loc = 0.0
-    # scale = 0.1
-    # x = np.linspace(skewnorm.ppf(0.01, skew), skewnorm.ppf(0.99, skew), 100)
-    # ax.plot(x, skewnorm.pdf(x, skew, loc=loc, scale=scale), 'r-', lw=5, alpha=0.6, label='norm pdf')
-    # plt.title(f'skew:{skew}, loc:{loc}, scale:{scale}')
-    # plt.show()
-    # return nx.Graph()
-
-    # xs = [d['x'] for n, d in cg.nodes(data=True)]
-    # ys = [d['y'] for n, d in cg.nodes(data=True)]
-    # plt.scatter(xs, ys)
-    # plt.xlim([0, 100])
-    # plt.ylim([0, 100])
-    # plt.show()
 
     def coord(v):
         return cg.nodes[v]['x'], cg.nodes[v]['y']
@@ -117,15 +102,10 @@ def generate_graph(n: int, connected=True, sparseness=0.3):
         if keeps_planarity(edge) and large_angles(edge):
             result.add_edge(edge[0], edge[1])
         if result.number_of_nodes() == n and \
-                i > sparseness * len(edges) and \
+                i > s * len(edges) and \
                 (not connected or nx.is_connected(result)):
             break
 
     new_positions = {p: v for p, v in positions.items() if p in result.nodes}
     nx.set_node_attributes(result, new_positions)
     return result
-
-
-if __name__ == '__main__':
-    g = generate_graph(10)
-    # pprint(list(g.nodes(data=True)))

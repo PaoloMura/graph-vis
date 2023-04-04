@@ -6,7 +6,7 @@ class Question(ABC):
     """
     Methods to implement:
 
-    generate_graph(self) -> nx.Graph
+    random_planar_graph(self) -> nx.Graph
 
     generate_question(self, graph: nx.Graph) -> str
 

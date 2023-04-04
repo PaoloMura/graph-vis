@@ -291,7 +291,7 @@ class TestLabels(QTextInput):
         super().__init__(layout='force-directed')
 
     def generate_data(self) -> list[nx.Graph]:
-        graph = generate_graph(8)
+        graph = random_planar_graph(8)
         return [graph]
 
     def generate_question(self, graphs: list[nx.Graph]) -> str:

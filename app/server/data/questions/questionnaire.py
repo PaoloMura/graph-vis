@@ -54,7 +54,7 @@ class MinSpanTree(QMultipleChoice):
             node_prefix='v',
             label_style='math',
             single_selection=True,
-            # layout='circle'
+            layout='force-directed'
         )
         self.n = 8
         self.p = 0.3
@@ -67,7 +67,7 @@ class MinSpanTree(QMultipleChoice):
 
         # Generate the random graph.
         if want_connected:
-            graph = generate_graph(self.n, connected=want_connected, sparseness=0.4)
+            graph = random_planar_graph(self.n, connected=want_connected, s=0.4)
         else:
             graph = nx.gnp_random_graph(n=self.n, p=self.p, directed=False)
             while not valid_connectivity(graph, want_connected):
