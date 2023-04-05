@@ -11,7 +11,7 @@ import networkx as nx
 [x] DFS (QVertexSet) - select the vertex that will be visited 6th in a DFS
 [x] Distance (QTextInput) - what is the distance between 2 vertices
 [x] EulerWalk(QSelectPath) - find an Euler walk in the graph
-[ ] VertexSet(QMultipleChoice) - which of the options are vertex covers 
+[x] VertexSet(QMultipleChoice) - which of the options are vertex covers 
 [ ] AugmentingPath(QSelectPath/QMultipleChoice) - find an augmenting path / which is not an augmenting path
 [ ] MaximumMatching(QTextInput) - how large is the maximum matching for the graph
 '''
@@ -200,15 +200,12 @@ class VertexCover(QMultipleChoice):
 
     def generate_solutions(self, graphs: list[nx.Graph]) -> list[[str, bool]]:
         vc = nx.algorithms.approximation.min_weighted_vertex_cover(graphs[0])
-        print(vc)
 
         new_graph = graphs[0].copy()
         new_graph.remove_nodes_from(random.choice(list(graphs[0].edges)))
         nvc = nx.algorithms.approximation.min_weighted_vertex_cover(new_graph)
-        print(nvc)
 
         mis = set(nx.algorithms.maximal_independent_set(graphs[0]))
-        print(mis)
 
         solutions = [
             [f'{vc} is a vertex cover of G1', True],
@@ -236,8 +233,34 @@ class VertexCover(QMultipleChoice):
         return ''
 
 
+class MaximumMatching(QTextInput):
+    def __init__(self):
+        super().__init__(layout='bipartite', data_type='integer')
+
+    def generate_data(self) -> list[nx.Graph]:
+        n = random.randint(4, 5)
+        graph = nx.algorithms.bipartite.random_graph(n, n, 0.5, directed=False)
+        while not 1.5 * n <= len(list(graph.edges)) <= 2.5 * n:
+            graph = nx.algorithms.bipartite.random_graph(n, n, 0.1, directed=False)
+        return [graph]
+
+    def generate_question(self, graphs: list[nx.Graph]) -> str:
+        return 'What is the size of the maximum matching in G1?'
+
+    def generate_solutions(self, graphs: list[nx.Graph]) -> list[str]:
+        top = [n for n, d in graphs[0].nodes(data=True) if d['bipartite'] == 0]
+        sol = nx.algorithms.bipartite.maximum_matching(graphs[0], top_nodes=top)
+        return [str(int(len(sol) / 2))]
+
+    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
+        return True
+
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
+        return ''
+
+
 if __name__ == '__main__':
-    q = VertexCover()
+    q = MaximumMatching()
     gs = q.generate_data()
 
     pprint(list(gs[0].edges))
