@@ -1,7 +1,6 @@
 import json
 import random
 from pprint import pprint
-
 import converter
 import server
 from app import app

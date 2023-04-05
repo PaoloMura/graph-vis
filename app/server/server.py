@@ -1,10 +1,4 @@
-import cgi
 import importlib
-import json
-from pprint import pprint
-
-import networkx as nx
-
 import converter
 from constants import *
 from data.graphquest.question import *

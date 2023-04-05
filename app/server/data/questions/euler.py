@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from data.graphquest.question import QSelectPath
 import networkx as nx
 from random import randint

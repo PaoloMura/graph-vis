@@ -1,12 +1,8 @@
 import math
 import random
-from pprint import pprint
-
 from shapely import *
 import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import skewnorm
 
 
 # Dimensions of the cartesian coordinate space that the nodes occupy

@@ -1,31 +1,35 @@
 import copy
-from pprint import pprint
-
 import converter
-from constants import *
 from datetime import datetime, timedelta, timezone
-from flask import Flask, request, jsonify, abort
-from flask_cors import CORS  # comment this on deployment
+from flask import Flask, request, abort
+# from flask_cors import CORS  # comment this on deployment
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
     get_jwt_identity,
-    unset_jwt_cookies,
-    jwt_required,
     JWTManager)
 import json
-import os
-from resources import delete_topic, update_topic, get_topic
+from resources import get_topic
 from server import load_question, generate_question
 
 # Initial Setup
 
-app = Flask(__name__)
-CORS(app)  # comment this on deployment
+app = Flask(__name__, static_folder='build', static_url_path='/')
+# CORS(app)  # comment this on deployment
 
 app.config["JWT_SECRET_KEY"] = "please-remember-to-change-me"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 jwt = JWTManager(app)
+
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 
 # Authentication
@@ -172,5 +176,5 @@ def get_feedback(q_file, q_class):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
 

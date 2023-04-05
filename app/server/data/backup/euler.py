@@ -1,6 +1,5 @@
 from data.graphquest.question import QSelectPath
 import networkx as nx
-from random import randint
 
 
 class EulerWalk(QSelectPath):
