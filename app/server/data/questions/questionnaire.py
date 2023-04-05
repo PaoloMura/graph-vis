@@ -183,11 +183,64 @@ class Distance(QTextInput):
         return ''
 
 
+class VertexCover(QMultipleChoice):
+    def __init__(self):
+        super().__init__()
+
+    def generate_data(self) -> list[nx.Graph]:
+        n = random.randint(7, 9)
+        p = 0.3
+        graph = nx.gnp_random_graph(n=n, p=p, directed=False)
+        while not nx.is_connected(graph):
+            graph = nx.gnp_random_graph(n=n, p=p, directed=False)
+        return [graph]
+
+    def generate_question(self, graphs: list[nx.Graph]) -> str:
+        return 'Which of the following statements are true?'
+
+    def generate_solutions(self, graphs: list[nx.Graph]) -> list[[str, bool]]:
+        vc = nx.algorithms.approximation.min_weighted_vertex_cover(graphs[0])
+        print(vc)
+
+        new_graph = graphs[0].copy()
+        new_graph.remove_nodes_from(random.choice(list(graphs[0].edges)))
+        nvc = nx.algorithms.approximation.min_weighted_vertex_cover(new_graph)
+        print(nvc)
+
+        mis = set(nx.algorithms.maximal_independent_set(graphs[0]))
+        print(mis)
+
+        solutions = [
+            [f'{vc} is a vertex cover of G1', True],
+            [f'{nvc} is a vertex cover of G1', False],
+            [f'{mis} is an independent set of G1', True]
+        ]
+
+        if random.random() > 0.5:
+            ais = mis.copy()
+            ais.remove(random.choice(list(ais)))
+            solutions.append([f'{ais} is an independent set of G1', True])
+        else:
+            nis = mis.copy()
+            v = random.choice(list(set(graphs[0].nodes).difference(nis)))
+            nis.add(v)
+            solutions.append([f'{nis} is an independent set of G1', False])
+
+        random.shuffle(solutions)
+        return solutions
+
+    def verify_answer(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> bool:
+        return True
+
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> str:
+        return ''
+
+
 if __name__ == '__main__':
-    q = DFS()
+    q = VertexCover()
     gs = q.generate_data()
 
     pprint(list(gs[0].edges))
 
     s = q.generate_solutions(gs)
-    print(s)
+    pprint(s)
