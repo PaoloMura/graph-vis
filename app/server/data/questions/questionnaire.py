@@ -13,11 +13,10 @@ import networkx as nx
 [x] EulerWalk(QSelectPath) - find an Euler walk in the graph
 [x] VertexSet(QMultipleChoice) - which of the options are vertex covers 
 [ ] AugmentingPath(QSelectPath/QMultipleChoice) - find an augmenting path / which is not an augmenting path
-[ ] MaximumMatching(QTextInput) - how large is the maximum matching for the graph
+[x] MaximumMatching(QTextInput) - how large is the maximum matching for the graph
 '''
 
 # TODO:
-#   VerSet: vertex cover
 #   MCQ/SelPat: augmenting path
 
 '''
@@ -161,9 +160,7 @@ class Distance(QTextInput):
         n = random.randint(7, 9)
         p = 0.3
 
-        graph = nx.gnp_random_graph(n=n, p=p, directed=False)
-        while not nx.is_connected(graph):
-            graph = nx.gnp_random_graph(n=n, p=p, directed=False)
+        graph = random_planar_graph(n, connected=True, s=0.3)
 
         weights = {(i, j): random.randint(1, 20) for (i, j) in graph.edges}
         nx.set_edge_attributes(graph, values=weights, name='weight')

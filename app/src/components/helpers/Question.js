@@ -24,7 +24,7 @@ export default function Question ({ question, progress, onSubmit, onNext }) {
     <div>
       <Container>
         <Row>
-          <Col xs={9}>
+          <Col xs={7}>
             <Row className="Graph-area">
               {
                 question.graphs.map((graph, idx) => (

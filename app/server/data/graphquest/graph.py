@@ -13,9 +13,6 @@ from scipy.stats import skewnorm
 WIDTH = 100
 HEIGHT = 100
 
-# Standard deviation for the generated node positions
-SCALE = 0.2
-
 # Minimum angle allowed between two edges (in radians)
 ANGLE_TOLERANCE = (15 / 180) * math.pi
 
