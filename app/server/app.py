@@ -48,6 +48,7 @@ def refresh_expiring_jwts(response):
         return response
 
 
+'''
 @app.route('/api/token', methods=["POST"])
 def create_token():
     username = request.json.get("username", None)
@@ -132,6 +133,7 @@ def access_topic(topic_code):
             abort(404)
         else:
             return topic
+'''
 
 
 @app.route('/api/student/topics/<topic_code>', methods=['GET'])
