@@ -126,9 +126,26 @@ class MinSpanTree(QMultipleChoice):
                     return f'G1 actually has a minimum spanning tree of weight {int(weight)}'
 
 
+def dfs(graph: nx.Graph) -> list[int]:
+    explored = [0 for _ in range(len(graph.nodes))]
+    order = []
+
+    def helper(i):
+        if explored[i] == 0:
+            explored[i] = 1
+            order.append(i)
+            for v in graph.neighbors(i):
+                if not explored[v]:
+                    helper(v)
+
+    helper(0)
+
+    return order
+
+
 class DFS(QVertexSet):
     def __init__(self):
-        super().__init__(node_prefix='v', label_style='math', selection_limit=1)
+        super().__init__(node_prefix='v', label_style='math', selection_limit=1, feedback=True)
 
     def generate_data(self) -> list[nx.Graph]:
         n = random.randint(8, 10)
@@ -145,27 +162,21 @@ class DFS(QVertexSet):
                'it picks the vertex with lowest number first.'
 
     def generate_solutions(self, graphs: list[nx.Graph]) -> list[[int]]:
-        explored = [0 for _ in range(len(graphs[0].nodes))]
-
-        def helper(i):
-            if explored[i] == 0:
-                explored[i] = 1
-                if sum(explored) == 6:
-                    return i
-                for v in graphs[0].neighbors(i):
-                    if not explored[v]:
-                        x = helper(v)
-                        if x:
-                            return x
-                return 0
-
-        return [[helper(0)]]
+        self.data = dfs(graphs[0])
+        return [[self.data[5]]]
 
     def verify_answer(self, graphs: list[nx.Graph], answer: list[int]) -> bool:
-        return True
+        if not answer:
+            return False
+        return self.data[5] == answer[0]
 
     def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
-        return ''
+        if not answer:
+            return 'Answer must not be blank.'
+        if self.data[5] == answer[0]:
+            return ''
+        else:
+            return f'The complete traversal would be {self.data}, giving {self.data[5]} as the sixth vertex visited.'
 
 
 def distribute_weight(weight: int, size: int) -> list[int]:
@@ -179,7 +190,7 @@ def distribute_weight(weight: int, size: int) -> list[int]:
 
 class Distance(QTextInput):
     def __init__(self):
-        super().__init__(data_type='integer', label_style='math', node_prefix='v')
+        super().__init__(data_type='integer', label_style='math', node_prefix='v', feedback=True)
 
     def generate_data(self) -> list[nx.Graph]:
         # Generate a graph with at least 2 paths of length > 1 between nodes 0 and 5
@@ -204,12 +215,17 @@ class Distance(QTextInput):
         # Assign weights to each edge
         weights = dict()
         for (u, v) in graph.edges:
+            edge = (u, v) if u < v else (v, u)
             if (u, v) in path_edges or (v, u) in path_edges:
-                weights[(u, v)] = random.randint(1, 10)
+                weights[edge] = random.randint(1, 10)
             else:
-                weights[(u, v)] = random.randint(11, 20)
+                weights[edge] = random.randint(11, 20)
 
         nx.set_edge_attributes(graph, values=weights, name='weight')
+
+        self.data = dict()
+        self.data['path'] = p
+        self.data['weight'] = sum((weights[edge] for edge in path_edges))
 
         return [graph]
 
@@ -221,15 +237,26 @@ class Distance(QTextInput):
         return [str(sol)]
 
     def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
-        return True
+        sol = nx.shortest_path_length(graphs[0], source=0, target=5, weight='weight')
+        if not answer.isnumeric():
+            return False
+        return sol == int(answer)
 
     def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
-        return ''
+        if not answer.isnumeric():
+            return 'Answer must be an integer.'
+
+        sol = nx.shortest_path_length(graphs[0], source=0, target=5, weight='weight')
+        if int(answer) == sol:
+            return ''
+
+        return f'A shortest path from v0 to v5 is {self.data["path"]}, ' \
+               f'since it has a total weight of {self.data["weight"]}, which is minimum.'
 
 
 class VertexCover(QMultipleChoice):
     def __init__(self):
-        super().__init__()
+        super().__init__(feedback=True)
 
     def generate_data(self) -> list[nx.Graph]:
         n = random.randint(7, 9)
@@ -268,13 +295,19 @@ class VertexCover(QMultipleChoice):
             solutions.append([f'{nis} is an independent set of G1', False])
 
         random.shuffle(solutions)
+        self.data = solutions
         return solutions
 
     def verify_answer(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> bool:
+        for i, (option, is_correct) in enumerate(self.data):
+            if answer[i][1] != is_correct:
+                return False
         return True
 
     def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> str:
-        return ''
+        if self.verify_answer(graphs, answer):
+            return ''
+        return f'The answer is {self.data[0][1]}, {self.data[1][1]}, {self.data[2][1]}, {self.data[3][1]}'
 
 
 def generate_graph(n):
@@ -284,9 +317,14 @@ def generate_graph(n):
     return graph, result
 
 
+def get_max_matching(graph):
+    top = [n for n, d in graph.nodes(data=True) if d['bipartite'] == 0]
+    return nx.algorithms.bipartite.maximum_matching(graph, top_nodes=top)
+
+
 class MaximumMatching(QTextInput):
     def __init__(self):
-        super().__init__(layout='bipartite', data_type='integer')
+        super().__init__(layout='bipartite', data_type='integer', feedback=True)
 
     def generate_data(self) -> list[nx.Graph]:
         n = random.randint(4, 5)
@@ -302,19 +340,28 @@ class MaximumMatching(QTextInput):
         return 'What is the size of the maximum matching in G1?'
 
     def generate_solutions(self, graphs: list[nx.Graph]) -> list[str]:
-        top = [n for n, d in graphs[0].nodes(data=True) if d['bipartite'] == 0]
-        sol = nx.algorithms.bipartite.maximum_matching(graphs[0], top_nodes=top)
+        sol = get_max_matching(graphs[0])
         return [str(int(len(sol) / 2))]
 
     def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
-        return True
+        if not answer.isnumeric():
+            return False
+        sol = get_max_matching(graphs[0])
+        return int(answer) == int(len(sol) / 2)
 
     def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
-        return ''
+        if self.verify_answer(graphs, answer):
+            return ''
+        sol = get_max_matching(graphs[0])
+        matching = set()
+        for u, v in sol.items():
+            edge = (u, v) if u < v else (v, u)
+            matching.add(edge)
+        return f'A possible maximal matching is {matching}.'
 
 
 if __name__ == '__main__':
-    q = MaximumMatching()
+    q = Distance()
     gs = q.generate_data()
 
     print('edges:')
@@ -324,3 +371,13 @@ if __name__ == '__main__':
 
     print('solutions:')
     pprint(s)
+
+    r = q.verify_answer(gs, '1')
+
+    print('result:')
+    print(r)
+
+    f = q.generate_feedback(gs, '1')
+
+    print('feedback:')
+    print(f)

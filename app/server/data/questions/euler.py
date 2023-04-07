@@ -17,10 +17,7 @@ class EulerWalk(QSelectPath):
         def not_eulerian():
             return sum((d % 2 for (_, d) in graph.degree)) not in [0, 2]
 
-        def not_connected():
-            return 0 in [d for (_, d) in graph.degree]
-
-        while not_eulerian() or not_connected():
+        while not_eulerian() or not nx.is_connected(graph):
             graph = nx.gnp_random_graph(n, p, seed=None, directed=False)
 
         return [graph]
