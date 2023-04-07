@@ -53,7 +53,8 @@ class MinSpanTree(QMultipleChoice):
             node_prefix='v',
             label_style='math',
             single_selection=True,
-            layout='force-directed'
+            layout='force-directed',
+            feedback=True
         )
         self.n = 8
         self.p = 0.3
@@ -95,21 +96,36 @@ class MinSpanTree(QMultipleChoice):
         values = [str(int(weight + i - pos)) for i in range(3)]
 
         # There's a 1/5 probability of each option being correct.
-        return [
+        self.data = [
             [values[0], connected and pos == 0],
             [values[1], connected and pos == 1],
             [values[2], connected and pos == 2],
             ["G1 doesn't have a minimum spanning tree.", not connected],
             ["None of the above.", connected and pos in [-1, 3]]
         ]
+        return self.data
 
     def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
+        for i, (_, the_answer) in enumerate(self.data):
+            if answer[i][1] != the_answer:
+                return False
         return True
 
     def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
-        return ''
-    
-    
+        for i, (option, the_answer) in enumerate(self.data):
+            if the_answer:
+                if answer[i][1]:
+                    return ''
+                elif 0 <= i < 3:
+                    return f'The answer is {option}'
+                elif i == 3:
+                    return "G1 is not connected, so can't have a minimum spanning tree."
+                else:
+                    tree = nx.minimum_spanning_tree(graphs[0])
+                    weight = tree.size(weight='weight')
+                    return f'G1 actually has a minimum spanning tree of weight {int(weight)}'
+
+
 class DFS(QVertexSet):
     def __init__(self):
         super().__init__(node_prefix='v', label_style='math', selection_limit=1)

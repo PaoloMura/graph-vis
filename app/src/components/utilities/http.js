@@ -6,7 +6,8 @@ export function getSolution (question, answer, setProgress) {
     url: '/api/feedback/' + question['file'] + '/' + question['class'],
     data: {
       answer: answer,
-      graphs: question['graphs']
+      graphs: question['graphs'],
+      data: question['settings']['data']
     }
   }).then((response) => {
     const res = response.data

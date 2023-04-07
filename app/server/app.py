@@ -158,10 +158,17 @@ def access_topic_data(topic_code):
 def get_feedback(q_file, q_class):
     """Handle request for feedback on an answer"""
     try:
+        # Load the question
         q = load_question(q_file, q_class)
+
+        # Parse the request JSON
         answer = request.json.get('answer')
-        data = request.json.get('graphs')
-        graphs = [converter.cy2nx(d) for d in data]
+        graphs_json = request.json.get('graphs')
+        graphs = [converter.cy2nx(g) for g in graphs_json]
+        data = request.json.get('data')
+        q.data = data
+
+        # Generate the feedback
         result = q.verify_answer(copy.deepcopy(graphs), answer)
         feedback = q.generate_feedback(copy.deepcopy(graphs), answer)
         return {'result': result, 'feedback': feedback}
