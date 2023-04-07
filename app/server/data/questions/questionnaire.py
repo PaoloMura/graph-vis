@@ -150,20 +150,51 @@ class DFS(QVertexSet):
 
     def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
         return ''
-    
-    
+
+
+def distribute_weight(weight: int, size: int) -> list[int]:
+    """Distributes the given weight across a list with the given size"""
+    weights = []
+    while len(weights) < size - 1:
+        weights.append(random.randint(1, 1 + weight - sum(weights) - size + len(weights)))
+    weights.append(weight - sum(weights))
+    return weights
+
+
 class Distance(QTextInput):
     def __init__(self):
         super().__init__(data_type='integer', label_style='math', node_prefix='v')
 
     def generate_data(self) -> list[nx.Graph]:
+        # Generate a graph with at least 2 paths of length > 1 between nodes 0 and 5
         n = random.randint(7, 9)
-        p = 0.3
-
         graph = random_planar_graph(n, connected=True, s=0.3)
+        paths = list(nx.all_simple_paths(graph, 0, 5))
+        while len(paths) < 2 or [0, 5] in paths:
+            graph = random_planar_graph(n, connected=True, s=0.3)
+            paths = list(nx.all_simple_paths(graph, 0, 5))
 
-        weights = {(i, j): random.randint(1, 20) for (i, j) in graph.edges}
+        # Find the shortest paths
+        paths.sort(key=len)
+        shortest_paths = [p for p in paths if len(p) == len(paths[0])]
+
+        # Choose another longer path
+        paths = [p for p in paths if len(p) > len(shortest_paths[0])]
+        if len(paths) < 1:
+            return self.generate_data()
+        p = random.choice(paths)
+        path_edges = {(p[i], p[i + 1]) if p[i] < p[i + 1] else (p[i + 1], p[i]) for i in range(len(p) - 1)}
+
+        # Assign weights to each edge
+        weights = dict()
+        for (u, v) in graph.edges:
+            if (u, v) in path_edges or (v, u) in path_edges:
+                weights[(u, v)] = random.randint(1, 10)
+            else:
+                weights[(u, v)] = random.randint(11, 20)
+
         nx.set_edge_attributes(graph, values=weights, name='weight')
+
         return [graph]
 
     def generate_question(self, graphs: list[nx.Graph]) -> str:
@@ -230,15 +261,25 @@ class VertexCover(QMultipleChoice):
         return ''
 
 
+def generate_graph(n):
+    graph = nx.algorithms.bipartite.random_graph(n, n, 0.5, directed=False)
+    top = [n for n, d in graph.nodes(data=True) if d['bipartite'] == 0]
+    result = len(nx.algorithms.bipartite.maximum_matching(graph, top_nodes=top)) / 2
+    return graph, result
+
+
 class MaximumMatching(QTextInput):
     def __init__(self):
         super().__init__(layout='bipartite', data_type='integer')
 
     def generate_data(self) -> list[nx.Graph]:
         n = random.randint(4, 5)
-        graph = nx.algorithms.bipartite.random_graph(n, n, 0.5, directed=False)
-        while not 1.5 * n <= len(list(graph.edges)) <= 2.5 * n:
-            graph = nx.algorithms.bipartite.random_graph(n, n, 0.1, directed=False)
+        p = random.choice(range(n - 2, n))
+
+        graph, result = generate_graph(n)
+        while result != p:
+            graph, result = generate_graph(n)
+
         return [graph]
 
     def generate_question(self, graphs: list[nx.Graph]) -> str:
@@ -260,7 +301,10 @@ if __name__ == '__main__':
     q = MaximumMatching()
     gs = q.generate_data()
 
-    pprint(list(gs[0].edges))
+    print('edges:')
+    pprint(list(gs[0].edges(data=True)))
 
     s = q.generate_solutions(gs)
+
+    print('solutions:')
     pprint(s)

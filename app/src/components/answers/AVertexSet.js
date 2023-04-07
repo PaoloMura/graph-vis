@@ -17,9 +17,12 @@ export default function AVertexSet ({ question, progress, onSubmit, onNext }) {
   }, [progress])
 
   let controls = [
-    'Click on a vertex to select/unselect it.',
-    'Click and drag to select/unselect multiple vertices.',
+    'Click on a vertex to select/unselect it.'
   ]
+
+  if (question.settings.selection_limit > 1) {
+    controls.push('Click and drag to select/unselect multiple vertices.',)
+  }
 
   if (question.settings.selection_limit !== -1) {
     controls.push(`You can select at most ${question.settings.selection_limit} vertices.`)
