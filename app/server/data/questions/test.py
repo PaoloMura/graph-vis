@@ -26,10 +26,7 @@ class Test(QTextInput):
         deg = max((d for (n, d) in graphs[0].degree))
         return [str(deg)]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> (bool, str):
         return ""
 
 
@@ -54,10 +51,7 @@ class TestMCQ(QMultipleChoice):
         options.append([f"There is a path from v0 to v{n}", ans3])
         return options
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> (bool, str):
         return ""
 
 
@@ -80,10 +74,7 @@ class TestMCQ2(QMultipleChoice):
         path_exists = nx.has_path(graphs[0], 0, n)
         return [["Yes", path_exists], ["No", not path_exists]]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> (bool, str):
         return ""
 
 
@@ -104,10 +95,7 @@ class TestVertexSet(QVertexSet):
         solution = [n for (n, d) in graphs[0].degree if d > 2]
         return [solution]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[int]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> (bool, str):
         return ""
 
 
@@ -128,10 +116,7 @@ class TestSelectVertex(QVertexSet):
         solution = [[n] for (n, d) in graphs[0].degree if d == 2]
         return solution
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[int]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> (bool, str):
         return ""
 
 
@@ -155,10 +140,7 @@ class TestDiGraph(QSelectPath):
         solutions = nx.all_simple_paths(graphs[0], 0, n)
         return list(solutions)
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[int]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> (bool, str):
         return ''
 
 
@@ -182,10 +164,7 @@ class TestWeighted(QEdgeSet):
                     [[[v, u]] for u, v, d in graphs[0].edges(data=True) if d['weight'] < 0.5]
         return solutions
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> (bool, str):
         return ''
 
 
@@ -213,10 +192,7 @@ class TestMultipleGraphs(QMultipleChoice):
             ["No", not is_subgraph]
         ]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> (bool, str):
         return ""
 
 
@@ -251,39 +227,22 @@ class TestMatching(QEdgeSet):
     def generate_solutions(self, graphs: list[nx.Graph]) -> list[list[list[int, int]]]:
         return [[[0, 0]]]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> bool:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> (bool, str):
         top_selected = []
         bottom_selected = []
 
         for (u, v) in answer:
             if u in top_selected or v in bottom_selected:
-                return False
+                return False, 'Two edges cannot share a vertex!'
             top_selected.append(u)
             bottom_selected.append(v)
             graphs[0].remove_edge(u, v)
 
         for (u, v) in graphs[0].edges:
             if u not in top_selected and v not in bottom_selected:
-                return False
+                return False, f'There is at least one more edge that can be added! ({u}, {v})'
 
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[list[int, int]]) -> str:
-        top_selected = []
-        bottom_selected = []
-
-        for (u, v) in answer:
-            if u in top_selected or v in bottom_selected:
-                return 'Two edges cannot share a vertex!'
-            top_selected.append(u)
-            bottom_selected.append(v)
-            graphs[0].remove_edge(u, v)
-
-        for (u, v) in graphs[0].edges:
-            if u not in top_selected and v not in bottom_selected:
-                return f'There is at least one more edge that can be added! ({u}, {v})'
-
-        return 'This is a maximal matching!'
+        return True, 'This is a maximal matching!'
 
 
 class TestLabels(QTextInput):
@@ -300,10 +259,7 @@ class TestLabels(QTextInput):
     def generate_solutions(self, graphs: list[nx.Graph]) -> list[str]:
         return ['']
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> (bool, str):
         return ''
 
 
@@ -318,5 +274,5 @@ if __name__ == '__main__':
     print('solutions:')
     for sol in s:
         print(sol)
-        assert q.verify_answer(g, sol)
+        assert q.generate_feedback(g, sol)[0]
     print('All tests pass!')

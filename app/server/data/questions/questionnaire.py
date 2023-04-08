@@ -105,25 +105,19 @@ class MinSpanTree(QMultipleChoice):
         ]
         return self.data
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
-        for i, (_, the_answer) in enumerate(self.data):
-            if answer[i][1] != the_answer:
-                return False
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> (bool, str):
         for i, (option, the_answer) in enumerate(self.data):
             if the_answer:
                 if answer[i][1]:
-                    return ''
+                    return True, ''
                 elif 0 <= i < 3:
-                    return f'The answer is {option}'
+                    return False, f'The answer is {option}'
                 elif i == 3:
-                    return "G1 is not connected, so can't have a minimum spanning tree."
+                    return False, "G1 is not connected, so can't have a minimum spanning tree."
                 else:
                     tree = nx.minimum_spanning_tree(graphs[0])
                     weight = tree.size(weight='weight')
-                    return f'G1 actually has a minimum spanning tree of weight {int(weight)}'
+                    return False, f'G1 actually has a minimum spanning tree of weight {int(weight)}'
 
 
 def dfs(graph: nx.Graph) -> list[int]:
@@ -166,18 +160,13 @@ class DFS(QVertexSet):
         self.data = dfs(graphs[0])
         return [[self.data[5]]]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[int]) -> bool:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> (bool, str):
         if not answer:
-            return False
-        return self.data[5] == answer[0]
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[int]) -> str:
-        if not answer:
-            return 'Answer must not be blank.'
+            return False, 'Answer must not be blank.'
         if self.data[5] == answer[0]:
-            return ''
+            return True, ''
         else:
-            return f'The complete traversal would be {self.data}, giving {self.data[5]} as the sixth vertex visited.'
+            return False, f'The complete traversal would be {self.data}, giving {self.data[5]} as the sixth vertex visited.'
 
 
 def distribute_weight(weight: int, size: int) -> list[int]:
@@ -237,19 +226,13 @@ class Distance(QTextInput):
         sol = nx.shortest_path_length(graphs[0], source=0, target=5, weight='weight')
         return [str(sol)]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
-        sol = nx.shortest_path_length(graphs[0], source=0, target=5, weight='weight')
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> (bool, str):
         if not answer.isnumeric():
-            return False
-        return sol == int(answer)
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
-        if not answer.isnumeric():
-            return 'Answer must be an integer.'
+            return False, 'Answer must be an integer.'
 
         sol = nx.shortest_path_length(graphs[0], source=0, target=5, weight='weight')
         if int(answer) == sol:
-            return ''
+            return True, ''
 
         def get_weight(u, v):
             if u < v:
@@ -258,11 +241,11 @@ class Distance(QTextInput):
                 return graphs[0][v][u]['weight']
 
         path = nx.shortest_path(graphs[0], source=0, target=5, weight='weight')
-        tot_weight = sum(get_weight(path[i], path[i+1]) for i in range(len(path) - 1))
+        tot_weight = sum(get_weight(path[i], path[i + 1]) for i in range(len(path) - 1))
 
-        return f'A shortest path from v0 to v5 is {path}, ' \
-               f'since it has a total weight of {tot_weight}, which is minimum. ' \
-               f'Therefore the distance is {tot_weight}.'
+        return False, f'A shortest path from v0 to v5 is {path}, ' \
+                      f'since it has a total weight of {tot_weight}, which is minimum. ' \
+                      f'Therefore the distance is {tot_weight}.'
 
 
 class VertexCover(QMultipleChoice):
@@ -309,16 +292,12 @@ class VertexCover(QMultipleChoice):
         self.data = solutions
         return solutions
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> bool:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> (bool, str):
         for i, (option, is_correct) in enumerate(self.data):
             if answer[i][1] != is_correct:
-                return False
-        return True
-
-    def generate_feedback(self, graphs: list[nx.Graph], answer: list[[str, bool]]) -> str:
-        if self.verify_answer(graphs, answer):
-            return ''
-        return f'The answer is {self.data[0][1]}, {self.data[1][1]}, {self.data[2][1]}, {self.data[3][1]}'
+                return False, f'The answer is {self.data[0][1]}, {self.data[1][1]}, ' \
+                              f'{self.data[2][1]}, {self.data[3][1]}'
+        return True, ''
 
 
 def generate_graph(n):
@@ -354,16 +333,14 @@ class MaximumMatching(QTextInput):
         sol = get_max_matching(graphs[0])
         return [str(int(len(sol) / 2))]
 
-    def verify_answer(self, graphs: list[nx.Graph], answer: str) -> bool:
+    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> (bool, str):
         if not answer.isnumeric():
-            return False
-        sol = get_max_matching(graphs[0])
-        return int(answer) == int(len(sol) / 2)
+            return False, 'Answer must be an integer.'
 
-    def generate_feedback(self, graphs: list[nx.Graph], answer: str) -> str:
-        if self.verify_answer(graphs, answer):
-            return ''
         sol = get_max_matching(graphs[0])
+        if int(answer) == int(len(sol) / 2):
+            return True, ''
+
         matching = set()
         for u, v in sol.items():
             edge = (u, v) if u < v else (v, u)
@@ -383,12 +360,10 @@ if __name__ == '__main__':
     print('solutions:')
     pprint(s)
 
-    r = q.verify_answer(gs, '1')
+    r, f = q.generate_feedback(gs, '1')
 
     print('result:')
     print(r)
-
-    f = q.generate_feedback(gs, '1')
 
     print('feedback:')
     print(f)

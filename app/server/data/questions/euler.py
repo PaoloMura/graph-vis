@@ -58,24 +58,24 @@ class EulerWalk(QSelectPath):
                     solutions.append(r)
         return solutions
 
-    def verify_answer(self, graphs: list[nx.Graph], solution: list[int]) -> bool:
+    def generate_feedback(self, graphs: list[nx.Graph], solution: list[int]) -> (bool, str):
+        correct = True
         graph = graphs[0].copy()
         for i in range(len(solution) - 1):
             v1 = solution[i]
-            v2 = solution[i+1]
+            v2 = solution[i + 1]
             if graph.has_edge(v1, v2):
                 graph.remove_edge(v1, v2)
             else:
-                return False
-        return nx.is_empty(graph)
+                correct = False
+        correct = correct and nx.is_empty(graph)
 
-    def generate_feedback(self, graphs: list[nx.Graph], solution: list[int]) -> str:
-        if self.verify_answer(graphs, solution):
-            return "You found a valid Euler walk."
+        if correct:
+            return True, "You found a valid Euler walk."
         else:
             path = list(nx.eulerian_path(graphs[0]))
             result = list(map(lambda x: x[0], path)) + [path[-1][1]]
-            return f'This is not a valid Euler Walk.\n\nOne possible solution is:\n\n{result}'
+            return False, f'This is not a valid Euler Walk.\n\nOne possible solution is:\n\n{result}'
 
 
 if __name__ == '__main__':
