@@ -164,6 +164,18 @@ export default function AEdgeSet ({ question, progress, onSubmit, onNext, submit
       document.removeEventListener('box_end', handleBoxEnd)
     }
   }, [answer, progress, question])
+  
+  useEffect(() => {
+    if (progress['answer'] !== undefined && progress['answer'].length > 0) {
+      for (let [u, v] of progress['answer']) {
+        triggerGraphAction(
+          'highlightEdge',
+          { v1: u, v2: v, highlight: true },
+          0
+        )
+      }
+    }
+  }, [progress])
 
   const answerToString = () => {
     const edges = answer.map(([u, v], _) => `(${u},${v})`)

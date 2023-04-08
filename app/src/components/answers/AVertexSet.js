@@ -105,6 +105,18 @@ export default function AVertexSet ({ question, progress, onSubmit, onNext, subm
     }
   }, [answer, progress, question.settings.selection_limit])
 
+  useEffect(() => {
+    if (progress['answer'] !== undefined && progress['answer'].length > 0) {
+      for (let v of progress['answer']) {
+        triggerGraphAction(
+          'highlightVertex',
+          { vertex: v, highlight: true },
+          0
+        )
+      }
+    }
+  }, [progress])
+
   if (progress.status === 'unanswered') return (
     <div>
       <Description

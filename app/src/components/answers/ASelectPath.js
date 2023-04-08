@@ -156,6 +156,25 @@ export default function ASelectPath ({ question, progress, onSubmit, onNext, sub
     }
   }, [answer, progress, question.graphs])
 
+  useEffect(() => {
+    if (progress['answer'] !== undefined && progress['answer'].length > 0) {
+      if (progress['answer'].length > 1) {
+        for (let i = 1; i < progress['answer'].length; i++) {
+          triggerGraphAction(
+            'highlightEdge',
+            { v1: progress['answer'][i - 1], v2: progress['answer'][i], highlight: true },
+            0
+          )
+        }
+      }
+      triggerGraphAction(
+        'highlightVertex',
+        { vertex: progress['answer'].at(-1), highlight: true },
+        0
+      )
+    }
+  }, [progress])
+
   if (progress['status'] === 'unanswered') return (
     <div>
       <Description description={question['description']} controls={controls}/>
