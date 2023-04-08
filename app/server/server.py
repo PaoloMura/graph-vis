@@ -1,4 +1,5 @@
 import cgi
+import copy
 import importlib
 import json
 from pprint import pprint
@@ -40,8 +41,8 @@ def generate_question(q_file: str, q_class: str) -> dict:
     q = load_question(q_file, q_class)
     q_type = type(q).__bases__[0].__name__
     data = q.generate_data()
-    q_descr = q.generate_question(data.copy())
-    q_sols = list(q.generate_solutions(data.copy()))
+    q_descr = q.generate_question(copy.deepcopy(data))
+    q_sols = list(q.generate_solutions(copy.deepcopy(data)))
     q_sett = q.__dict__
     q_graphs = [converter.nx2cy(d) for d in data]
     return {

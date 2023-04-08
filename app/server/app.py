@@ -169,7 +169,7 @@ def get_feedback(q_file, q_class):
         q.data = data
 
         # Generate the feedback
-        result, feedback = q.generate_feedback(copy.deepcopy(graphs), answer)
+        result, feedback = q.generate_feedback(copy.deepcopy(graphs), copy.deepcopy(answer))
         return {'result': result, 'feedback': feedback}
     except Exception as e:
         return f'Error trying to access question class "{q_file}:{q_class}": {e}', 404
