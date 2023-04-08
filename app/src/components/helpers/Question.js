@@ -10,14 +10,16 @@ import AMultipleChoice from '../answers/AMultipleChoice'
 import settings from '../../data/settings.json'
 import AEdgeSet from '../answers/AEdgeSet'
 
-export default function Question ({ question, progress, onSubmit, onNext }) {
+export default function Question ({ question, progress, onSubmit, onNext, submitStatus }) {
+
+  const props = { question, progress, onSubmit, onNext, submitStatus }
 
   const answerComponents = {
-    'QSelectPath': <ASelectPath question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
-    'QVertexSet': <AVertexSet question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
-    'QTextInput': <ATextInput question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
-    'QMultipleChoice': <AMultipleChoice question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>,
-    'QEdgeSet': <AEdgeSet question={question} progress={progress} onSubmit={onSubmit} onNext={onNext}/>
+    'QSelectPath': <ASelectPath {...props}/>,
+    'QVertexSet': <AVertexSet {...props}/>,
+    'QTextInput': <ATextInput {...props}/>,
+    'QMultipleChoice': <AMultipleChoice {...props}/>,
+    'QEdgeSet': <AEdgeSet {...props}/>
   }
 
   return (

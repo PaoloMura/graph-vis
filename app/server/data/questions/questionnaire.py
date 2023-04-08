@@ -134,7 +134,7 @@ def dfs(graph: nx.Graph) -> list[int]:
         if explored[i] == 0:
             explored[i] = 1
             order.append(i)
-            for v in graph.neighbors(i):
+            for v in sorted(graph.neighbors(i)):
                 if not explored[v]:
                     helper(v)
 
@@ -150,9 +150,10 @@ class DFS(QVertexSet):
     def generate_data(self) -> list[nx.Graph]:
         n = random.randint(8, 10)
         p = 0.3
-        graph = nx.gnp_random_graph(n=n, p=p, directed=False)
-        while not nx.is_connected(graph):
-            graph = nx.gnp_random_graph(n=n, p=p, directed=False)
+        graph = random_planar_graph(n, connected=True, s=p)
+        # graph = nx.gnp_random_graph(n=n, p=p, directed=False)
+        # while not nx.is_connected(graph):
+        #     graph = nx.gnp_random_graph(n=n, p=p, directed=False)
         return [graph]
 
     def generate_question(self, graphs: list[nx.Graph]) -> str:
@@ -250,8 +251,18 @@ class Distance(QTextInput):
         if int(answer) == sol:
             return ''
 
-        return f'A shortest path from v0 to v5 is {self.data["path"]}, ' \
-               f'since it has a total weight of {self.data["weight"]}, which is minimum.'
+        def get_weight(u, v):
+            if u < v:
+                return graphs[0][u][v]['weight']
+            else:
+                return graphs[0][v][u]['weight']
+
+        path = nx.shortest_path(graphs[0], source=0, target=5, weight='weight')
+        tot_weight = sum(get_weight(path[i], path[i+1]) for i in range(len(path) - 1))
+
+        return f'A shortest path from v0 to v5 is {path}, ' \
+               f'since it has a total weight of {tot_weight}, which is minimum. ' \
+               f'Therefore the distance is {tot_weight}.'
 
 
 class VertexCover(QMultipleChoice):

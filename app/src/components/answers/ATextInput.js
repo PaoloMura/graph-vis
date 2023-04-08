@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { getSolution } from '../utilities/http'
 import Description from '../helpers/Description'
+import SubmitButton from '../helpers/SubmitButton'
 
-export default function ATextInput ({ question, progress, onSubmit, onNext }) {
+export default function ATextInput ({ question, progress, onSubmit, onNext, submitStatus }) {
   const [answer, setAnswer] = useState(() => (
     progress['answer'] !== undefined ? progress['answer'] : ''
   ))
@@ -63,7 +63,7 @@ export default function ATextInput ({ question, progress, onSubmit, onNext }) {
           onChange={handleChangeAnswer}
         />
         <br/>
-        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+        <SubmitButton onSubmit={handleSubmit} onNext={onNext} submitStatus={submitStatus}/>
         <br/>
         {error !== '' && <Form.Text muted>{error}</Form.Text>}
       </Form>
@@ -85,7 +85,7 @@ export default function ATextInput ({ question, progress, onSubmit, onNext }) {
         <br/>
         {progress['feedback']}
         <br/>
-        <Button variant="primary" onClick={onNext}>Next</Button>
+        <SubmitButton onSubmit={handleSubmit} onNext={onNext} submitStatus={submitStatus}/>
       </Form>
     </div>
   )

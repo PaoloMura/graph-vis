@@ -107,3 +107,14 @@ h1, h2 {
 td {
     text-align: center;
 }
+
+.tab-unanswered {
+}
+
+.tab-correct {
+    background-color: #baedb5 !important;
+}
+
+.tab-incorrect {
+    background-color: #d4a7a7 !important;
+}

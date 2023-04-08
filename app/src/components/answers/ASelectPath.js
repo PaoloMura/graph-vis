@@ -4,8 +4,9 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { getSolution } from '../utilities/http'
 import Description from '../helpers/Description'
+import SubmitButton from '../helpers/SubmitButton'
 
-export default function ASelectPath ({ question, progress, onSubmit, onNext }) {
+export default function ASelectPath ({ question, progress, onSubmit, onNext, submitStatus }) {
   const [answer, setAnswer] = useState(() => (
     progress['answer'] !== undefined ? progress['answer'] : []
   ))
@@ -168,7 +169,7 @@ export default function ASelectPath ({ question, progress, onSubmit, onNext }) {
         <Button variant="secondary" onClick={handleReset}>Reset</Button>
         <br/>
         <br/>
-        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+        <SubmitButton onSubmit={handleSubmit} onNext={onNext} submitStatus={submitStatus}/>
       </Form>
     </div>
   )
@@ -188,7 +189,7 @@ export default function ASelectPath ({ question, progress, onSubmit, onNext }) {
         <br/>
         {progress['feedback']}
         <br/>
-        <Button variant="primary" onClick={onNext}>Next</Button>
+        <SubmitButton onSubmit={handleSubmit} onNext={onNext} submitStatus={submitStatus}/>
       </Form>
     </div>
   )

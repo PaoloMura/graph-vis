@@ -1,8 +1,11 @@
 import React from 'react'
 import { Modal, ModalBody, ModalHeader, ModalTitle } from 'react-bootstrap'
 import Button from 'react-bootstrap/Button'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
-export default function FinishedModal ({ showModal, progress }) {
+export default function FinishedModal ({ showModal, onClose, progress, settings }) {
   let score = progress.reduce((tot, cur) => {
     return cur.status === 'correct' ? tot + 1 : tot
   }, 0)
@@ -11,7 +14,7 @@ export default function FinishedModal ({ showModal, progress }) {
   return (
     <Modal
       show={showModal}
-      backdrop="static"
+      onHide={onClose}
     >
       <ModalHeader>
         <ModalTitle>Topic complete</ModalTitle>
@@ -26,7 +29,19 @@ export default function FinishedModal ({ showModal, progress }) {
             ))
           }
         </ul>
-        <Button variant="primary" href="/student/portal">Done</Button>
+        <Container>
+          <Row>
+            {
+              settings['feedback'] !== 'none' &&
+              <Col>
+                <Button variant="primary" onClick={onClose}>Check feedback</Button>
+              </Col>
+            }
+            <Col>
+              <Button variant="primary" href="/student/portal">Return to student portal</Button>
+            </Col>
+          </Row>
+        </Container>
       </ModalBody>
     </Modal>
   )

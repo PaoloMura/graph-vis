@@ -5,8 +5,6 @@ import Question from './Question'
 import FinishedModal from '../modals/FinishedModal'
 
 export default function ProgressRow ({ topicName, settings, questions }) {
-  // TODO: use question status to highlight each question tab as you progress
-
   const setInitialAnswers = () => new Array(questions.length).fill(
     {
       answer: undefined,
@@ -17,8 +15,11 @@ export default function ProgressRow ({ topicName, settings, questions }) {
   const [progress, setProgress] = useState(setInitialAnswers)
   const [showFinished, setShowFinished] = useState(false)
 
+  const inProgress = progress.some(item => item.status === 'unanswered')
+  const disabledManualNav = settings['linear'] && inProgress
+
   const onSelect = (k) => {
-    if (!settings['linear']) {
+    if (!disabledManualNav) {
       setSelected(parseInt(k))
     }
   }
@@ -27,20 +28,44 @@ export default function ProgressRow ({ topicName, settings, questions }) {
     setProgress(progress.map((item, index) => {
       return index === selected ? { answer: answer, status: status, feedback: feedback } : item
     }))
-    if (settings['feedback'] === 'each') return
-    if (selected + 1 < progress.length) {
-      setSelected(selected + 1)
+    if (settings['feedback'] !== 'each') handleNext()
+  }
+
+  const handleNext = () => {
+    if (inProgress) {
+      let i = selected
+      if (settings['feedback'] !== 'each') i++
+      while (progress[i]['status'] !== 'unanswered') {
+        i = (i + 1 >= progress.length) ? 0 : i + 1
+      }
+      setSelected(i)
     } else {
       setShowFinished(true)
     }
   }
 
-  const handleNext = () => {
-    if (selected + 1 < progress.length) {
-      setSelected(selected + 1)
-    } else {
-      setShowFinished(true)
+  const getTabClassName = (status) => {
+    if (settings['feedback'] === 'each' ||
+      (settings['feedback'] === 'end' && !inProgress)) {
+      return 'tab-' + status
     }
+    return ''
+  }
+
+  const handleCloseFinished = () => {
+    if (settings['feedback'] === 'none') return
+    setShowFinished(false)
+  }
+
+  let submitStatus
+  if (inProgress) {
+    if (progress[selected]['status'] === 'unanswered') {
+      submitStatus = 'submit'
+    } else {
+      submitStatus = 'next'
+    }
+  } else {
+    submitStatus = 'finish'
   }
 
   return (
@@ -52,9 +77,10 @@ export default function ProgressRow ({ topicName, settings, questions }) {
               key={index}
               eventKey={index}
               title={'Question ' + (index + 1)}
-              disabled={settings['linear']}
+              disabled={disabledManualNav}
               mountOnEnter
               unmountOnExit
+              tabClassName={getTabClassName(item['status'])}
             >
               <br/>
               <Question
@@ -62,6 +88,7 @@ export default function ProgressRow ({ topicName, settings, questions }) {
                 progress={progress[index]}
                 onSubmit={handleSubmit}
                 onNext={handleNext}
+                submitStatus={submitStatus}
               />
             </Tab>
           )
@@ -71,7 +98,9 @@ export default function ProgressRow ({ topicName, settings, questions }) {
         showFinished &&
         <FinishedModal
           showModal={showFinished}
+          onClose={handleCloseFinished}
           progress={progress}
+          settings={settings}
         />
       }
     </div>
