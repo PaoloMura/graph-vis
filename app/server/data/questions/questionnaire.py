@@ -1,9 +1,7 @@
-import random
-from pprint import pprint
-
-from data.graphquest.question import *
-from data.graphquest.graph import *
+from graphquest.graph import *
+from graphquest.question import *
 import networkx as nx
+from pprint import pprint
 
 # Questions:
 '''

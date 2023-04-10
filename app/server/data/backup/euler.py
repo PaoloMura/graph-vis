@@ -1,6 +1,5 @@
-from data.graphquest.question import QSelectPath
+from graphquest.question import QSelectPath
 import networkx as nx
-from random import randint
 
 
 def verify_answer(graph: nx.Graph, solution: list[int]) -> bool:

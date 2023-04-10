@@ -1,11 +1,6 @@
-import random
-from pprint import pprint
-
-from data.graphquest.question import *
+from graphquest.question import *
 import networkx as nx
 from random import randint
-
-from data.graphquest.graph import *
 
 
 class Test(QTextInput):
