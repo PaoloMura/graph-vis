@@ -94,6 +94,8 @@ $ pip freeze > requirements.txt
 
 This step should be performed on the same platform you intend to host the app on (e.g. Ubuntu).
 
+The Dockerfile instructs the app to run in production environment by setting the environment variable.
+
 ```shell
 $ docker build -t flask-container .
 ```
