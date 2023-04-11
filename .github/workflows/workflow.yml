@@ -22,6 +22,8 @@ jobs:
       - name: Install dependencies
         run: |
           cd app/
+          [ -f "package-lock.json" ] && rm package-lock.json
+          [ -d "node_modules/" ] && rm -r node_modules/
           npm install
       - name: Build React app
         run: |
