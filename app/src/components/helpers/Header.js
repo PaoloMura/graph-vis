@@ -21,7 +21,7 @@ function Header ({ btnType, backPath, removeToken }) {
 
   return (
     <div id={'header'}>
-      <h1>Graph Theory Question Generator</h1>
+      <h1>Graph Quest</h1>
       {
         btnType === 'logout' &&
         <Button variant="secondary" onClick={logMeOut} id="btn-logout">Logout</Button>
